@@ -19,14 +19,18 @@ ATALS_main                                                          - R script, 
 
 	A <-Tagtime("tagtimes.csv")       - a function to create a data.frame of tags, each with is relevant time limits (if given a CSV file it reads it, if given a location data.frame it finds it content), returns a data frame
 
-	plotdays(data,TAG_ex,xlims,ylims) - ploting function,  plot each day on a simple plot and stops (no background)
-
-	atl_mapleaf(data)                 - ploting function,  plot the entire data on a leaflet map, each point is assigned some data
-
-	atl_mapgg(data)                   - ploting function,  plot the entire data on a ggmap map, uses geographic coordinates!
-
-	A <- velocity_filter (data,spdThreshold, x = "X", y = "Y", time = "TIME", steps=20) - filter according to velocity. Discards a set of drifted points up to length "steps" when  this drifted section required speed over some spdThreshold to connect , returns a data.frame that does not include the discarded points 
-
-	A <- distance_filter (data,distThreshold=500, x = "X", y = "Y", steps=2)            - filter according to distance. Discards a set of thrown-away points up to length "steps", when this drifted section required was overdistThreshold from its surrounding. Returns a  data.frame that does not include the discarded points. 
-
+	file: velocity filter includes 4 functions: (All currently works for a single tag)
+		A <- velocity_filter (data,spdThreshold, x = "X", y = "Y", time = "TIME", steps=20) - filter according to velocity. Discards a set of drifted points up to length "steps" when  this drifted section required speed over some spdThreshold to connect , returns a data.frame that does not include the discarded points 
+		A <- distance_filter (data,distThreshold=500, x = "X", y = "Y", steps=2)            - filter according to distance. Discards a set of thrown-away points up to length "steps", when this drifted section required was overdistThreshold from its surrounding. Returns a  data.frame that does not include the discarded points. 
+		A <- matl_simple_dist <- function (data, x = "x", y = "y",step=1) 		    - accepts the data.farme and the names of the itm coordintes and returns a vector of distances between locations seperated by "step" steps
+		A <- matl_get_speed <- function (data, x = "x", y = "y", time = "time", type = "in", step=1) - accepts the data.farme and the names of the "ITM" coordintes and returns a vector of velocities between locations seperated by "step" steps
+		
 	A <-filterByVelocity (data,dataLegend=c("X","Y","TIME"), options=optionsArg)        - filter according to velocity. Identefies a reliable point and throws any point which is not connected (with reasonable speed to this reliabl point. might be relativly slow and inefficient. Returns a data.frame that does not include the discarded points
+
+	file: atl_plots include 3 functions
+		plotdays(data,TAG_ex,xlims,ylims) - ploting function,  plot each day on a simple plot and stops (no background)
+		atl_mapleaf(data)                 - ploting function,  plot the entire data on a leaflet map, each point is assigned some data
+		atl_mapleaf_withstops(list(FiltLoc1,bat_adp),Tags=TAG_ex,Days=dispDAY) - ploting function,  plot two data.frames, the first is a usuall track the second a stop data.frame each point is assigned some data, 
+		atl_mapgg(data)                   - ploting function,  plot the entire data on a ggmap map, uses geographic coordinates!
+		
+	A <- wrap_ADP(FiltLoc1,freq=8)             -wraps the function AdpFixedPoint that calculates stops and their parameters (duration mean position etc) it includes the parameter setting, loop over days and tags and post-processing it returns a data.frame with all parameters
