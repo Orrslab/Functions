@@ -44,12 +44,10 @@ source(paste0(path2func,"Movement_Metrics_Functions.R"))   # my enhancements for
 source(paste0(path2func,"advancedADP.R"))   # my enhancements for ADP
 # source(paste0(path2func,"points_to_line.R"))
   
-source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions 
+source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions
+source(paste0(path2func,"wrap_ADP.R"))            # my functions
 source(paste0(path2func,"AssignDayNumber.R"))     # my functions
-source(paste0(path2func,"matl_simple_dist.R"))    # my functions 
-source(paste0(path2func,"matl_get_speed.R"))      # my functions 
-source(paste0(path2func,"atl_mapleaf.R"))         # my functions
+source(paste0(path2func,"atl_plots.R"))           # my functions
 source(paste0(path2func,"Tagtime.R"))             # my functions 
 source(paste0(path2func,"velocity_filter.R"))     # my functions   
-source(paste0(path2func,"distance_filter.R"))     # my functions
 }

@@ -38,7 +38,7 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag)
   
   for (i in 1:length(FullTag)) 
     {
-    query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,"NBS",COVXY,NCONSTRAINTS from LOCALIZATIONS WHERE TAG=',FullTag[i],
+    query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NCONSTRAINTS from LOCALIZATIONS WHERE TAG=',FullTag[i],
                   'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
     All_Data <- dbGetQuery(dbc,query)
     AllTagsLoc[[i]] <- All_Data
