@@ -9,14 +9,11 @@ Users are encourged to download the functions, save them in their "functions" di
 Please share your improvments and new functions
 
 ## List of functions:
-ATALS_main                                                          - R script, wrapping most of the other functions, usefull for starting a project and for examples!
+	ATALS_main                                                          - R script, wrapping most of the other functions, usefull for starting a project and for examples!
 
-	ConnectLib(path2func="\functions")                                  - a functions that imports nedded libraries and functions (used in ATLAS_main) does not retrun a value
-
+	ConnectLib(path2func="\functions")                                  - a functions that imports needed libraries and functions (used in ATLAS_main) does not retrun a value
 	A <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)    - a function that import data from the ATLAS server (requires a VPN connection to server), returns a list, of two data frames
-
 	A<- AssignDayNumber(data,DayStartTime="12:00:00",TimeColName="LocTime",Julian=FALSE) - a function that assigns a day number to each location ( a day is defined as starting at DayStartTime, returns the same data with additional column (DAY)
-
 	A <-Tagtime("tagtimes.csv")       - a function to create a data.frame of tags, each with is relevant time limits (if given a CSV file it reads it, if given a location data.frame it finds it content), returns a data frame
 
 	file: velocity filter includes 4 functions: (All currently works for a single tag)
