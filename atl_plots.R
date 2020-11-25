@@ -1,3 +1,7 @@
+#Basic leaflet plot for data with coordinates "X" and "Y" in itm coordinates
+# requires an ATLAS data.frame is "X" and "Y" in itm coordinates
+# does not return any variable
+# red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
 atl_mapleaf <- function(dd)
 {
   itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
@@ -8,17 +12,27 @@ atl_mapleaf <- function(dd)
 # llpd2 <- llpd
   ll<-leaflet() %>% addTiles() %>%
       addProviderTiles('Esri.WorldImagery') %>%
-      addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",popup = ~htmlEscape(paste0("det=",as.character((llpd$NCONSTRAINTS)),
-                                                                                                   ",std=",as.character(round(llpd$stdVarXY)),
-                                                                                                   ",spd=",as.character(round(llpd$spd)),
-                                                                                                   ",time=",as.character(round(llpd$dateTime))))) %>%
-      addPolylines(data=llpd@coords, weight = 1, opacity = 1)
+      addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
+                            popup = ~htmlEscape(paste0("det=",as.character((llpd$NCONSTRAINTS)),
+                                                       ",time=",as.character(round(llpd$dateTime)),
+                                                       ",spd=",as.character(round(llpd$spd)),
+                                                       ",std=",as.character(round(llpd$stdVarXY)),
+                                                       ",TAG=",as.character(round(llpd$TAG))  
+                                                       ))) %>%
+      addPolylines(data=llpd@coords, weight = 1, opacity = 1,col="pink")
   ll
 }
-
-
+#leaflet plot for movement data with specified stops
+# requires two data.frames in a single list dd=list(FiltLoc1,ADP):
+        # FiltLoc1 is an ATLAS data.frame "X" and "Y" in itm coordinates
+        # ADP      is a data.frame with stops positions "medX" and "medY"
+        # if Tags and Days are specified, plots only specific tags and days 
+# does not return any variable
+# red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
+# presents data when cursor is on a movement point: time,std,TAG
+# presents data when cursor is on a stop point: duration in minutes
 atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
-  {
+{
   Loc1 <- dd[[1]]
   if(is.null(Days))
   {Days <- unique(Loc1$DAY)}
@@ -40,18 +54,23 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
     # llpd2 <- llpd
     ll<-leaflet() %>% addTiles() %>%
       addProviderTiles('Esri.WorldImagery') %>%
-      addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = "blue",popup = ~htmlEscape(paste0(",std=",as.character(round(llpd1$stdVarXY)),
-                                                                                                   ",time=",as.character(round(llpd1$dateTime)),
-                                                                                                   ",TAG=",as.character((llpd1$TAG))))) %>%
+      addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = "blue",
+                             popup = ~htmlEscape(paste0(",std=",as.character(round(llpd1$stdVarXY)),
+                                                        ",time=",as.character(round(llpd1$dateTime)),
+                                                        ",TAG=",as.character((llpd1$TAG))))) %>%
       
       addPolylines(data=llpd1@coords, color = "blue",weight = 1, opacity = 1)  %>%
-      addCircleMarkers(data=llpd2, radius=3,color = "red",fillColor = "Red",popup = ~htmlEscape(paste0("Duration = ",as.character(llpd2$duration_minutes)," mins")))
+      addCircleMarkers(data=llpd2, radius=3,color = "red",fillColor = "Red",
+                                   popup = ~htmlEscape(paste0("Duration = ",as.character(llpd2$duration_minutes)," mins")))
   
   ll
   }
 
+# plot a function using ggmap
+# requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
+# does not return any variable
 atl_mapgg <- function(dd)
-  {
+{
   Mapbox1 <- make_bbox(lon=dd$LON,lat=dd$LAT, f=0.1) # defines the borders of the box
   #Harod <- c(left = 35.375, bottom = 32.515, right = 35.6, top = 32.6) # defines the borders of the box
   #SatImagBox1<- get_map(location=Mapbox1, maptype = "roadmap", source="osm");ggmap(SatImagBox1)
@@ -73,6 +92,7 @@ atl_mapgg <- function(dd)
     facet_grid(TAG~.)
 }
 
+# plot days in a sequence
 plotdays <- function(data,TAG_ex,xlims=0,ylims=0)
 {
   if (xlims[1]==0)
@@ -96,4 +116,21 @@ plotdays <- function(data,TAG_ex,xlims=0,ylims=0)
     
     readline(sprintf("DAY = %i, show next?",i))
   }
+}
+#  given two diagonal points of a squre, plots a squre in color a_col
+plotsqure <- function(x,y,a_col="red",override=FALSE)
+{
+  if (override)
+  {
+    plot(c(x[1],x[1],x[2],x[2],x[1]),
+         c(y[1],y[2],y[2],y[1],y[1]),col=a_col)
+    lines(c(x[1],x[1],x[2],x[2],x[1]),
+          c(y[1],y[2],y[2],y[1],y[1]),col=a_col)
+  }
+  else
+  {
+    lines(c(x[1],x[1],x[2],x[2],x[1]),
+          c(y[1],y[2],y[2],y[1],y[1]),col=a_col)
+  }
+  
 }

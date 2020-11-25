@@ -1,5 +1,8 @@
-ConnectLib <- function (path2func="/functions/") {
 # Sourcing packages and local functions
+# packages are assumed to be installed (Installing packages is commented and can be used before first use)
+# if no input is given, looks for a "functions" directory in current directory   
+ConnectLib <- function (path2func="/functions/") {
+
 # Installing packages is commented (sometimes needed before first use)
 # if no input is given, looks for a "functions" directory in current directory   
 #  ----------------------------- 
@@ -7,7 +10,7 @@ ConnectLib <- function (path2func="/functions/") {
 # install.packages("mapview")
 # install.packages("rgdal")
 # install.packages("sf")
-
+library(data.table)
 library(dplyr) # summary and re-arrangement of data
 library(lubridate) # For date & time  manipulations
 # install.packages("dbscan")
@@ -38,14 +41,15 @@ library(toolsForAtlas) # the ATLAS package (Sivan Margalit)
 library(atlastools)
   
 
-# source(paste0(path2func,"visualMaps.R"))    # my functions for maps
-source(paste0(path2func,"Movement_Metrics_Functions.R"))   # my enhancements for ADP
-# source(paste0(path2func,"SplitNights.R")) # helper functions for time-segmentation and data filtering
-source(paste0(path2func,"advancedADP.R"))   # my enhancements for ADP
+# source(paste0(path2func,"Movement_Metrics_Functions.R"))   # my enhancements for ADP
+
 # source(paste0(path2func,"points_to_line.R"))
   
 source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions
+source(paste0(path2func,"visual_filter.R"))       # my functions
 source(paste0(path2func,"wrap_ADP.R"))            # my functions
+# source(paste0(path2func,"mergeCloseAdp.R"))       # enhancements for ADP (Jerusalem group)
+  # A <- mergeCloseAdp(adp.df,adp_rng=20,smp_rte=8,time_gap=5) -       merges close ADP locations from  the Jerusalem group  (closeness is defined according to parameters adp_rng, and time_gap), the function returns 
 source(paste0(path2func,"AssignDayNumber.R"))     # my functions
 source(paste0(path2func,"atl_plots.R"))           # my functions
 source(paste0(path2func,"Tagtime.R"))             # my functions 
