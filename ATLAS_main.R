@@ -1,4 +1,5 @@
-# a genral template for running ATLAS codes
+# a general template for running ATLAS codes
+# Includes examples for most functions in the repository
 
 #---------- cleaning and setting preferences ----------------------------- 
 {
@@ -12,7 +13,7 @@ general_path <- "C:/Users/97254/Google Drive/POST/ATLAS/" # my dell computer dir
 # general_path <- "C:/Users/eitam.arnon/OneDrive - GTIIT/POST/ATLAS/" # my GT computer
 setwd       (paste0(general_path,"Harod"))
 path2func <- paste0(general_path,"functions/")
-path2data <- paste0(general_path,"data/")
+path2data <- paste0(general_path,"Harod/data/")
 }
 # --------- Sourcing libraries and functions -------------- 
 {
@@ -31,7 +32,7 @@ sapply(paste0(path2func,files.sources), source) #sourcing these functions
 }
 # --------- Load raw data & from a local SQLite file created using an ATLAS query --------------------------
 {
-file_name<-"loc_lapwing4spec-Aug2020.sqlite"
+file_name<-"loc_Owl3spec-Aug2020.sqlite"
 dbname=paste(path2data,file_name,sep="") # full path name
 RawLoc0<-loadFromSQLite(dbname) # load data atlastools function
 RawLoc0$TIME<-as.double(RawLoc0$TIME) # bypass the default 'integer64' class that is the default when querying RawLoc0 ATLAS data
@@ -44,10 +45,10 @@ RawLoc0<-RawLoc0[,-which(colnames(RawLoc0) %in% redundant_columns)]
 {
 Start_Time_Str ='2020-10-10 12:00:00' # define start time
 End_Time_Str ='2020-10-14 12:00:00' # Need to change to current date
-FullTag <- c(972006000223, 972006000219)
+FullTag <- c(972006000223)
 AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)
-RawLoc0 <- AllData[[2]]
-RawDet0 <- AllData[[1]]
+RawLoc0 <- AllData$LOC
+RawDet0 <- AllData$DET
 }
 # --------- Save data to SQLite file ------------------------------------
 {
@@ -75,25 +76,24 @@ RawLoc1<-RawLoc0[order(RawLoc0$TAG,RawLoc0$TIME),] #make sure data is sorted chr
 RawLoc1 <-convertSpatial.ITM2WGS84(RawLoc1, xyColNames=c("X","Y"))
 RawLoc1 <- as.data.frame(RawLoc1)
 
-# Create a new column with human readablr time
+# Create a new column with human readable time
 RawDet1$DetecTime<-as.POSIXct((RawDet1$TIME)/1000, tz="UTC", origin="1970-01-01")
-# RawLoc1$LocTime<-as.POSIXct((RawLoc1$TIME)/1000, tz="UTC", origin="1970-01-01")
 
 # Create a new columns: datetime distance, speed, angle, STD,
 # angle is the angle between sections and not the turning angle
 RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("distanceSpeed", "locQuality","angle")) # function to add attributes for each pair of conseucutive points. 
 RawLoc1$angl <- 180-abs(RawLoc1$angl)
 
-# Create a new columns with Sun and Moon angle above the horizen
-Sun_pos <-  getSunlightPosition(date=RawLoc1$dateTime,lat = RawLoc1$LAT[1], lon = RawLoc1$LON[1])
-Moon_pos <- getMoonPosition    (date=RawLoc1$dateTime,lat = RawLoc1$LAT[1], lon = RawLoc1$LON[1]) 
-RawLoc1$Sun_angle <- Sun_pos$altitude/pi*180
+# Create a new columns with Sun and Moon angle above the horizon (accurate to each location and time)
+Sun_pos <-  getSunlightPosition(data=data.frame(date=RawLoc1$dateTime,lat=RawLoc1$LAT,lon=RawLoc1$LON))
+Moon_pos <- getMoonPosition    (data=data.frame(date=RawLoc1$dateTime,lat=RawLoc1$LAT,lon=RawLoc1$LON)) 
+RawLoc1$Sun_angle <- Sun_pos$altitude/pi*180 #inserted int to data.frame, converted to degrees
 RawLoc1$Moon_angle <- Moon_pos$altitude/pi*180
 
 # Create a new columns with day numbering
 RawLoc1 <- AssignDayNumber(RawLoc1,DayStartTime="12:00:00",TimeColName="dateTime")
 
-# Specify tag by 2 or three meaningful digits
+# Specify tag by 2 or 3 meaningful digits
 RawLoc1$TAG<-gsub("9720060000", '', RawLoc1$TAG) #9720010000 for Hula system
 RawLoc1$TAG<-gsub("972006000", '', RawLoc1$TAG)
 RawLoc1$TAG<-gsub("97200600", '', RawLoc1$TAG)
@@ -101,28 +101,29 @@ RawLoc1$TAG<-gsub("97200600", '', RawLoc1$TAG)
 # deleting redundant columns
 redundant_columns<-c("traceNorm","angl","NBS","Z") # columns we won't use in this example.
 RawLoc1<-RawLoc1[,-which(colnames(RawLoc1) %in% redundant_columns)]
-
+# deletind redundant variables
 rm(AllData,Moon_pos,RawDet0,RawLoc0,Sun_pos)
 rm(Start_Time_Str,End_Time_Str,redundant_columns,times,FullTag) # remove objects we no longer neeed
 table(RawLoc1$DAY,RawLoc1$TAG)
 
 # --------- Basic filtering -----------------------------------------
-TAGTIMES <- Tagtime("tagtimes.csv") # reads a csv file with the relevant times to each tag
 # add frequency to Tagtime!
 TAGTIMES <- Tagtime(RawLoc1)
+TAGTIMES$freq <- 8
 
 # can filter any attribute :  tag, STD,NCONSTRAINTS, time: ilters=c(" Sun_angle<5 ","between( X,2.39e5, 2.50e5)")
 # here filters sun elevation, position:
 # FiltLoc0 <- atl_filter_covariates(data=RawLoc1, filters=c(" Sun_angle<5 ")) (from pratik, atlastools)
 FiltLoc0 <- RawLoc1[which(RawLoc1$Sun_angle<5),]
+
 # ----------------- Plotting histograms & summary statistics: --------
 
-x11()
-dev.set(which = dev.prev())
-dev.off()
+x11()                       # creating new plot window
+dev.set(which = dev.prev()) # toggeling active plot windows
+dev.off()                   # closing active plot window
 table(FiltLoc0$DAY,FiltLoc0$TAG)
-hist(FiltLoc0$stdVarXY) # due to very few exremely high values, we can't see the distribution of most values.
 par(mfrow=c(1,2))
+
 hist(FiltLoc0$stdVarXY[which(FiltLoc0$DAY%in% c(1,2,3) & FiltLoc0$TAG%in% c("223"))],xlim =c(0,100), breaks=10000, main= "Stdev Distribution") # Now the distribution is more informative.
 hist(FiltLoc0$spd,  xlim=c(0,50), breaks=10000,main= "Speed Distribution") # Note that the speed units are (meters/seconds)
 summary(FiltLoc0$stdVarXY)
@@ -131,30 +132,31 @@ quantile(FiltLoc0$stdVarXY, c(0.5,0.6,0.7,0.8,0.9,0.95,0.99), na.rm=TRUE)
 quantile(FiltLoc0$spd,c(0.5,0.6,0.7,0.8,0.9,0.95,0.99), na.rm=TRUE)
 
 # -----------------  Basic plotting -------------------------------------
-unique(FiltLoc0$TAG) # choose a radom TAG.
+unique(FiltLoc0$TAG) # list uniqhe tags in order to choose a TAG.
 
-TAG_ex<-223
+TAG_ex<-218
 A <- FiltLoc0[which(FiltLoc0$TAG==TAG_ex),]
 plot(FiltLoc0$X[which(FiltLoc0$TAG==TAG_ex)],FiltLoc0$Y[which(FiltLoc0$TAG==TAG_ex)])
-limits <- identify(A$X,A$Y, labels =paste0( round(A$X[1],0),",", round(A$Y[1],0)) , plot=TRUE)
-round(A$X[limits])
-round(A$Y[limits])
-xlims <- c(2.39e5, 2.50e5)
-ylims <- c(7.14e5, 7.28e5)
-plot(FiltLoc0$X[which(FiltLoc0$TAG==TAG_ex)],FiltLoc0$Y[which(FiltLoc0$TAG==TAG_ex)],xlim=xlims,ylim=ylims,asp=1)
+limits <- locator(2,type="o")  # allow graphically choosing the x,y values on a plot
 
-plotdays(FiltLoc0,TAG_ex,xlims,ylims)
-atl_mapleaf(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),])
-atl_mapgg(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),])
+xlims <- round(limits$x)
+ylims <- round(limits$y)
+plot(FiltLoc0$X[which(FiltLoc0$TAG==TAG_ex)],FiltLoc0$Y[which(FiltLoc0$TAG==TAG_ex)],xlim=xlims,ylim=ylims,asp=1)
+plotsqure(xlims,ylims)
+symbols(FiltLoc0$X[1],FiltLoc0$Y[1],circles=c(100),fg="red",add=TRUE,inches = FALSE)
+
+plotdays(A,TAG_ex)                               # for TAG_ex plot each day separately on 
+atl_mapleaf(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),]) #leaflet view (points and lines with some data to each point)
+atl_mapgg(FiltLoc0[which(FiltLoc0$TAG==TAG_ex),])   # ggmap plot
 
 # -----------------------  FILTERING           --------------------
-    AA <- as.data.frame(FiltLoc0 %>%  filter(TAG==TAG_ex))
+    AA <- as.data.frame(FiltLoc0 %>%  filter(TAG==TAG_ex))   
     # A <- as.data.frame(A %>%  filter(DAY==DAY_ex))
 #tracking amount of lost data
     data_track <- as.numeric(nrow(AA))
 
 #  coordinate box
-    coords_box <- c(2.39e5, 2.50e5, 7.14e5, 7.28e5)
+    coords_box <- c(xlims[1], xlims[2],ylims[1], ylims[2])
     A<-AA[which((AA$X>coords_box[1])&(AA$X<coords_box[2])&(AA$Y>coords_box[3])&(AA$Y<coords_box[4])),]
     plot(AA$X[which(AA$TAG==TAG_ex)],AA$Y[which(AA$TAG==TAG_ex)])
     points(A$X[which(A$TAG==TAG_ex)],A$Y[which(A$TAG==TAG_ex)],col="red")
@@ -162,7 +164,7 @@ atl_mapgg(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),])
 
 # STD filtering
     stdev<-20 # stdev 
-    B<-A[which(A$stdVarXY<stdev),]
+    B<-C[which(C$stdVarXY<stdev),]
     points(B$X[which(B$TAG==TAG_ex)],B$Y[which(B$TAG==TAG_ex)],col="green")
     lines (B$X[which(B$TAG==TAG_ex)],B$Y[which(B$TAG==TAG_ex)],col="green")
     data_track <- rbind(data_track,nrow(B))
@@ -173,51 +175,66 @@ atl_mapgg(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),])
     C <- velocity_filter (C,spdThreshold, x = "X", y = "Y", time = "TIME", steps=10)
     C <- distance_filter (C,distThreshold=500, x = "X", y = "Y", steps=5)
     C <- addLocAttribute(C, locAttributs=c("speed")) # function to add attributes for each pair of conseucutive points. 
-    points(C$X[which(C$TAG==TAG_ex)],C$Y[which(C$TAG==TAG_ex)],col="black")
-    lines (C$X[which(C$TAG==TAG_ex)],C$Y[which(C$TAG==TAG_ex)],col="black")
+    points(C$X[which(C$TAG==TAG_ex)],C$Y[which(C$TAG==TAG_ex)],col="pink")
+    lines (C$X[which(C$TAG==TAG_ex)],C$Y[which(C$TAG==TAG_ex)],col="pink")
     data_track <- rbind(data_track,nrow(C))
+    
     atl_mapleaf(C[which(C$DAY==2&C$TAG==TAG_ex),])
-# plotting filtered data
-  TAG_ex <- 223
-  DAY_ex <- 2
-  E <- A[which(A$DAY==DAY_ex&A$TAG==TAG_ex),]
-  E <- B[which(B$DAY==DAY_ex&B$TAG==TAG_ex),]
-  E <- C[which(C$DAY==DAY_ex&C$TAG==TAG_ex),]
-  E <- D[which(D$DAY==DAY_ex&D$TAG==TAG_ex),]
-  atl_mapleaf(D)
-  plot(E$X,E$Y)
-  lines(E$X,E$Y)
-  points(E$X,E$Y,col="red",pch=3)
-  lines(E$X,E$Y,col="green")
-  
-  D <- addLocAttribute(D, locAttributs=c("speed")) # function to add attributes for each pair of conseucutive points. 
-  plot(D$spd)
+    
+# manual filter ------------------
+    rm(list=setdiff(ls(), c("A","FiltLoc0",lsf.str())))
+    E <- visual_filter(A[which(A$DAY %in% c(1:30)),])    
+    lE1 <- E[[1]] # E$filtered
+    E2 <- E[[2]]
+    str(E1)
+    str(E2)
+    table(E2$segment,E2$DAY)
 
 # Advanced velocity Filter ----------
-  optionsArg=c("v_filter_max_v"=spdThreshold,
-             "min_time_dif_for_stats"=5,
-             "v_filter_time_dif"=12)
-  # v_filter_max_v; #maximum allowed velocity
-  # min_time_dif_for_stats; # number of consecutive valid points to acquire reliability
-  # v_filter_time_dif; # number of allowed missing time-steps before reliability is lost
-  D<-filterByVelocity(B,
-                       dataLegend=c("X","Y","TIME"),
-                       options=optionsArg)
+    optionsArg=c("v_filter_max_v"=spdThreshold,
+                 "min_time_dif_for_stats"=5,
+                 "v_filter_time_dif"=12)
+    # v_filter_max_v; #maximum allowed velocity
+    # min_time_dif_for_stats; # number of consecutive valid points to acquire reliability
+    # v_filter_time_dif; # number of allowed missing time-steps before reliability is lost
+    D<-filterByVelocity(B,
+                        dataLegend=c("X","Y","TIME"),
+                        options=optionsArg)
+    D <- addLocAttribute(D, locAttributs=c("speed")) # function to add attributes for each pair of conseucutive points. 
+    plot(D$spd)
+    atl_mapleaf(D)
+
 
 # bind different tags together: --------------------------------
   FiltLoc1 <- NULL
-  FiltLoc1 <- rbind(FiltLoc1, C)
+  FiltLoc1 <- rbind(FiltLoc1, B)
   rm(A,B,AA,C,D)
   
 # -----------Track Segmentation: Separate and summarize stops vs movement-------------
+  ind_rts<-data.frame("smp_rte"=8000,"obs_min"=8,"p_lim"=8,"adp_rng"=4)
+  ADP <- wrap_ADP(FiltLoc1,parameters=ind_rts)
+  # ADP <- wrap_ADP(FiltLoc1,freq=8)
+  cADP <- mergeCloseAdp(ADP,adp_rng=20,smp_rte=8000,time_gap=5*60*1000)
 
-  ADP <- wrap_ADP(FiltLoc1,freq=8)
 
 # plotting stops over tacks on a map. 
   TAG_ex <- 223
   dispDAY <- c(2,3)
-  atl_mapleaf_withstops(list(FiltLoc1,ADP),Tags=TAG_ex,Days=dispDAY)
+  atl_mapleaf_withstops(list(FiltLoc1,ADP),Tags=TAG_ex,Days=dispDAY) # leaflet track data and calculated stops (with duration data)
 
   hist(stops$position_qlt, breaks=20, main="Stops Position Quality Distribution")
   summary(stops$position_qlt)
   write.csv(ADP, "data/bats_stops.csv")
+  
+# ---------- Revisiting positions along the track from recurse --------------------------------
+  # from: Revisitation analysis uncovers spatio-temporal patterns in animal movement data, Chloe Bracis 2018
+
+  install.packages("recurse")
+  library(recurse)
+  A <- FiltLoc0[which((FiltLoc0$TAG==TAG_ex)&(FiltLoc0$DAY %in% c(2,3,4,5,6))&(FiltLoc0$Sun_angle< 5)),]
+  data4recurse <- data.frame(x=A$X,y=A$Y,t=A$dateTime,id=A$TAG)
+  revisits = getRecursions(data4recurse, radius = 200)
+  plot(revisits, data4recurse, legendPos = c(2.415e5, 7.35e5))
+  drawCircle(2.415e5, 7.235e5, 100)
+  
+  
