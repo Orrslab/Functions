@@ -29,14 +29,18 @@ visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
 {
 
   DAY_list <- unique(data$DAY)
+  TAG_list <- as.numeric(unique(A$TAG))
   filtData <- NULL
   Collected_points <- NULL
   xlims <- NULL
   ylims <- NULL
   segment_index <- 1
+  for (TAG_ex in TAG_list)
+  {
   for (day in DAY_list)
   {
     daydata<-data[which( data$DAY==day),]
+    Tag_ex <- 
     xlims[1] <- max(daydata$X,na.rm =TRUE) # the plot limits are defined for each day
     xlims[2] <- min(daydata$X,na.rm =TRUE)
     ylims[1] <- max(daydata$Y,na.rm =TRUE)
@@ -132,10 +136,11 @@ visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
               DefalutN2filter <- as.numeric(readline("enter default number for samples to filter (0 = no default) "))
             }  
     }
-    
-    filtData <- rbind(filtData, daydata)
     if(userinput=="b")
     {break}
+    filtData <- rbind(filtData, daydata)
+    
+  }
   }
   if (is.null(Collected_points))
   {return(filtData)}
