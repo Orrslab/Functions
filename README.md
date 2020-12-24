@@ -13,6 +13,7 @@ Please share your improvments and new functions
 
 	ConnectLib(path2func="\functions")                                  - a functions that imports needed libraries and functions (used in ATLAS_main) does not retrun a value
 	A <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)    - a function that import data from the ATLAS server (requires a VPN connection to server), returns a list, of two data frames
+	A <- identifyDetections(Loc=RawLoc0,Det=RawDet0,unloclalized =F) - a function that assignes the antennas number used to calculate each localizaion, when specifing unloclalized =F, also return a list of detections not used for localization
 	A<- AssignDayNumber(data,DayStartTime="12:00:00",TimeColName="LocTime",Julian=FALSE) - a function that assigns a day number to each location ( a day is defined as starting at DayStartTime, returns the same data with additional column (DAY)
 	A <-Tagtime("tagtimes.csv")       - a function to create a data.frame of tags, each with is relevant time limits. accepts an ATLAS location data.frame , returns a data frame
 	A <-humanTime2Unix(DATE,TIME,ATLAS=FALSE)       - he function accepts date in d/m/Y format and time in H:M:S format in, UTC and returns a numeric format (time from 1/1/1970), if ATLAS=TRUE the time is returned in milliseconds, else it is returned in seconds
