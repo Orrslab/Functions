@@ -41,7 +41,7 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS="Har
   
   for (i in 1:length(FullTag)) 
     { # build a  DETECTIONS query for the system, the results include the variables listed below
-    query = paste('select TAG,TIME,BS,SNR,SAMPLES_CLK from DETECTIONS WHERE TAG=',FullTag[i],
+    query = paste('select TAG,TIME,BS,RSSI,GAIN,SNR,SAMPLES_CLK from DETECTIONS WHERE TAG=',FullTag[i],
                   'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
     All_Data <- dbGetQuery(dbc,query)
     AllTagsDet[[i]] <- All_Data
@@ -51,8 +51,8 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS="Har
   AllTagsLoc <- list() #make an empty list for localizations
   
   for (i in 1:length(FullTag)) 
-    { # build a  LOCALIZATIONS query for the system, the results include the variables listed below
-    query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NCONSTRAINTS from LOCALIZATIONS WHERE TAG=',FullTag[i],
+    { # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
+    query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY from LOCALIZATIONS WHERE TAG=',FullTag[i], 
                   'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
     All_Data <- dbGetQuery(dbc,query)
     AllTagsLoc[[i]] <- All_Data
