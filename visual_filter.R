@@ -29,7 +29,13 @@ visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
 {
 
   DAY_list <- unique(data$DAY)
-  TAG_list <- as.numeric(unique(A$TAG))
+  if(is.null(DAY_list)) 
+      {Er <- simpleError("No DAYs found in the provided data")
+      stop(Er)}
+  TAG_list <- as.numeric(unique(data$TAG))
+  if(is.null(TAG_list)) 
+      {Er <- simpleError("No TAGs found in the provided data")
+      stop(Er)}
   filtData <- NULL
   Collected_points <- NULL
   xlims <- NULL

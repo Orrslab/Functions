@@ -10,14 +10,15 @@ atl_mapleaf <- function(dd)
   proj4string(dd)<-CRS(itm)
   llpd <- spTransform(dd, wgs84)
 # llpd2 <- llpd
-  ll<-leaflet() %>% addTiles() %>%
+  ll<-leaflet() %>% 
       addProviderTiles('Esri.WorldImagery') %>%
       addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
-                            popup = ~htmlEscape(paste0("det=",as.character((llpd$NCONSTRAINTS)),
-                                                       ",time=",as.character(round(llpd$dateTime)),
+                            popup = ~htmlEscape(paste0("time=",as.character(round(llpd$dateTime)),
+                                                       ",NBS=",as.character((llpd$NBS)),
                                                        ",spd=",as.character(round(llpd$spd)),
+                                                       ",pen=",as.character(round(llpd$PENALTY)),
                                                        ",std=",as.character(round(llpd$stdVarXY)),
-                                                       ",TAG=",as.character(round(llpd$TAG))  
+                                                       ",TAG=",llpd$TAG  
                                                        ))) %>%
       addPolylines(data=llpd@coords, weight = 1, opacity = 1,col="pink")
   ll
@@ -52,7 +53,7 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
     proj4string(Loc2)<-CRS(itm)
     llpd2 <- spTransform(Loc2, wgs84)
     # llpd2 <- llpd
-    ll<-leaflet() %>% addTiles() %>%
+    ll<-leaflet() %>% 
       addProviderTiles('Esri.WorldImagery') %>%
       addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = "blue",
                              popup = ~htmlEscape(paste0(",std=",as.character(round(llpd1$stdVarXY)),
@@ -69,8 +70,10 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
 # plot a function using ggmap
 # requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
 # does not return any variable
-atl_mapgg <- function(dd)
+atl_mapgg <- function(dd,lon_name="LON",lat_name="LAT")
 {
+  colnames(dd)[which(colnames(dd)==lon_name)] <- "LON"
+  colnames(dd)[which(colnames(dd)==lat_name)] <- "LAT"
   Mapbox1 <- make_bbox(lon=dd$LON,lat=dd$LAT, f=0.1) # defines the borders of the box
   #Harod <- c(left = 35.375, bottom = 32.515, right = 35.6, top = 32.6) # defines the borders of the box
   #SatImagBox1<- get_map(location=Mapbox1, maptype = "roadmap", source="osm");ggmap(SatImagBox1)

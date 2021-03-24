@@ -35,6 +35,8 @@ library(suncalc)
 # ------- packages from Git_hub or local source: 
 
 # install.packages(paste0(general_path,"/Workshop/toolsForAtlas_1.0.tar.gz"), repos = NULL, type = "source")
+# install.packages(paste0(path2func,"/toolsForAtlas_1.0.tar.gz"), repos = NULL, type = "source")
+# devtools::install_github("pratikunterwegs/atlastools")
 library(toolsForAtlas) # the ATLAS package (Sivan Margalit)
 # install.packages("devtools")  # for atlastiools by pratikunter
 # devtools::install_github("pratikunterwegs/atlastools") # for atlastiools by pratikunter
@@ -46,6 +48,7 @@ library(atlastools)
 # source(paste0(path2func,"points_to_line.R"))
   
 source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions
+source(paste0(path2func,"identifyDetections.R"))    # my function
 source(paste0(path2func,"visual_filter.R"))       # my functions
 source(paste0(path2func,"wrap_ADP.R"))            # my functions
 # source(paste0(path2func,"mergeCloseAdp.R"))       # enhancements for ADP (Jerusalem group)
@@ -53,5 +56,6 @@ source(paste0(path2func,"wrap_ADP.R"))            # my functions
 source(paste0(path2func,"AssignDayNumber.R"))     # my functions
 source(paste0(path2func,"atl_plots.R"))           # my functions
 source(paste0(path2func,"Tagtime.R"))             # my functions 
-source(paste0(path2func,"velocity_filter.R"))     # my functions   
+source(paste0(path2func,"velocity_filter.R"))     # my functions  
+source(paste0(path2func,"DayNight_Progress.R"))     # my functions   
 }
