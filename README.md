@@ -35,4 +35,5 @@ Please share your improvments and new functions
 		
 	A <- visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)  - plots data on a simple plot and allows you to graphicaly discard or collect points, return a dat.frame with data after the filter. If points were collected it return a list, with two data.frames A$filterd and $collected.
 	A <- wrap_ADP(FiltLoc1,freq=8)             -wraps the function AdpFixedPoint that calculates stops and their parameters (duration mean position etc) it includes loop over days and tags and post-processing it returns a data.frame with all parameters
+	A <- DayNight_Progress(Time_POSI, Lat, Lon)  - calculates time progress in order to compare the activity along days / night with different starting time / length,  the night is valued 0 to 100 from sunset  to sunrise and the day is valued 100 to 200 from sunrise to sunset, the input arguments are  a vector Time_POSI - with time in POSIXct format and a vector (or single value) containing the corresponding coordinates Lat, Lon in geographic / wgs format
 
