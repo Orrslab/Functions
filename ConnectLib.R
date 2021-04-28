@@ -58,4 +58,6 @@ source(paste0(path2func,"atl_plots.R"))           # my functions
 source(paste0(path2func,"Tagtime.R"))             # my functions 
 source(paste0(path2func,"velocity_filter.R"))     # my functions  
 source(paste0(path2func,"DayNight_Progress.R"))     # my functions   
+source(paste0(path2func,"smoothingFilters.R"))     # my functions 
+source(paste0(path2func,"timeGapBurst.R"))     # my functions 
 }
