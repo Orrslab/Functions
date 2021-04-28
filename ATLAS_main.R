@@ -32,33 +32,57 @@ sapply(paste0(path2func,files.sources), source) #sourcing these functions
 }
 # --------- Load raw data & from a local SQLite file created using an ATLAS query --------------------------
 {
-file_name<-"loc_Owl3spec-Aug2020.sqlite"
+
+
+file_name <-"loc_TAG212_Jan122021_2D_l.sqlite"
+
 dbname=paste(path2data,file_name,sep="") # full path name
-RawLoc0<-loadFromSQLite(dbname) # load data atlastools function
+
+conn <- dbConnect(RSQLite::SQLite(), dbname)
+dbListTables(conn)
+dbListFields(conn, 'DETECTIONS')
+dbListFields(conn, 'LOCALIZATIONS')
+
+RawLoc0 <- dbGetQuery(conn, "SELECT * FROM LOCALIZATIONS")
+RawDet0<- dbGetQuery(conn, "SELECT * FROM DETECTIONS")
+table(RawLoc0$TAG)
+table(RawDet0$TAG)
+dbDisconnect(conn)
+rm(conn)
+
 RawLoc0$TIME<-as.double(RawLoc0$TIME) # bypass the default 'integer64' class that is the default when querying RawLoc0 ATLAS data
 RawLoc0$TAG<-as.character(RawLoc0$TAG) # Change from meaningless "factor" class to character (text format) 
 # select only relevant columns:
-redundant_columns<-c("TX", "Z","PENALTY","GRADNRM","VARZ","COVXZ","COVYZ","NBS","DIM")
+redundant_columns<-c("TX", "Z","GRADNRM","VARZ","COVXZ","COVYZ","DIM")
 RawLoc0<-RawLoc0[,-which(colnames(RawLoc0) %in% redundant_columns)]
 }
-# --------- Downloading data directly from server (requires VPN to TAU) -----------------
+# --------- Downloading data directly from server (requires VPN to TAU)-----------------
 {
-Start_Time_Str ='2020-10-10 12:00:00' # define start time
-End_Time_Str ='2020-10-14 12:00:00' # Need to change to current date
-FullTag <- c(972006000223)
+  Tags <- read.csv("Atlas_Tag_Usage_17022021.csv")
+  Tags <- Tags[which(Tags$Deployed=="Y"),]  
+  # Tags <- Tags[which(Tags$Working. =="Y"),] 
+Start_Time_Str ='2021-03-27 00:00:01' # define start time
+End_Time_Str   ='2021-04-07 24:00:00' # Need to change to current date
+FullTag <- c(972006000201,972006000161)
+FullTag <- Tags$Tag.Number[-which(Tags$Tag.Number %in% c(972006000003,972006000004,972006000006))]
 AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)
 RawLoc0 <- AllData$LOC
 RawDet0 <- AllData$DET
 }
+
 # --------- Save data to SQLite file ------------------------------------
 {
 # saveIntoSQLite(dbname,RawLoc1) # (toolsForAtlas fuction didn't work for me)
-file_name<-"loc_Owl223-11Oct2020.sqlite"
+file_name<-"car_strategies.sqlite"
 dbname=paste0(path2data,file_name) # full path name
 conn <- dbConnect(RSQLite::SQLite(), dbname)
-dbWriteTable(conn, "LOC", RawLoc0,overwrite=T)
+dbWriteTable(conn, "LOC", a_list,overwrite=T)
 dbWriteTable(conn, "DET", RawDet0,overwrite=F, append=T)
-#  checking and reading!
+}
+# back to sqlite format readable by kamadata
+exportForKamadata(loc.df = RawLoc0,sqliteName ="data4kamada.sqlite",atlas.system = "harod")
+# ---------------------reading and checking saved data ----------
+{
 dbListTables(conn)
 dbListFields(conn, 'LOC')
 RawLoc0 <- dbGetQuery(conn, "SELECT * FROM LOC")
@@ -68,39 +92,54 @@ rm(conn)
 }
 # --------- Basic adding of the data --------------------------
 
+
+#adding antenna data to locations ( requires corresponding detection - same tags and times)
+RawLoc1 <- RawLoc0
+RawLoc1 <- identifyDetections(Loc=RawLoc0,Det=RawDet0,unloclalized =F)
 # Order all data according to TAG and Then Time 
-RawDet1<-RawDet0[order(RawDet0$TAG,RawDet0$TIME),] #make sure data is sorted chronologically (per tag)
-RawLoc1<-RawLoc0[order(RawLoc0$TAG,RawLoc0$TIME),] #make sure data is sorted chronologically (per tag)
+RawDet1<-RawDet0[order(RawDet0$TIME),] #make sure data is sorted chronologically (per tag)
+RawLoc1<-RawLoc1[order(RawLoc1$TAG,RawLoc1$TIME),] #make sure data is sorted chronologically (per tag)
 
 # Create a new columns with geographic, wgs84 coordinates
 RawLoc1 <-convertSpatial.ITM2WGS84(RawLoc1, xyColNames=c("X","Y"))
 RawLoc1 <- as.data.frame(RawLoc1)
 
 # Create a new column with human readable time
-RawDet1$DetecTime<-as.POSIXct((RawDet1$TIME)/1000, tz="UTC", origin="1970-01-01")
+RawDet1$dateTime<-as.POSIXct((RawDet1$TIME)/1000, tz="UTC", origin="1970-01-01")
+RawLoc1$dateTime<-as.POSIXct((RawLoc1$TIME)/1000, tz="UTC", origin="1970-01-01")
 
 # Create a new columns: datetime distance, speed, angle, STD,
 # angle is the angle between sections and not the turning angle
 RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("distanceSpeed", "locQuality","angle")) # function to add attributes for each pair of conseucutive points. 
+RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("locQuality")) # function to add attributes for each pair of conseucutive points. 
 RawLoc1$angl <- 180-abs(RawLoc1$angl)
 
-# Create a new columns with Sun and Moon angle above the horizon (accurate to each location and time)
+
+ # Create a new columns with Sun and Moon angle above the horizon (accurate to each location and time)
 Sun_pos <-  getSunlightPosition(data=data.frame(date=RawLoc1$dateTime,lat=RawLoc1$LAT,lon=RawLoc1$LON))
 Moon_pos <- getMoonPosition    (data=data.frame(date=RawLoc1$dateTime,lat=RawLoc1$LAT,lon=RawLoc1$LON)) 
 RawLoc1$Sun_angle <- Sun_pos$altitude/pi*180 #inserted int to data.frame, converted to degrees
 RawLoc1$Moon_angle <- Moon_pos$altitude/pi*180
-
+  
 # Create a new columns with day numbering
-RawLoc1 <- AssignDayNumber(RawLoc1,DayStartTime="12:00:00",TimeColName="dateTime")
+RawLoc1 <- AssignDayNumber(RawLoc1,DayStartTime="00:00:00",TimeColName="dateTime")
+
+# adding day / time progress to each varialbe
+RawLoc1$dayprogress <- DayNight_Progress(RawLoc1$dateTime,RawLoc1$LAT,RawLoc1$LON)
 
 # Specify tag by 2 or 3 meaningful digits
-RawLoc1$TAG<-gsub("9720060000", '', RawLoc1$TAG) #9720010000 for Hula system
+# RawLoc1$TAG<-gsub("9720060000", '', RawLoc1$TAG) #9720010000 for Hula system
 RawLoc1$TAG<-gsub("972006000", '', RawLoc1$TAG)
-RawLoc1$TAG<-gsub("97200600", '', RawLoc1$TAG)
+# RawLoc1$TAG<-gsub("97200600", '', RawLoc1$TAG)
+
+RawDet1$BS<-gsub("9720060", '', RawDet1$BS)
+RawDet1$TAG<-gsub("972006000", '', RawDet1$TAG)
 
 # deleting redundant columns
 redundant_columns<-c("traceNorm","angl","NBS","Z") # columns we won't use in this example.
 RawLoc1<-RawLoc1[,-which(colnames(RawLoc1) %in% redundant_columns)]
+# or
+RawLoc1 <- RawLoc1[,c("X","Y","TIME","TAG","NBS","PENALTY","allBS","dateTime","dT","spd","stdVarXY")]
 # deletind redundant variables
 rm(AllData,Moon_pos,RawDet0,RawLoc0,Sun_pos)
 rm(Start_Time_Str,End_Time_Str,redundant_columns,times,FullTag) # remove objects we no longer neeed
@@ -114,7 +153,7 @@ TAGTIMES$freq <- 8
 # can filter any attribute :  tag, STD,NCONSTRAINTS, time: ilters=c(" Sun_angle<5 ","between( X,2.39e5, 2.50e5)")
 # here filters sun elevation, position:
 # FiltLoc0 <- atl_filter_covariates(data=RawLoc1, filters=c(" Sun_angle<5 ")) (from pratik, atlastools)
-FiltLoc0 <- RawLoc1[which(RawLoc1$Sun_angle<5),]
+FiltLoc0 <- RawLoc1[which(RawLoc1$Sun_angle>-20),]
 
 # ----------------- Plotting histograms & summary statistics: --------
 
@@ -134,8 +173,9 @@ quantile(FiltLoc0$spd,c(0.5,0.6,0.7,0.8,0.9,0.95,0.99), na.rm=TRUE)
 # -----------------  Basic plotting -------------------------------------
 unique(FiltLoc0$TAG) # list uniqhe tags in order to choose a TAG.
 
-TAG_ex<-218
+TAG_ex<-201
 A <- FiltLoc0[which(FiltLoc0$TAG==TAG_ex),]
+
 plot(FiltLoc0$X[which(FiltLoc0$TAG==TAG_ex)],FiltLoc0$Y[which(FiltLoc0$TAG==TAG_ex)])
 limits <- locator(2,type="o")  # allow graphically choosing the x,y values on a plot
 
@@ -146,7 +186,7 @@ plotsqure(xlims,ylims)
 symbols(FiltLoc0$X[1],FiltLoc0$Y[1],circles=c(100),fg="red",add=TRUE,inches = FALSE)
 
 plotdays(A,TAG_ex)                               # for TAG_ex plot each day separately on 
-atl_mapleaf(FiltLoc0[which(FiltLoc0$DAY==2&FiltLoc0$TAG==TAG_ex),]) #leaflet view (points and lines with some data to each point)
+atl_mapleaf(FiltLoc0[which(FiltLoc0$DAY==1&FiltLoc0$TAG==TAG_ex),]) #leaflet view (points and lines with some data to each point)
 atl_mapgg(FiltLoc0[which(FiltLoc0$TAG==TAG_ex),])   # ggmap plot
 
 # -----------------------  FILTERING           --------------------
@@ -202,9 +242,13 @@ atl_mapgg(FiltLoc0[which(FiltLoc0$TAG==TAG_ex),])   # ggmap plot
                         options=optionsArg)
     D <- addLocAttribute(D, locAttributs=c("speed")) # function to add attributes for each pair of conseucutive points. 
     plot(D$spd)
-    atl_mapleaf(D)
+    atl_mapleaf(E1)
 
-
+# timeBurst and smoothing ----------
+    E <- timeGapBurst(D,secTol=17,minBurstFix=39,sampRate=8)
+    E1 <- AvgSmooth(E,Weight = c(0.1,0.2,0.4,0.2,0.1))
+    
+    
 # bind different tags together: --------------------------------
   FiltLoc1 <- NULL
   FiltLoc1 <- rbind(FiltLoc1, B)
