@@ -13,7 +13,7 @@ velocity_filter <- function (data,spdThreshold=15, x = "X", y = "Y", time = "TIM
 {
 for(i in 1:steps){
   spd <- matl_get_speed(data,x=x,y=y,time=time,type = "in",step = i)*1000
-  KEEP <- (spd<spdThreshold)|(shift(spd,-i)<spdThreshold)
+  KEEP <- (spd<spdThreshold)|(data.table::shift(spd,-i)<spdThreshold)
   KEEP[is.na(KEEP)] <- TRUE  
   data<-data[which(KEEP),]
   print(sprintf("step %i removed %i locations",i,sum(!KEEP)))
@@ -31,11 +31,11 @@ return(data)
           # thus it can filter locations in case that a set of points up to size "steps" was drifted away
 # input variable "data" is a data.frame with locations saved with column names x,y, and time
 # returns the data.frame without the filtered locations
-distance_filter <- function (data,distThreshold=15*8, x = "X", y = "Y", time = "TIME", type = "in", steps=1) 
+distance_filter <- function (data,distThreshold=15*8, x = "X", y = "Y", steps=1) 
 {
   for(i in 1:steps){
     dst <- matl_simple_dist(data,x=x,y=y,step = i)
-    KEEP <- (dst<distThreshold)|(shift(dst,i)<distThreshold)
+    KEEP <- c((dst<distThreshold)|(data.table::shift(dst,i)<distThreshold),rep(T,i))
     KEEP[is.na(KEEP)] <- TRUE  
     data<-data[which(KEEP),]
     print(sprintf("step %i removed %i locations",i,sum(!KEEP)))
