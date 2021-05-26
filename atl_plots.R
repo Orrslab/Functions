@@ -4,6 +4,12 @@
 # red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
 atl_mapleaf <- function(dd)
 {
+  if( all(c("X","Y") %in% colnames(data))) 
+  {Er <- simpleError("data must contain X and Y columns")
+  stop(Er)}
+  if( nrow(data)==0) 
+  {Er <- simpleError("you must provide at least a single data point")
+  stop(Er)}
   itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
   coordinates(dd)<-~X+Y
@@ -11,7 +17,7 @@ atl_mapleaf <- function(dd)
   llpd <- spTransform(dd, wgs84)
 # llpd2 <- llpd
   ll<-leaflet() %>% 
-      addProviderTiles('Esri.WorldImagery') %>%
+    addProviderTiles('Esri.WorldImagery') %>% # Esri.WorldGrayCanvas #CartoDB.Positron # comment this line to get a grey empty background!
       addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
                             popup = ~htmlEscape(paste0("time=",as.character(round(llpd$dateTime)),
                                                        ",NBS=",as.character((llpd$NBS)),
@@ -34,6 +40,12 @@ atl_mapleaf <- function(dd)
 # presents data when cursor is on a stop point: duration in minutes
 atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
 {
+  if( all(c("X","Y") %in% colnames(dd))) 
+  {Er <- simpleError("data must contain X and Y columns")
+  stop(Er)}
+  if( nrow(dd)==0) 
+  {Er <- simpleError("you must provide at least a single data point")
+  stop(Er)}
   Loc1 <- dd[[1]]
   if(is.null(Days))
   {Days <- unique(Loc1$DAY)}
@@ -65,7 +77,37 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
                                    popup = ~htmlEscape(paste0("Duration = ",as.character(llpd2$duration_minutes)," mins")))
   
   ll
+}
+
+Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
+  itm<-"+init=epsg:2039 "
+  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  
+  
+  TagChoosen <-subset(Data, TAG == Tag)
+  if (calcDAY)
+  {TagChoosen <- AssignDayNumber(TagChoosen)}
+  
+  DAYLists <- as.factor(unique(TagChoosen$DAY))
+  
+  m <- leaflet() %>% addProviderTiles('Esri.WorldImagery')
+  DaysList <- list()
+  for (i in DAYLists) {
+    DayLo <- subset(TagChoosen, DAY == i)
+    coordinates(DayLo)<-~X+Y
+    proj4string(DayLo)<-CRS(itm)
+    llpd1 <- spTransform(DayLo, wgs84)
+    m <-  addPolylines(m, data=llpd1@coords, weight = 2, opacity = 2,group = i, color = Color)
   }
+  
+  daylistst <- as.factor(as.data.frame(DaysList))
+  
+  m <- addLayersControl(m,
+                        baseGroups = DAYLists,
+                        options = layersControlOptions(collapsed = FALSE)
+  )
+  return(m)
+}
 
 # plot a function using ggmap
 # requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
