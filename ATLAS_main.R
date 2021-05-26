@@ -62,7 +62,7 @@ RawLoc0<-RawLoc0[,-which(colnames(RawLoc0) %in% redundant_columns)]
   Tags <- Tags[which(Tags$Deployed=="Y"),]  
   # Tags <- Tags[which(Tags$Working. =="Y"),] 
 Start_Time_Str ='2021-03-27 00:00:01' # define start time
-End_Time_Str   ='2021-04-07 24:00:00' # Need to change to current date
+End_Time_Str   ='2021-03-29 24:00:00' # Need to change to current date
 FullTag <- c(972006000201,972006000161)
 FullTag <- Tags$Tag.Number[-which(Tags$Tag.Number %in% c(972006000003,972006000004,972006000006))]
 AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)
@@ -111,7 +111,6 @@ RawLoc1$dateTime<-as.POSIXct((RawLoc1$TIME)/1000, tz="UTC", origin="1970-01-01")
 # Create a new columns: datetime distance, speed, angle, STD,
 # angle is the angle between sections and not the turning angle
 RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("distanceSpeed", "locQuality","angle")) # function to add attributes for each pair of conseucutive points. 
-RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("locQuality")) # function to add attributes for each pair of conseucutive points. 
 RawLoc1$angl <- 180-abs(RawLoc1$angl)
 
 
@@ -244,9 +243,17 @@ atl_mapgg(FiltLoc0[which(FiltLoc0$TAG==TAG_ex),])   # ggmap plot
     plot(D$spd)
     atl_mapleaf(E1)
 
-# timeBurst and smoothing ----------
+# timeBurst and smoothing ---------- (Michal)
     E <- timeGapBurst(D,secTol=17,minBurstFix=39,sampRate=8)
     E1 <- AvgSmooth(E,Weight = c(0.1,0.2,0.4,0.2,0.1))
+
+# new Stop identification ------------ (Shlomo)
+    ind_rts<-data.frame("smp_rte"=c(8000,4000), # sample rate
+                        "obs_min"=c(4,8 ), # minimum of within range localizations
+                        "p_lim"=c(5,10), #Tolerance of n localizations outside the buffer
+                        "adp_rng"=rep(35,2)) # adaptive Fixed point buffer radius
+    F <- stop_move_analysis(E1,stopparams=ind_rts,DayColName=c("DAY"))
+    PlotSegStop(F,E1,3)
     
     
 # bind different tags together: --------------------------------
@@ -281,4 +288,15 @@ atl_mapgg(FiltLoc0[which(FiltLoc0$TAG==TAG_ex),])   # ggmap plot
   plot(revisits, data4recurse, legendPos = c(2.415e5, 7.35e5))
   drawCircle(2.415e5, 7.235e5, 100)
   
+# --------- ATLAS Detection Analysis ----------------
   
+  source(paste0(path2func,"BS_Beacon_Detection.R"))
+  
+  Start_Time_Str     <- c('2021-04-17 00:00:00')
+  End_Time_Str       <- c('2021-05-19 00:01:00')
+  sample_timesPerDay <- 24
+  sample_lengthMinute<- 1
+  FullTag <- c(972006000003,972006000004,972006000006)
+  RawDet1 <- Get_ATLAS_Det_DATA (Start_Time_Str,End_Time_Str,sample_timesPerDay,sample_lengthMinute,FullTag )
+  plotCountDet(RawDet1,xAxisRes='1 hours')
+  plotBSperformance(RawDet1,BS2plot=c("01", "13") ,xAxisRes='1 hours')
