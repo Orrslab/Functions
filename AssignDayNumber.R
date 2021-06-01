@@ -35,7 +35,9 @@ AssignDayNumber <- function(data,DayStartTime="00:00:00",TimeColName = "dateTime
   }
   else
   {
-    data<- data %>% group_by(TAG) %>% mutate(DAY=as.numeric(date(dateTime-timeshift)-min(date(dateTime-timeshift))+1))
+    data<- data %>% group_by(TAG) %>% 
+           mutate(DAY=as.numeric(date(dateTime-timeshift)-min(date(dateTime-timeshift))+1)) %>% 
+           ungroup()
   }
   # converting back the variables names to the original ones!
   colnames(data)[dateTimeCol] <-  IntialColname
