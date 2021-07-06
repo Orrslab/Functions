@@ -22,7 +22,9 @@ for (locIdx in (nrow(track)-2)) {
 }
   if(rmGeoCoords)
   {track <- subset(track, select = -c(LAT,LON) )
-   print("removing LON and LAT coordinates")}
+   print("removing LON and LAT coordinates")
+   warning(sprintf('note that LAT and LON variables might need to be updated' ))}
+  warning(sprintf('note that some variables (including dT, dst,spd,angl) might need to be updated' ))
 return(track)}
 
 movMean <- function(dataBurst,Weight = c(0.25,0.5,0.25),replace=T,rmGeoCoords=T) 
@@ -38,6 +40,7 @@ movMean <- function(dataBurst,Weight = c(0.25,0.5,0.25),replace=T,rmGeoCoords=T)
   Y <- as.numeric(stats::filter(dataBurst$Y, Weight,method = "convolution",sides = 2))
   X[which(is.na(X))] <- dataBurst$X[which(is.na(X))]
   Y[which(is.na(Y))] <- dataBurst$Y[which(is.na(Y))]
+  warning(sprintf('note that some variables (including dT, dst,spd,angl) might need to be updated' ))
   
   if(replace){
     dataBurst$X <- X
@@ -47,6 +50,7 @@ movMean <- function(dataBurst,Weight = c(0.25,0.5,0.25),replace=T,rmGeoCoords=T)
       print("removing LON and LAT coordinates")}
     return(dataBurst)}
   else
+    warning(sprintf('note that LAT and LON variables might need to be updated' ))
     return(data.frame(X=X,Y=Y))
 }
 
@@ -86,6 +90,6 @@ AvgSmooth <- function(dataBurst,Weight = c(0.25,0.5,0.25),UpdateGeoCoords=T)
     dataBurst$LON <-WGS84.spdf$LON
     dataBurst$LAT <-WGS84.spdf$LAT
     }
-    
+    warning(sprintf('note that some variables (including dT, dst,spd,angl) might need to be updated' ))
   return(dataBurst)
 }
