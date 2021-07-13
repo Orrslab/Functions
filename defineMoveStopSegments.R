@@ -1,7 +1,7 @@
 library (dplyr)
 
 
-stop_move_analysis <- function(data,stopparams="default",DayColName=c("DAY"))
+stop_move_analysis <- function(data,stopparams="default",DayColName=c("DAY"),minSampperDay=500,rmMargins=F)
 {
   # A wrapper function which defines stops/flights segments and filters the data based on these definations
   # The wrapper activates additional functions including AdpFixedPoint & MarkStopLoc (from toolsForAtlas) which
@@ -10,12 +10,14 @@ stop_move_analysis <- function(data,stopparams="default",DayColName=c("DAY"))
   # data - a data.frame containing a trajectory with columns $TAG,$TIME,$dT,$DAY,$X,$Y
   # the "day" variable name can be defined according to the DayColName parameter
   # stopparams - a data.frame defining the stop identification parameters
+  # minSampperDay - number of minimum samples (rows) per day, a day with less than the minimum will discard
+  # rmMargins - an activator to the "RemoveMargins" function: F-not activate, T- will activate the function 
   # Output - a data.frame with additional columns presenting the stops-flying segments:
   # ADP : a set of variables of each stop:
   # "ID" a set of ID, for each stop starting at the beginning of the data.set
   #  "X","Y", the median for each stop
   #  "start", "end", "duration" times for each stop ( in "TIME" units, usually miliseconds)
-  #  "qlt"  some unknown quality parameter
+  #  "qlt"  some unknown quality parameter,
   # seg.ID : a set of ID, for each movement segment starting at the beginning of the data.set
   # indices to match tag frequency:
   if (stopparams=="default")
@@ -27,14 +29,20 @@ stop_move_analysis <- function(data,stopparams="default",DayColName=c("DAY"))
   else
     ind_rts <- stopparams
   
-
-  #Performing track segmentation - adding properties to each of the points
+  #changing the "DAY" column name
   names(data)[which(colnames(data)==DayColName)] <- "DAY"
-  stop_data<-defineStopPoints(data,ind_rts)
+  
+  #removing days with less then 100 rows 
+  tt <- table(data$DAY)
+  data1 <- subset(data, DAY %in% names(tt[tt > minSampperDay]))
+  
+  #Performing track segmentation - adding properties to each of the points
+  stop_data<-defineStopPoints(data1,ind_rts)
   
   #clear the data using RemoveMargins: Abandons previous data for the first exit from the previous 
   #day's accommodation point, and after entering the next day's accommodation point
-  stop_data<-RemoveMargins(stop_data)
+  if(rmMargins)
+  {stop_data<-RemoveMargins(stop_data)}
   stop_data<-as.data.frame(stop_data)
   
   stop_data<-addLocAttribute(stop_data, locAttributs=c("distanceSpeed", "locQuality")) # function to add attributes for each pair of conseucutive points. 
@@ -78,12 +86,13 @@ defineStopPoints<-function(data,
     
     # Start loop per tag-DAY. Notice that data MUST be sorted chrnologically first.
     for (nn in nDAYs){
+      AFP_time <- Sys.time()# for the Prints the work duration
       DAY_dat<-as.data.frame(data%>%
                                  filter((TAG==tg) & (DAY==nn))%>%
                                  arrange(TIME))
       
       
-      if(nrow(DAY_dat)>20) # only run if DAY data (point for TAG per DAY) is over 100 locations:
+      if(nrow(DAY_dat)>20) # only run if DAY data (point for TAG per DAY) is over 20 locations:
       {
         #function to perform track segmentation (from toolsForAtlas)
         AFPList <- AdpFixedPoint (time.vec = DAY_dat$TIME,
@@ -108,8 +117,11 @@ defineStopPoints<-function(data,
       }
     }   
   }
+  print(sprintf("AdpFixedPoint is done by time= %s",Sys.time()- AFP_time))# Prints the work duration  
   # Mark localizations as perch or move segment (from toolsForAtlas)
+  MarkStop_time <- Sys.time()# for the prints the work duration
   filtered_with_ADP<- MarkStopLoc(data, owl_adp)
+  print(sprintf("MarkStopLoc is done by time= %s",Sys.time()- MarkStop_time))# Prints the work duration
   return(filtered_with_ADP)
 }
 
@@ -118,13 +130,15 @@ RemoveMargins<-function(stop_DAYs){
   # keeps a single location from the first stop (discard the rest of the roosting locations) and only a single point form the last stop (discard the rest of the roosting locations)
   # Input data - data.frame containing the columns $TAG,$TIME,$DAY,$ADP.ID
   # output - a trimmed data.frame 
-  
+  RemoveMargin_time <- Sys.time()# for the prints the work duration
+  #ifelse(is.na(min(N12$ADP.ID)),0,min(N12$ADP.ID, na.rm = T))==ifelse(is.na(max(N12$ADP.ID)),0,max(N12$ADP.ID, na.rm = T)) #the line doesn't work, because if there is NA in the Column (even a single one) the result is 'true'
   clear_DAYs <- stop_DAYs %>%  
-    group_by(TAG,DAY)  %>% 
+    group_by(TAG,DAY)  %>%
     filter(TIME>=TIME[max(which(ADP.ID == min(ADP.ID,na.rm=T)))] & TIME<=TIME[which.max(ADP.ID)]) %>%  
     ungroup()
   clear_DAYs <- clear_DAYs[order(clear_DAYs$TAG,clear_DAYs$TIME),]
   clear_DAYs <- as.data.frame(clear_DAYs)
+  print(sprintf("RemoveMargins is done by time= %s",Sys.time()- RemoveMargin_time))# Prints the work duration
  return(clear_DAYs)
 } 
 
@@ -151,7 +165,8 @@ PlotSegStop <- function(stopdat,data2,DAY,DayColName=c("DAY"))
     summarise("cnt"=n(),
               "start_time"=min(dateTime),"end_time"=max(dateTime))%>%
     ungroup()
-  AtmpStop <- AtmpStop[-which(is.na(AtmpStop$ADP.X)),]
+  # AtmpStop <- AtmpStop[-which(is.na(AtmpStop$ADP.X)),] #this is the original line, but I changed it due to ERRORS
+  AtmpStop <- AtmpStop[which(!is.na(AtmpStop$ADP.X)),]
   AtmpStop<-as.data.frame(convertSpatial.ITM2WGS84(AtmpStop, xyColNames =c("ADP.X", "ADP.Y")))
   
   ll<-leaflet() %>% #addProviderTiles('Esri.WorldImagery') %>%
