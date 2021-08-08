@@ -112,6 +112,225 @@ Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
 # plot a function using ggmap
 # requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
 # does not return any variable
+atl_mapleaf1 <- function(gpsTrack,dd1)
+{
+  
+  # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039 "
+  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  coordinates(dd1)<-~X+Y
+  proj4string(dd1)<-CRS(itm)
+  llpd1 <- spTransform(dd1, wgs84)
+  coordinates(gpsTrack)<-~X+Y
+  proj4string(gpsTrack)<-CRS(itm)
+  llpd2 <- spTransform(gpsTrack, wgs84)
+  
+  require("RColorBrewer")
+  # display.brewer.all()
+  # display.brewer.pal(n = 4, name = 'RdYlBu')
+  # col=brewer.pal(n = 4, name = 'RdYlBu')
+  col=brewer.pal(n = 6, name = 'Dark2')
+  
+  ll<-leaflet() %>% 
+    addProviderTiles('Esri.WorldImagery') %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
+               popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
+                                          ", TIME=",as.character((llpd1$TIME)),
+                                          ", NBS=",as.character((llpd1$NBS)),
+                                          ", NCON=",as.character((llpd1$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd1$PENALTY)),
+                                          ", std=",as.character(round(llpd1$stdVarXY)),
+                                          ", Error=",llpd1$Error,
+                                          ", TAG=",llpd1$TAG  
+               ))) %>%
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="original") %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[1],group="GPS",
+               popup = ~htmlEscape(paste0(", TAG=",llpd1$TAG  
+               ))) %>%
+    addScaleBar(position = c("bottomleft"), 
+                options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
+    addLayersControl(
+      overlayGroups = c("original","GPS"),
+      options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
+  ll
+}
+
+atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
+{
+  
+  # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039 "
+  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  coordinates(dd1)<-~X+Y
+  proj4string(dd1)<-CRS(itm)
+  llpd1 <- spTransform(dd1, wgs84)
+  
+  coordinates(dd2)<-~X+Y
+  proj4string(dd2)<-CRS(itm)
+  llpd2 <- spTransform(dd2, wgs84)
+  
+  coordinates(dd3)<-~X+Y
+  proj4string(dd3)<-CRS(itm)
+  llpd3 <- spTransform(dd3, wgs84)
+  
+  coordinates(dd4)<-~X+Y
+  proj4string(dd4)<-CRS(itm)
+  llpd4 <- spTransform(dd4, wgs84)
+  
+  require("RColorBrewer")
+  # display.brewer.all()
+  # display.brewer.pal(n = 4, name = 'RdYlBu')
+  # col=brewer.pal(n = 4, name = 'RdYlBu')
+  col=brewer.pal(n = 6, name = 'Dark2')
+  
+  ll<-leaflet() %>% 
+    addProviderTiles('CartoDB.Positron') %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
+               popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
+                                          ", TIME=",as.character((llpd1$TIME)),
+                                          ", NBS=",as.character((llpd1$NBS)),
+                                          ", NCON=",as.character((llpd1$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd1$PENALTY)),
+                                          ", std=",as.character(round(llpd1$stdVarXY)),
+                                          ", allBS=",llpd1$allBS,
+                                          ", TAG=",llpd1$TAG  
+               ))) %>%
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="original") %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="filtered-STD",
+               popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
+                                          ", TIME=",as.character((llpd2$TIME)),
+                                          ", NBS=",as.character((llpd2$NBS)),
+                                          ", NCON=",as.character((llpd2$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd2$PENALTY)),
+                                          ", std=",as.character(round(llpd2$stdVarXY)),
+                                          ", allBS=",llpd2$allBS,
+                                          ", TAG=",llpd2$TAG  
+               ))) %>%
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="filtered-STD") %>% 
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group="filtered-vel",
+               popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
+                                          ", TIME=",as.character((llpd3$TIME)),
+                                          ", NBS=",as.character((llpd3$NBS)),
+                                          ", NCON=",as.character((llpd3$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd3$PENALTY)),
+                                          ", std=",as.character(round(llpd3$stdVarXY)),
+                                          ", allBS=",llpd3$allBS,
+                                          ", TAG=",llpd3$TAG  
+               ))) %>%
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group="filtered-vel") %>% 
+    addCircles(data=llpd4, weight = 5, fillOpacity = 1,color = col[6],group="smoothed",
+               popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
+                                          ", TIME=",as.character((llpd4$TIME)),
+                                          ", NBS=",as.character((llpd4$NBS)),
+                                          ", NCON=",as.character((llpd4$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd4$PENALTY)),
+                                          ", std=",as.character(round(llpd4$stdVarXY)),
+                                          ", allBS=",llpd4$allBS,
+                                          ", TAG=",llpd4$TAG  
+               ))) %>%
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group="smoothed") %>% 
+    addScaleBar(position = c("bottomleft"), 
+                options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
+    addLayersControl(
+      overlayGroups = c("original","filtered-STD","filtered-vel","smoothed"),
+      options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
+  ll
+}
+atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
+{
+  
+  # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039 "
+  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  
+  coordinates(gpsTrack)<-~X+Y
+  proj4string(gpsTrack)<-CRS(itm)
+  llpdgps <- spTransform(gpsTrack, wgs84)
+  
+  coordinates(dd1)<-~X+Y
+  proj4string(dd1)<-CRS(itm)
+  llpd1 <- spTransform(dd1, wgs84)
+  
+  coordinates(dd2)<-~X+Y
+  proj4string(dd2)<-CRS(itm)
+  llpd2 <- spTransform(dd2, wgs84)
+  
+  coordinates(dd3)<-~X+Y
+  proj4string(dd3)<-CRS(itm)
+  llpd3 <- spTransform(dd3, wgs84)
+  
+  coordinates(dd4)<-~X+Y
+  proj4string(dd4)<-CRS(itm)
+  llpd4 <- spTransform(dd4, wgs84)
+  
+  require("RColorBrewer")
+  # display.brewer.all()
+  # display.brewer.pal(n = 4, name = 'RdYlBu')
+  # col=brewer.pal(n = 4, name = 'RdYlBu')
+  col=brewer.pal(n = 6, name = 'Dark2')
+  
+  ll<-leaflet() %>% 
+    addProviderTiles('CartoDB.Positron') %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpdgps, weight = 1, fillOpacity = 1,color = "black",group="GPS",
+               popup = ~htmlEscape(paste0("1:time=",as.character((llpdgps$dateTime))  
+               ))) %>%
+    addPolylines(data=llpdgps@coords, weight = 1, opacity = 1,col="black",group="GPS") %>% 
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
+               popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
+                                          ", TIME=",as.character((llpd1$TIME)),
+                                          ", NBS=",as.character((llpd1$NBS)),
+                                          ", NCON=",as.character((llpd1$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd1$PENALTY)),
+                                          ", std=",as.character(round(llpd1$stdVarXY)),
+                                          ", allBS=",llpd1$allBS,
+                                          ", Error=",llpd1$Error,
+                                          ", TAG=",llpd1$TAG  
+               ))) %>%
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="original") %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="filtered-STD",
+               popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
+                                          ", TIME=",as.character((llpd2$TIME)),
+                                          ", NBS=",as.character((llpd2$NBS)),
+                                          ", NCON=",as.character((llpd2$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd2$PENALTY)),
+                                          ", std=",as.character(round(llpd2$stdVarXY)),
+                                          ", allBS=",llpd2$allBS,
+                                          ", Error=",llpd2$Error,
+                                          ", TAG=",llpd2$TAG  
+               ))) %>%
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="filtered-STD") %>% 
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group="filtered-vel",
+               popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
+                                          ", TIME=",as.character((llpd3$TIME)),
+                                          ", NBS=",as.character((llpd3$NBS)),
+                                          ", NCON=",as.character((llpd3$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd3$PENALTY)),
+                                          ", std=",as.character(round(llpd3$stdVarXY)),
+                                          ", allBS=",llpd3$allBS,
+                                          ", Error=",llpd3$Error,
+                                          ", TAG=",llpd3$TAG  
+               ))) %>%
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group="filtered-vel") %>% 
+    addCircles(data=llpd4, weight = 1, fillOpacity = 1,color = col[6],group="smoothed",
+               popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
+                                          ", TIME=",as.character((llpd4$TIME)),
+                                          ", NBS=",as.character((llpd4$NBS)),
+                                          ", NCON=",as.character((llpd4$NCONSTRAINTS)),
+                                          ", pen=",as.character(round(llpd4$PENALTY)),
+                                          ", std=",as.character(round(llpd4$stdVarXY)),
+                                          ", allBS=",llpd4$allBS,
+                                          ", Error=",llpd4$Error,
+                                          ", TAG=",llpd4$TAG  
+               ))) %>%
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group="smoothed") %>% 
+    addScaleBar(position = c("bottomleft"), 
+                options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
+    addLayersControl(
+      overlayGroups = c("GPS","original","filtered-STD","filtered-vel","smoothed"),
+      options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
+  ll
+}
+
 atl_mapgg <- function(dd,lon_name="LON",lat_name="LAT")
 {
   colnames(dd)[which(colnames(dd)==lon_name)] <- "LON"
