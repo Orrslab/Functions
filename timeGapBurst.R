@@ -18,12 +18,9 @@ timeGapBurst <- function(data,secTol,minBurstFix,sampRate=8,keepadditionalvars=T
   data$TIME <- as.numeric(data$TIME)
   dataBurst_1 <- data %>%
     make_track(.x=X, .y=Y, .t=dateTime) %>%
-    track_resample(rate = seconds(sampRate), tolerance = seconds(secTol)) %>%
-    steps_by_burst() %>%
-    group_by(burst_) %>%
-    ungroup() %>%
-    select(x1_,y1_,t1_,burst_) %>%
-    rename(X = x1_,Y = y1_,dateTime = t1_, timeGapBurst = burst_) %>%
+    track_resample(rate = seconds(sampRate), tolerance = seconds(secTol)) %>%     # steps_by_burst() %>%   group_by(burst_) %>%    ungroup() %>%
+    select(x_,y_,t_,burst_) %>% #select(x1_,y1_,t1_,burst_) %>%
+    rename(X = x_,Y = y_,dateTime = t_, timeGapBurst = burst_) %>% #rename(X = x1_,Y = y1_,dateTime = t1_, timeGapBurst = burst_) %>%
     group_by(timeGapBurst) %>% # remove burst with pointInBurst lower than "minBurstFix"
     add_count()%>%
     filter(n > minBurstFix) %>%
