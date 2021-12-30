@@ -82,3 +82,84 @@ matl_get_speed <- function (data, x = "x", y = "y", time = "time", type = "in", 
   }
   return(speed)
 }
+
+atl_unifiedFilter <- function(data,stdLimit=80,spdLimit=20,spdSteps=3,distLimit=300,distSteps=3, val1Limit=0.75,ellipsMovangle=15,ellipsMovRadius=15,ellipsMovDist=30)
+{
+  # the unified filter wraps a set of basic filters:
+    # stdVarXY filter that filter-out any point with value greater than stdLimit
+    # basic filter that discards any location which is identical to the previous
+    # Baguette filter that discards points with skewed uncertainty ellipse (discard points with small ellipse radius smaller than val1Limit)
+    # ellipse-Move filter that  discard points the move in correlation with their uncertainty ellipse with parameters: 
+    #          ellipsMovangle ( max angle between ellipse and movement),
+    #          ellipsMovRadius (max distance from previous location)
+    #          ellipsMovDist   (max value for large axis of the uncertainty ellipse))
+    # velocity filter (maximum speed of spdLimit over spdSteps steps )
+    # distance filter (maximum distance of distLimit over distSteps steps )
+  
+  if (length(which(colnames(data) %in% c("TIME","X","Y","VARX","VARY","COVXY")))<6){
+    Er <- simpleError(paste("atl_unifiedFilter: missing one of the columns TIME,X,Y,VARX,VARY,COVXY\n",
+                            "  TIME expected to be 13 length integer for epoch time in millisecond",
+                            "  X,Y coordinats in local mercator projection (metric units)"))
+    stop(Er)
+  }
+  if (length(unique(data$TAG))>1) #the function is written to work on a single TAG (this line verify this requirement)
+  {
+    Er <- simpleError(paste("The atl_unifiedFilter function deals with single tags data"))
+    stop(Er)
+  }
+  ellipsMovangle <- abs(cos(ellipsMovangle*pi/180)) # convert the angle to its cosine value
+  data <- addLocAttribute(data, locAttributs=c("distanceSpeed","locQuality")) # function to add attributes for each pair of conseucutive points. 
+  data <- data %>% filter(stdVarXY<stdLimit) %>%  # calculate ellipse parameters from VAR and COV values ( require the ellipsDir function from this file)
+                  mutate(val1=sqrt(((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
+                         val2=sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
+                         ellipsDir=ellipsDir(VARX,VARY,COVXY),
+                         dX=abs(X-lag(X))) %>%
+    filter(dX>0) %>%  # discards any location which is identical to the previous
+    filter(val1>val1Limit) %>% # discards points with skewed uncertainty ellipse
+    # group_by(TAG) %>% 
+    mutate(dX=X-lag(X), #medlag5(X), # caclculates movement direction!
+           dY=Y-lag(Y), #medlag5(Y),
+           moveAngle= atan2(dX,dY)*180/pi,
+           moveAngle= ifelse(moveAngle>0,moveAngle,moveAngle+360),
+           projMovStdaxis=abs(cos((moveAngle-ellipsDir)*pi/180)),
+           Dist = sqrt(dX^2+dY^2)
+           #filter options: val2*projMovStdaxis>12, distance*projMovStdaxis>50 or different combinations of them
+    ) %>% 
+    # filter(projMovStdaxis<0.95|val2<15) %>%
+    filter(projMovStdaxis<ellipsMovangle|val2<ellipsMovRadius|Dist<ellipsMovDist) %>%
+    # dplyr::select(-c(dX,dY,Dist)) %>% 
+    ungroup()
+  data <- velocity_filter (data,spdLimit, x = "X", y = "Y", time = "TIME", steps=spdSteps) # velocity filter
+  data <- distance_filter (data,distLimit, x = "X", y = "Y", steps=distSteps) # distance filter
+  data <- addLocAttribute(data, locAttributs=c("speed")) # function to add attributes for each pair of conseucutive points. 
+  
+  return(data)
+  
+  
+}
+
+eDir <-function(VecVal)
+{
+  ellipDir <- ifelse(VecVal$values[1]>VecVal$values[2],
+                     atan2( VecVal$vectors[1,1],VecVal$vectors[2,1])*180/pi,
+                     atan2( VecVal$vectors[1,2],VecVal$vectors[2,2])*180/pi)
+  ellipDir <- ifelse(ellipDir>0,ellipDir,ellipDir+180)
+  return(ellipDir)
+}
+
+ellipsDir <- function(VARX,VARY,COVXY)
+{
+  x <- cbind(VARX, COVXY, COVXY,VARY)
+  listOfMat <- lapply(seq_len(nrow(x)), function(i) x[i,])
+  listOfMat <- lapply(listOfMat,matrix,ncol=2)
+  listOfVecVal <- lapply(listOfMat,eigen)
+  return(unlist(lapply(listOfVecVal,eDir)))
+  
+}
+
+medlag5 <- function(x)
+{
+  xx <- cbind(lag(x,1),lag(x,2),lag(x,3),lag(x,4),lag(x,5))
+  listOfLags <- lapply(seq_len(nrow(xx)), function(i) xx[i,])
+  return(unlist(lapply(listOfLags,median,na.rm=T)))
+}

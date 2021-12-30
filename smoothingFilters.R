@@ -54,7 +54,7 @@ movMean <- function(dataBurst,Weight = c(0.25,0.5,0.25),replace=T,rmGeoCoords=T)
     return(data.frame(X=X,Y=Y))
 }
 
-AvgSmooth <- function(dataBurst,Weight = c(0.25,0.5,0.25),UpdateGeoCoords=T)
+AvgSmooth <- function(dataBurst,Weight = c(0.25,0.5,0.25),UpdateGeoCoords=T,DistDiffThreshold=0)
 { 
   # This function operates the two smoothing functions () on separated groups defined by its timeGapBurst value!
   # The function requires the following input variables:
@@ -63,7 +63,7 @@ AvgSmooth <- function(dataBurst,Weight = c(0.25,0.5,0.25),UpdateGeoCoords=T)
   # The output is the same data.frame with smoothed coordinates. 
     dataBurst <- dataBurst %>% 
   group_by(timeGapBurst) %>%
-    group_modify(~ outlayerSmooth(.,rmGeoCoords=F)) %>% 
+    group_modify(~ outlayerSmooth(.,rmGeoCoords=F,DistDiffThreshold=DistDiffThreshold    )) %>% 
     group_modify(~ movMean(.,Weight,rmGeoCoords=F ))
     
     if(UpdateGeoCoords)

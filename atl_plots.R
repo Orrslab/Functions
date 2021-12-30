@@ -4,13 +4,19 @@
 # red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
 atl_mapleaf <- function(dd)
 {
-  if( all(c("X","Y") %in% colnames(data))) 
+  varlist =c("PENALTY","spd","angl","stdVarXY")
+  for (varname in varlist)
+  {
+    if (!(varname %in% names(dd1)))
+      dd1[,varname] <- NA
+  } 
+  if(! all(c("X","Y") %in% colnames(dd))) 
   {Er <- simpleError("data must contain X and Y columns")
   stop(Er)}
-  if( nrow(data)==0) 
+  if( nrow(dd)==0) 
   {Er <- simpleError("you must provide at least a single data point")
   stop(Er)}
-  itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039" #+proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
   coordinates(dd)<-~X+Y
   proj4string(dd)<-CRS(itm)
@@ -19,16 +25,95 @@ atl_mapleaf <- function(dd)
   ll<-leaflet() %>% 
     addProviderTiles('Esri.WorldImagery') %>% # Esri.WorldGrayCanvas #CartoDB.Positron # comment this line to get a grey empty background!
       addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
-                            popup = ~htmlEscape(paste0("time=",as.character(round(llpd$dateTime)),
+                            popup = ~htmlEscape(paste0("time=",as.character((llpd$dateTime)),
                                                        ",NBS=",as.character((llpd$NBS)),
-                                                       ",spd=",as.character(round(llpd$spd)),
-                                                       ",pen=",as.character(round(llpd$PENALTY)),
-                                                       ",std=",as.character(round(llpd$stdVarXY)),
+                                                       ", spd=",as.character(round(llpd$spd)),
+                                                       ", angl=",as.character(round(llpd$angl)),
+                                                       ", pen=",as.character(round(llpd$PENALTY)),
+                                                       ", std=",as.character(round(llpd$stdVarXY)),
+                                                       ", TIME=",as.character((llpd$TIME)),
+                                                       ", ant=",llpd$allBS,
                                                        ",TAG=",llpd$TAG  
                                                        ))) %>%
       addPolylines(data=llpd@coords, weight = 1, opacity = 1,col="pink")
   ll
 }
+
+atl_mapleaf2 <- function(dd1,dd2)
+{
+  
+  varlist =c("PENALTY","spd","distance","moveAngle","stdVarXY","val1","val2","ellipsDir","stdtowardMove")
+  for (varname in varlist)
+  {
+    if (!(varname %in% names(dd1)))
+        dd1[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd2[,varname] <- NA
+  } 
+  
+  # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039 "
+  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  coordinates(dd1)<-~X+Y
+  proj4string(dd1)<-CRS(itm)
+  llpd1 <- spTransform(dd1, wgs84)
+  
+  coordinates(dd2)<-~X+Y
+  proj4string(dd2)<-CRS(itm)
+  llpd2 <- spTransform(dd2, wgs84)
+  
+  require("RColorBrewer")
+  # display.brewer.all()
+  # display.brewer.pal(n = 4, name = 'RdYlBu')
+  # col=brewer.pal(n = 4, name = 'RdYlBu')
+  col=brewer.pal(n = 6, name = 'Dark2')
+  
+  ll<-leaflet() %>% 
+    addProviderTiles('Esri.WorldImagery' ) %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="data1",
+               popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
+                                          ", TIME=",as.character((llpd1$TIME)),
+                                          ", NBS=",as.character((llpd1$NBS)),
+                                          ", NCON=",as.character((llpd1$NCONSTRAINTS)),
+                                          ", allBS=",llpd1$allBS,
+                                          ", pen=",as.character(round(llpd1$PENALTY)),
+                                          ", spd=",as.character(round(llpd1$spd)),
+                                          ", dist=",as.character(round(llpd1$distance)),
+                                          ", moveAngle=",as.character(round(llpd1$moveAngle)),
+                                          ", std=",as.character(round(llpd1$stdVarXY)),
+                                          ", val1=",as.character(round(llpd1$val1)),
+                                          ",val2=",as.character(round(llpd1$val2)),
+                                          ",ellipsDir=",as.character(round(llpd1$ellipsDir)),
+                                          ",stdtowardMove=",as.character(round(llpd1$stdtowardMove)),
+                                          ", TAG=",llpd1$TAG  
+               ))) %>%
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="data1") %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="data2",
+               popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
+                                          ", TIME=",as.character((llpd2$TIME)),
+                                          ", NBS=",as.character((llpd2$NBS)),
+                                          ", NCON=",as.character((llpd2$NCONSTRAINTS)),
+                                          ", allBS=",llpd2$allBS,
+                                          ", pen=",as.character(round(llpd2$PENALTY)),
+                                          ", spd=",as.character(round(llpd2$spd)),
+                                          ",dist=",as.character(round(llpd2$distance)),
+                                          ",moveAngle=",as.character(round(llpd2$moveAngle)),
+                                          ", std=",as.character(round(llpd2$stdVarXY)),
+                                          ", val1=",as.character(round(llpd2$val1)),
+                                          ",val2=",as.character(round(llpd2$val2)),
+                                          ",ellipsDir=",as.character(round(llpd2$ellipsDir)),
+                                          ", stdtowardMove=",as.character(round(llpd2$stdtowardMove)),
+                                          ", TAG=",llpd2$TAG  
+               ))) %>%
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="data2") %>% 
+    addScaleBar(position = c("bottomleft"), 
+                options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
+    addLayersControl(
+      overlayGroups = c("data1","data2"),
+      options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
+  ll
+}
+
 #leaflet plot for movement data with specified stops
 # requires two data.frames in a single list dd=list(FiltLoc1,ADP):
         # FiltLoc1 is an ATLAS data.frame "X" and "Y" in itm coordinates
@@ -51,7 +136,7 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
   {Days <- unique(Loc1$DAY)}
   if(is.null(Tags))
   {Tags <- unique(Loc1$TAG)}
-  itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  itm<-"+init=epsg:2039 "# +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
     Loc1 <- dd[[1]]
     Loc1 <- Loc1[which((Loc1$TAG %in% Tags)&(Loc1$DAY %in% Days)),]
@@ -69,7 +154,7 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
       addProviderTiles('Esri.WorldImagery') %>%
       addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = "blue",
                              popup = ~htmlEscape(paste0(",std=",as.character(round(llpd1$stdVarXY)),
-                                                        ",time=",as.character(round(llpd1$dateTime)),
+                                                        ",time=",as.character((llpd1$dateTime)),
                                                         ",TAG=",as.character((llpd1$TAG))))) %>%
       
       addPolylines(data=llpd1@coords, color = "blue",weight = 1, opacity = 1)  %>%
@@ -112,10 +197,16 @@ Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
 # plot a function using ggmap
 # requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
 # does not return any variable
-atl_mapleaf1 <- function(gpsTrack,dd1)
+atl_mapleafGPS1 <- function(gpsTrack,dd1)
 {
+  varlist =c("PENALTY","stdVarXY")
+  for (varname in varlist)
+  {
+    if (!(varname %in% names(dd1)))
+      dd1[,varname] <- NA
+  } 
   
-  # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
+  # itm<-"+init=epsg:2039" # +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   itm<-"+init=epsg:2039 "
   wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
   coordinates(dd1)<-~X+Y
@@ -157,7 +248,18 @@ atl_mapleaf1 <- function(gpsTrack,dd1)
 
 atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
 {
-  
+  varlist =c("PENALTY","stdVarXY")
+  for (varname in varlist)
+  {
+    if (!(varname %in% names(dd1)))
+      dd1[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd2[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd3[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd4[,varname] <- NA
+  } 
   # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   itm<-"+init=epsg:2039 "
   wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
@@ -238,6 +340,19 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
 }
 atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
 {
+  
+  varlist =c("PENALTY","stdVarXY")
+  for (varname in varlist)
+  {
+    if (!(varname %in% names(dd1)))
+      dd1[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd2[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd3[,varname] <- NA
+    if (!(varname %in% names(dd2)))
+      dd4[,varname] <- NA
+  } 
   
   # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
   itm<-"+init=epsg:2039 "
