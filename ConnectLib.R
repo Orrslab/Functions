@@ -37,7 +37,8 @@ library(suncalc)
 # install.packages(paste0(general_path,"/Workshop/toolsForAtlas_1.0.tar.gz"), repos = NULL, type = "source")
 # install.packages(paste0(path2func,"/toolsForAtlas_1.0.tar.gz"), repos = NULL, type = "source")
 # devtools::install_github("pratikunterwegs/atlastools")
-library(toolsForAtlas) # the ATLAS package (Sivan Margalit)
+library(toolsForAtlas) # the ATLAS package (Sivan Margalit) 
+  # https://rdrr.io/github/sivanMargalit/toolsForAtlas/
 # install.packages("devtools")  # for atlastiools by pratikunter
 # devtools::install_github("pratikunterwegs/atlastools") # for atlastiools by pratikunter
 library(atlastools)
@@ -47,7 +48,8 @@ library(atlastools)
 
 # source(paste0(path2func,"points_to_line.R"))
   
-source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions
+  source(paste0(path2func,'ellips_param.R'))
+  source(paste0(path2func,"Data_from_ATLAS_server.R"))    # my functions
 source(paste0(path2func,"identifyDetections.R"))    # my function
 source(paste0(path2func,"visual_filter.R"))       # my functions
 source(paste0(path2func,"wrap_ADP.R"))            # my functions
@@ -60,4 +62,5 @@ source(paste0(path2func,"velocity_filter.R"))     # my functions
 source(paste0(path2func,"DayNight_Progress.R"))     # my functions   
 source(paste0(path2func,"smoothingFilters.R"))     # my functions 
 source(paste0(path2func,"timeGapBurst.R"))     # my functions 
+source(paste0(path2func,"defineMoveStopSegments.R"))     # my functions 
 }
