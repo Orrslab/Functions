@@ -1,5 +1,4 @@
-A <- as.character((1:10))
-B <- as.character((15:5))
+
 
 ListCompare <- function(Left,Right, PrintOnly=T)
 {
@@ -17,5 +16,11 @@ ListCompare <- function(Left,Right, PrintOnly=T)
  if(!PrintOnly)
  return(list('both'= INTERSECT, 'OnlyLeft'=Left[!(Left %in% INTERSECT)], 'OnlyRight'= Right[!(Right %in% INTERSECT)]))
 }
- ListCompare(A,B)
+
+
+##           # examples:
+# A <- as.character((1:10))
+# B <- as.character((15:5))
+# ListCompare(A,B)
+# ListCompare(A,B,PrintOnly = F)
  
