@@ -10,6 +10,7 @@
 require("suncalc")
 require("dplyr")
 require("lubridate")
+require("ggplot2")
 DayNight_Progress <- function(Time_POSI, Lat, Lon) {
   if (!is.POSIXct(Time_POSI))
     {er <- errorCondition("the Time_POSI vector must be in POSIXct format")
@@ -29,14 +30,14 @@ DayNight_Progress <- function(Time_POSI, Lat, Lon) {
   data$date <- date(data$Time_POSI)
   data$Sun_Alt <- Sun_Alt$altitude
   data$Part = ifelse(data$Sun_Alt<=0, "Night", "Day") # defining each point as night or day
-  data <- data[order(data$Time_POSI),]
+  OrderedData <- data[order(data$Time_POSI),]
   
   # the next three lines identifyes night/ date/date changes, 
   # the length of day and beginning of each segment (day/night in a date) is calculated once for each segment  for computational efficiency)
   
-  data$diff <- data$Part!=lag(data$Part)|(date(data$Time_POSI)!=lag(date(data$Time_POSI))) 
-  data <- data %>% mutate(partNum=cumsum(ifelse(is.na(diff), 0, diff)))
-  Days <- data %>% group_by(partNum) %>%  slice(1) # takes only the first of each segment
+  OrderedData$diff <- OrderedData$Part!=lag(OrderedData$Part)|(date(OrderedData$Time_POSI)!=lag(date(OrderedData$Time_POSI))) 
+  OrderedData <- OrderedData %>% mutate(partNum=cumsum(ifelse(is.na(diff), 0, diff)))
+  Days <- OrderedData %>% group_by(partNum) %>%  slice(1) # takes only the first of each segment
   
   # calculates the segment length :  
   Days$length <- (
@@ -77,9 +78,51 @@ DayNight_Progress <- function(Time_POSI, Lat, Lon) {
                                        }),
     tz="UTC", origin="1970-01-01")
 
+data <- left_join(data,distinct(select(OrderedData,partNum,Time_POSI,lat,lon)),by=c("Time_POSI","lat","lon")) # joining the length and beginning time for all data 
 data <- left_join(data,select(Days,partNum,length,start),by="partNum") # joining the length and beginning time for all data 
 data$progress <- as.numeric((data$Time_POS-data$start)/data$length)
 data$progress[which(data$Part=="Day")] <- data$progress[which(data$Part=="Day")]+1
 return (abs(data$progress*100)) # the absolute value is taken to make sure no negative values are taken stemming from the fact that
 #the sunrise is defined slightly before the the sun angle become positive (insgnificant number of samples)
 }
+
+
+plotDailyActivity <- function(MoveData,activeSpeed=50/1200,TimevarName='dateTime',IdentifierName='TAG',simplePlot=T)
+{
+  if (!all(c(TimevarName,IdentifierName,'Latitude','Longitude','X','Y') %in% names(MoveData)) )
+    simpleError(sprintf( 'MoveData doesnt contain the required variable:Latitude,Longitude,X,Y, %s, %s' , TimevarName,IdentifierName)  )
+  colnames(MoveData)[(colnames(MoveData)==TimevarName)] <- 'dateTime'
+  colnames(MoveData)[(colnames(MoveData)==IdentifierName)] <- 'TAG'
+  MoveData <- MoveData %>% arrange(TAG,dateTime) %>% 
+    group_by(TAG) %>% 
+    mutate(dist=sqrt((X-lag(X))^2+(Y-lag(Y))^2),
+           spd=dist/as.numeric(dateTime-lag(dateTime),units='secs'),
+           H=hour(dateTime)) %>%
+    ungroup()
+  MoveData$dayprogress <- DayNight_Progress(MoveData$dateTime,MoveData$Latitude,MoveData$Longitude)
+  
+  activeRatio <- MoveData %>% arrange(TAG,dateTime) %>% 
+    filter(dayprogress<201) %>% 
+    mutate(dayProgCategory = (round(dayprogress/10)*10/200)) %>%
+    group_by(dayProgCategory) %>% 
+    mutate(totalPointsCount=n(),
+           activePointsCount=length(which(spd>activeSpeed)),
+           activeRatio=activePointsCount/totalPointsCount) %>% 
+    slice(1)
+  if(simplePlot)
+  {
+    plot((activeRatio$dayProgCategory),activeRatio$activeRatio,ylim=c(0,1))
+    x <- seq(0,1,0.01)
+    lines(x,(1+cos(pi+x*2*pi))/3,col='red')
+    lines(x,x*0+1/3,col='red')
+  }
+  else{
+    
+    p <-  ggplot(MoveData %>% filter(dayprogress<201), aes(x=as.factor(round(dayprogress/10)*10/200),y=spd)) + 
+      geom_violin(trim=F) + 
+      stat_summary(fun=mean, geom="point", size=2, color="red")+
+      ylim(0, 5*activeSpeed)
+    p
+  }
+}
+

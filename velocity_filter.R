@@ -117,8 +117,8 @@ atl_unifiedFilter <- function(data,stdLimit=80,spdLimit=20,spdSteps=3,distLimit=
     filter(dX>0) %>%  # discards any location which is identical to the previous
     filter(val1>val1Limit) %>% # discards points with skewed uncertainty ellipse
     # group_by(TAG) %>% 
-    mutate(dX=X-lag(X), #medlag5(X), # caclculates movement direction!
-           dY=Y-lag(Y), #medlag5(Y),
+    mutate(dX=X-medlag5(X), # lag(X), #caclculates movement direction!
+           dY=Y-medlag5(Y), # lag(Y), #
            moveAngle= atan2(dX,dY)*180/pi,
            moveAngle= ifelse(moveAngle>0,moveAngle,moveAngle+360),
            projMovStdaxis=abs(cos((moveAngle-ellipsDir)*pi/180)),
