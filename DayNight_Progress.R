@@ -113,7 +113,7 @@ plotDailyActivity <- function(MoveData,activeSpeed=50/1200,TimevarName='dateTime
   {
     plot((activeRatio$dayProgCategory),activeRatio$activeRatio,ylim=c(0,1))
     x <- seq(0,1,0.01)
-    lines(x,(1+cos(pi+x*2*pi))/3,col='red')
+    lines(x,(1+cos(pi/2+x*2*pi))/3,col='red')
     lines(x,x*0+1/3,col='red')
   }
   else{
