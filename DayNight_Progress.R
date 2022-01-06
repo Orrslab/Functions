@@ -78,8 +78,8 @@ DayNight_Progress <- function(Time_POSI, Lat, Lon) {
                                        }),
     tz="UTC", origin="1970-01-01")
 
-data <- left_join(data,distinct(select(OrderedData,partNum,Time_POSI,lat,lon)),by=c("Time_POSI","lat","lon")) # joining the length and beginning time for all data 
-data <- left_join(data,select(Days,partNum,length,start),by="partNum") # joining the length and beginning time for all data 
+data <- left_join(data,distinct(dplyr::select(OrderedData,partNum,Time_POSI,lat,lon)),by=c("Time_POSI","lat","lon")) # joining the length and beginning time for all data 
+data <- left_join(data,dplyr::select(Days,partNum,length,start),by="partNum") # joining the length and beginning time for all data 
 data$progress <- as.numeric((data$Time_POS-data$start)/data$length)
 data$progress[which(data$Part=="Day")] <- data$progress[which(data$Part=="Day")]+1
 return (abs(data$progress*100)) # the absolute value is taken to make sure no negative values are taken stemming from the fact that
