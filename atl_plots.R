@@ -7,8 +7,8 @@ atl_mapleaf <- function(dd)
   varlist =c("PENALTY","spd","angl","stdVarXY")
   for (varname in varlist)
   {
-    if (!(varname %in% names(dd1)))
-      dd1[,varname] <- NA
+    if (!(varname %in% names(dd)))
+      dd[,varname] <- NA
   } 
   if(! all(c("X","Y") %in% colnames(dd))) 
   {Er <- simpleError("data must contain X and Y columns")
