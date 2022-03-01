@@ -34,15 +34,56 @@ sapply(paste0(path2func,files.sources), source) #sourcing these functions
 # --------- Load raw data & from a local SQLite file created using an ATLAS query --------------------------
 {
 
-file_name <-"Query/TAG476June10_d.sqlite"
-file_name <-"Query/TAG476June10_simp.sqlite"
-file_name <-"Query/TAG476June10_l.sqlite"
-file_name <-"Query/car_Aug03_Det_loc_elevation.sqlite"
-file_name <-"Query/car_Aug03_loc_elevation.sqlite"
+
 file_name <-"Query/car_Aug03_Det_loc.sqlite"
-file_name <-"Query/car_Aug03_loc_elevation_3Dsimp.sqlite"
-file_name <-"Query/loc_BarnOwls_2021Dec25_27_simp_.sqlite"
-file_name <-"Query/Tag429Dec16_19_simp.sqlite"
+file_name <-"Query/Beacon3_2021Aug16_H1_d.sqlite"
+file_name <-"Query/TAG4619Aug03_H1206_l.sqlite"
+file_name <-"Query/TAG4619Aug03_H1206_l_fromDB.sqlite"
+
+file_name <-"Query/Tag573_2022Jan29_H04_d.sqlite"
+file_name <-"Query/Tag573_2022Jan29_H04_l.sqlite"
+file_name <-"Query/Tag573_2022Jan29_H04_GNcov.sqlite"
+
+file_name <-"Query/Tag405_2021_10_07_d_fromR.sqlite"
+file_name <-"Query/Tag405_2021_10_07_simp.sqlite"
+file_name <-"Query/Tag405_2021_10_07_simpGNcov.sqlite"
+file_name <-"Query/Tag405_2021_10_07_l.sqlite"
+
+file_name <-"Query/Alltags2021_06_10_14_l_afterInvalidate"
+file_name <-"Query/Alltags2021_06_10_14to15_d.sqlite"
+file_name <-"Query/Alltags2021_06_10_12to16_simp"
+
+file_name <-"Query/Tag438_2021Jun10_H1300_fromlocal_detfile.sqlite"
+file_name <-"Query/Tag438_2021Jun10_H1300_fromDB.sqlite"
+file_name <-"Query/Tag438_2021Jun10_H1300_d.sqlite"
+file_name <-"Query/Tag476_438_2021Jun9_12_dl.sqlite"
+file_name <-"Query/Tag476_438_2021Jun9_12_l.sqlite"
+file_name <-"Query/Tag476_438_2021Jun10_H7_DEM.sqlite"
+
+file_name <-"Query/Tag19_2020_06_17_19_d.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_simp.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_simp_simp.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_l_before.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_simp_hint.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_simp_fCSV.sqlite"
+file_name <-"Query/Tag19_2020_06_17_19_simp_fCSV_hint.sqlite"
+file_name <-"Query/Tag19_2020Jun17_H19_GNcov.sqlite"
+
+file_name <-"Query/allTag_2022Feb20_d.sqlite"
+file_name <-"Query/allTag_2022Feb20_simp_all.sqlite"
+file_name <-"Query/allTag_2022Feb20_simp_woBS07.sqlite"
+file_name <-"Query/allTag_2022Feb20_simp_woBS08.sqlite"
+file_name <-"Query/allTag_2022Feb20_simp_woBS16.sqlite"
+
+file_name <-"Query/Tag682_2022Feb22_H21_d.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_simp.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_simp_woBS04.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_Multiple_beaconDelay4.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_Single_ClkSyncPeriodic.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_Single_ClkSyncSingle.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_Single_ClkSyncPeriodic_plus15min.sqlite"
+file_name <-"Query/Tag682_2022Feb22_H21_simp_gridEnabled.sqlite"
+
 file_name <-'C:/Users/97254/eclipse-workspace/atlas-java/loc_TAG421_2021Oct04_simp_dbg.sqlite'
 file_name <-'C:/Users/97254/Google Drive/POST/Python/ATLAS/simulatedTrack_Det_421.sqlite'
 
@@ -56,40 +97,38 @@ dbListFields(conn, 'LOCALIZATIONS')
 
 RawLoc0 <- dbGetQuery(conn, "SELECT * FROM LOCALIZATIONS")
 RawDet0<- dbGetQuery(conn, "SELECT * FROM DETECTIONS")
-table(RawLoc0$TAG)
-table(RawDet0$TAG)
 dbDisconnect(conn)
-plot(RawLoc0$X,RawLoc0$Y)
-rm(conn)
 
-RawLoc0$TIME<-as.double(RawLoc0$TIME) # bypass the default 'integer64' class that is the default when querying RawLoc0 ATLAS data
-RawLoc0$TAG<-as.character(RawLoc0$TAG) # Change from meaningless "factor" class to character (text format) 
-# select only relevant columns:
-redundant_columns<-c("TX", "Z","GRADNRM","VARZ","COVXZ","COVYZ","DIM")
-RawLoc0<-RawLoc0[,-which(colnames(RawLoc0) %in% redundant_columns)]
+table(RawLoc0$TAG)
+table(RawDet0$TAG,RawDet0$BS)
+lot(RawLoc0$X,RawLoc0$Y)
+rm(conn)
 }
 # --------- Downloading data directly from server (requires VPN to TAU)-----------------
 {
   Tags <- read.csv("Atlas_Tag_Usage_17022021.csv")
   Tags <- Tags[which(Tags$Deployed=="Y"),]  
   # Tags <- Tags[which(Tags$Working. =="Y"),] 
-Start_Time_Str ='2021-09-27 00:20:01' # define start time
-End_Time_Str   ='2021-09-28 23:55:00' # Need to change to current date
-FullTag <- c(972006000405)
+Start_Time_Str ='2022-01-25 00:00:01' # define start time
+End_Time_Str   ='2022-01-26 00:00:01' # Need to change to current date
+FullTag <- c(972006000615,972006000558,972006000226)
 FullTag <- Tags$Tag.Number[-which(Tags$Tag.Number %in% c(972006000003,972006000004,972006000006))]
+Sys.time()
 AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,FullTag)
+Sys.time()
 RawLoc0 <- AllData$LOC
-RawDet0 <- AllData$DET
+RawDet0 <- AllData$DET #21:33 - 21:39
+Sys.Time()
 }
 
 # --------- Save data to SQLite file ------------------------------------
 {
 # saveIntoSQLite(dbname,RawLoc1) # (toolsForAtlas fuction didn't work for me)
-file_name<-"car_strategies.sqlite"
+file_name<-"Query/Tag405_2021_10_07_d_fromR.sqlite"
 dbname=paste0(path2data,file_name) # full path name
 conn <- dbConnect(RSQLite::SQLite(), dbname)
 dbWriteTable(conn, "LOC", a_list,overwrite=T)
-dbWriteTable(conn, "DET", RawDet0,overwrite=F, append=T)
+dbWriteTable(conn, "DETECTIONS", RawDet0 %>% mutate(TX=TAG,HEADROOM=11),overwrite=F, append=T)
 }
 # back to sqlite format readable by kamadata
 exportForKamadata(loc.df = RawLoc0,sqliteName ="data4kamada.sqlite",atlas.system = "harod")
@@ -121,11 +160,18 @@ RawLoc1 <- as.data.frame(RawLoc1)
 RawDet1$dateTime<-as.POSIXct((RawDet1$TIME)/1000, tz="UTC", origin="1970-01-01")
 RawLoc1$dateTime<-as.POSIXct((RawLoc1$TIME)/1000, tz="UTC", origin="1970-01-01")
 
+# Specify tag by 2 or 3 meaningful digits
+RawLoc1$TAG<-gsub("972006000", '', RawLoc1$TAG)
+RawLoc1$TAG<-gsub("97200100", '', RawLoc1$TAG)
+
+RawDet1$BS<-gsub("9720060", '', RawDet1$BS)
+RawDet1$TAG<-gsub("972006000", '', RawDet1$TAG)
+
 # Create a new columns: datetime distance, speed, angle, STD,
 # angle is the angle between sections and not the turning angle
 RawLoc1<-addLocAttribute(RawLoc1, locAttributs=c("distanceSpeed", "locQuality","angle")) # function to add attributes for each pair of conseucutive points. 
 RawLoc1$angl <- 180-abs(RawLoc1$angl)
-RawLoc1 <- RawLoc1 %>%  mutate(val1=sqrt(((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
+RawLoc1 <- RawLoc1 %>%  mutate(val1=sqrt(abs((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
                               val2=sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
                               ellipsDir=ellipsDir(VARX,VARY,COVXY)) %>%
                         group_by(TAG) %>%
@@ -135,9 +181,8 @@ RawLoc1 <- RawLoc1 %>%  mutate(val1=sqrt(((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*
                                moveAngle= ifelse(moveAngle>0,moveAngle,moveAngle+360),
                                projMovStdaxis=abs(cos((moveAngle-ellipsDir)*pi/180)),
                                DistMed5 = sqrt(dX^2+dY^2)
-                               #filter options: val2*projMovStdaxis>12, distance*projMovStdaxis>50 or different combinations of them
                                ) %>%
-                        dplyr::select(-c(dX,dY,)) %>%
+                        # dplyr::select(-c(dX,dY,)) %>%
                         ungroup()
 
  # Create a new columns with Sun and Moon angle above the horizon (accurate to each location and time)
@@ -152,12 +197,7 @@ RawLoc1 <- AssignDayNumber(RawLoc1,DayStartTime="00:00:00",TimeColName="dateTime
 # adding day / time progress to each varialbe
 # RawLoc1$dayprogress <- DayNight_Progress(RawLoc1$dateTime,RawLoc1$LAT,RawLoc1$LON)
 
-# Specify tag by 2 or 3 meaningful digits
-RawLoc1$TAG<-gsub("972006000", '', RawLoc1$TAG)
-RawLoc1$TAG<-gsub("97200100", '', RawLoc1$TAG)
 
-RawDet1$BS<-gsub("9720060", '', RawDet1$BS)
-RawDet1$TAG<-gsub("972006000", '', RawDet1$TAG)
 }
 # deleting redundant columns
 redundant_columns<-c("traceNorm","angl","NBS","Z") # columns we won't use in this example.

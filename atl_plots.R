@@ -2,7 +2,7 @@
 # requires an ATLAS data.frame is "X" and "Y" in itm coordinates
 # does not return any variable
 # red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
-atl_mapleaf <- function(dd)
+atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery')
 {
   varlist =c("PENALTY","spd","angl","stdVarXY")
   for (varname in varlist)
@@ -23,7 +23,7 @@ atl_mapleaf <- function(dd)
   llpd <- spTransform(dd, wgs84)
 # llpd2 <- llpd
   ll<-leaflet() %>% 
-    addProviderTiles('Esri.WorldImagery') %>% # Esri.WorldGrayCanvas #CartoDB.Positron # comment this line to get a grey empty background!
+    addProviderTiles(MapProvider) %>% # Esri.WorldGrayCanvas #CartoDB.Positron # comment this line to get a grey empty background!
       addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
                             popup = ~htmlEscape(paste0("time=",as.character((llpd$dateTime)),
                                                        ",NBS=",as.character((llpd$NBS)),
@@ -39,10 +39,10 @@ atl_mapleaf <- function(dd)
   ll
 }
 
-atl_mapleaf2 <- function(dd1,dd2)
+atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLables=c("1","2"))
 {
   
-  varlist =c("PENALTY","spd","distance","moveAngle","stdVarXY","val1","val2","ellipsDir","stdtowardMove")
+  varlist =c("PENALTY","spd","distance","moveAngle","stdVarXY","val1","val2","ellipsDir","DistMed5","Z")
   for (varname in varlist)
   {
     if (!(varname %in% names(dd1)))
@@ -69,10 +69,11 @@ atl_mapleaf2 <- function(dd1,dd2)
   col=brewer.pal(n = 6, name = 'Dark2')
   
   ll<-leaflet() %>% 
-    addProviderTiles('Esri.WorldImagery' ) %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="data1",
+    addProviderTiles(MapProvider ) %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[1],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
+                                          ", Z=",as.character((llpd1$Z)),
                                           ", NBS=",as.character((llpd1$NBS)),
                                           ", NCON=",as.character((llpd1$NCONSTRAINTS)),
                                           ", allBS=",llpd1$allBS,
@@ -84,13 +85,14 @@ atl_mapleaf2 <- function(dd1,dd2)
                                           ", val1=",as.character(round(llpd1$val1)),
                                           ",val2=",as.character(round(llpd1$val2)),
                                           ",ellipsDir=",as.character(round(llpd1$ellipsDir)),
-                                          ",stdtowardMove=",as.character(round(llpd1$stdtowardMove)),
+                                          ",DistMed5=",as.character(round(llpd1$DistMed5)),
                                           ", TAG=",llpd1$TAG  
                ))) %>%
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="data1") %>% 
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="data2",
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[1]) %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[2],
                popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
                                           ", TIME=",as.character((llpd2$TIME)),
+                                          ", Z=",as.character((llpd2$Z)),
                                           ", NBS=",as.character((llpd2$NBS)),
                                           ", NCON=",as.character((llpd2$NCONSTRAINTS)),
                                           ", allBS=",llpd2$allBS,
@@ -102,14 +104,14 @@ atl_mapleaf2 <- function(dd1,dd2)
                                           ", val1=",as.character(round(llpd2$val1)),
                                           ",val2=",as.character(round(llpd2$val2)),
                                           ",ellipsDir=",as.character(round(llpd2$ellipsDir)),
-                                          ", stdtowardMove=",as.character(round(llpd2$stdtowardMove)),
+                                          ", DistMed5=",as.character(round(llpd2$DistMed5)),
                                           ", TAG=",llpd2$TAG  
                ))) %>%
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="data2") %>% 
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[2]) %>% 
     addScaleBar(position = c("bottomleft"), 
                 options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
     addLayersControl(
-      overlayGroups = c("data1","data2"),
+      overlayGroups = legendLables,
       options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
   ll
 }
@@ -197,7 +199,7 @@ Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
 # plot a function using ggmap
 # requires an ATLAS data.frame with "LAT" and "LON" in wgs84 geographic coordinates
 # does not return any variable
-atl_mapleafGPS1 <- function(gpsTrack,dd1)
+atl_mapleafGPS1 <- function(gpsTrack,dd1,MapProvider='Esri.WorldImagery')
 {
   varlist =c("PENALTY","stdVarXY")
   for (varname in varlist)
@@ -223,7 +225,7 @@ atl_mapleafGPS1 <- function(gpsTrack,dd1)
   col=brewer.pal(n = 6, name = 'Dark2')
   
   ll<-leaflet() %>% 
-    addProviderTiles('Esri.WorldImagery') %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addProviderTiles(MapProvider) %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
     addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
@@ -246,7 +248,7 @@ atl_mapleafGPS1 <- function(gpsTrack,dd1)
   ll
 }
 
-atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
+atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLables=c("1","2","3","4"))
 {
   varlist =c("PENALTY","stdVarXY")
   for (varname in varlist)
@@ -286,8 +288,8 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
   col=brewer.pal(n = 6, name = 'Dark2')
   
   ll<-leaflet() %>% 
-    addProviderTiles('CartoDB.Positron') %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
+    addProviderTiles(MapProvider) %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[1],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
                                           ", NBS=",as.character((llpd1$NBS)),
@@ -297,8 +299,8 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
                                           ", allBS=",llpd1$allBS,
                                           ", TAG=",llpd1$TAG  
                ))) %>%
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="original") %>% 
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="filtered-STD",
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[1]) %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[2],
                popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
                                           ", TIME=",as.character((llpd2$TIME)),
                                           ", NBS=",as.character((llpd2$NBS)),
@@ -308,8 +310,8 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
                                           ", allBS=",llpd2$allBS,
                                           ", TAG=",llpd2$TAG  
                ))) %>%
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="filtered-STD") %>% 
-    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group="filtered-vel",
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[2]) %>% 
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLables[3],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
                                           ", TIME=",as.character((llpd3$TIME)),
                                           ", NBS=",as.character((llpd3$NBS)),
@@ -319,8 +321,8 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
                                           ", allBS=",llpd3$allBS,
                                           ", TAG=",llpd3$TAG  
                ))) %>%
-    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group="filtered-vel") %>% 
-    addCircles(data=llpd4, weight = 5, fillOpacity = 1,color = col[6],group="smoothed",
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLables[3]) %>% 
+    addCircles(data=llpd4, weight = 5, fillOpacity = 1,color = col[6],group=legendLables[4],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
                                           ", TIME=",as.character((llpd4$TIME)),
                                           ", NBS=",as.character((llpd4$NBS)),
@@ -330,15 +332,15 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4)
                                           ", allBS=",llpd4$allBS,
                                           ", TAG=",llpd4$TAG  
                ))) %>%
-    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group="smoothed") %>% 
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLables[4]) %>% 
     addScaleBar(position = c("bottomleft"), 
                 options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
     addLayersControl(
-      overlayGroups = c("original","filtered-STD","filtered-vel","smoothed"),
+      overlayGroups = legendLables,
       options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
   ll
 }
-atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
+atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLables=c("GPS","1","2","3","4"))
 {
   
   varlist =c("PENALTY","stdVarXY")
@@ -385,12 +387,12 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
   col=brewer.pal(n = 6, name = 'Dark2')
   
   ll<-leaflet() %>% 
-    addProviderTiles('CartoDB.Positron') %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
-    addCircles(data=llpdgps, weight = 1, fillOpacity = 1,color = "black",group="GPS",
+    addProviderTiles(MapProvider) %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+    addCircles(data=llpdgps, weight = 1, fillOpacity = 1,color = "black",group=legendLables[1],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpdgps$dateTime))  
                ))) %>%
-    addPolylines(data=llpdgps@coords, weight = 1, opacity = 1,col="black",group="GPS") %>% 
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group="original",
+    addPolylines(data=llpdgps@coords, weight = 1, opacity = 1,col="black",group=legendLables[1]) %>% 
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[2],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
                                           ", NBS=",as.character((llpd1$NBS)),
@@ -401,8 +403,8 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
                                           ", Error=",llpd1$Error,
                                           ", TAG=",llpd1$TAG  
                ))) %>%
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group="original") %>% 
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group="filtered-STD",
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[2]) %>% 
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[3],
                popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
                                           ", TIME=",as.character((llpd2$TIME)),
                                           ", NBS=",as.character((llpd2$NBS)),
@@ -413,8 +415,8 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
                                           ", Error=",llpd2$Error,
                                           ", TAG=",llpd2$TAG  
                ))) %>%
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group="filtered-STD") %>% 
-    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group="filtered-vel",
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[3]) %>% 
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLables[4],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
                                           ", TIME=",as.character((llpd3$TIME)),
                                           ", NBS=",as.character((llpd3$NBS)),
@@ -425,8 +427,8 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
                                           ", Error=",llpd3$Error,
                                           ", TAG=",llpd3$TAG  
                ))) %>%
-    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group="filtered-vel") %>% 
-    addCircles(data=llpd4, weight = 1, fillOpacity = 1,color = col[6],group="smoothed",
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLables[4]) %>% 
+    addCircles(data=llpd4, weight = 1, fillOpacity = 1,color = col[6],group=legendLables[5],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
                                           ", TIME=",as.character((llpd4$TIME)),
                                           ", NBS=",as.character((llpd4$NBS)),
@@ -437,11 +439,11 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4)
                                           ", Error=",llpd4$Error,
                                           ", TAG=",llpd4$TAG  
                ))) %>%
-    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group="smoothed") %>% 
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLables[5]) %>% 
     addScaleBar(position = c("bottomleft"), 
                 options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
     addLayersControl(
-      overlayGroups = c("GPS","original","filtered-STD","filtered-vel","smoothed"),
+      overlayGroups = legendLables,
       options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
   ll
 }

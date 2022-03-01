@@ -83,12 +83,11 @@ matl_get_speed <- function (data, x = "x", y = "y", time = "time", type = "in", 
   return(speed)
 }
 
-atl_unifiedFilter <- function(data,stdLimit=80,spdLimit=20,spdSteps=3,distLimit=300,distSteps=3, val1Limit=0.75,ellipsMovangle=15,ellipsMovRadius=15,ellipsMovDist=30)
+atl_unifiedFilter <- function(data,stdLimit=80,spdLimit=20,spdSteps=3,distLimit=300,distSteps=3,ellipsMovangle=15,ellipsMovRadius=15,ellipsMovDist=30)
 {
   # the unified filter wraps a set of basic filters:
     # stdVarXY filter that filter-out any point with value greater than stdLimit
     # basic filter that discards any location which is identical to the previous
-    # Baguette filter that discards points with skewed uncertainty ellipse (discard points with small ellipse radius smaller than val1Limit)
     # ellipse-Move filter that  discard points the move in correlation with their uncertainty ellipse with parameters: 
     #          ellipsMovangle ( max angle between ellipse and movement),
     #          ellipsMovRadius (max distance from previous location)
@@ -110,13 +109,12 @@ atl_unifiedFilter <- function(data,stdLimit=80,spdLimit=20,spdSteps=3,distLimit=
   ellipsMovangle <- abs(cos(ellipsMovangle*pi/180)) # convert the angle to its cosine value
   data <- addLocAttribute(data, locAttributs=c("distanceSpeed","locQuality")) # function to add attributes for each pair of conseucutive points. 
   data <- data %>% filter(stdVarXY<stdLimit) %>%  # calculate ellipse parameters from VAR and COV values ( require the ellipsDir function from this file)
-                  mutate(val1=sqrt(((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
+                  mutate(val1=sqrt(abs((VARX+VARY)-sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
                          val2=sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2),
                          ellipsDir=ellipsDir(VARX,VARY,COVXY),
                          dX=abs(X-lag(X))) %>%
     filter(dX>0) %>%  # discards any location which is identical to the previous
-    filter(val1>val1Limit) %>% # discards points with skewed uncertainty ellipse
-    # group_by(TAG) %>% 
+    group_by(TAG) %>% 
     mutate(dX=X-medlag5(X), # lag(X), #caclculates movement direction!
            dY=Y-medlag5(Y), # lag(Y), #
            moveAngle= atan2(dX,dY)*180/pi,
