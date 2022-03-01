@@ -8,7 +8,7 @@
 # return value:
     # returns a list of two data.frames, "DET", includes the detection with the period and "LOC" includes the localizations
 
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS="Harod",includeDet=TRUE)
+Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS="Harod",includeDet=TRUE,includeLoc=TRUE)
 {
   if (SYS=="Harod") #connects to Harod server
   {dbc <- dbConnect(RMySQL::MySQL(),
@@ -51,7 +51,8 @@ if(includeDet)
   
   
   AllTagsLoc <- list() #make an empty list for localizations
-  
+if(includeLoc)    
+  {
   for (i in 1:length(FullTag)) 
     { # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
     query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY from LOCALIZATIONS WHERE TAG=',FullTag[i], 
@@ -59,6 +60,7 @@ if(includeDet)
     All_Data <- dbGetQuery(dbc,query)
     AllTagsLoc[[i]] <- All_Data
     }
+  }
   dbDisconnect(dbc)
   RawDet0 <- do.call(rbind.data.frame, AllTagsDet)
   RawLoc0 <- do.call(rbind.data.frame, AllTagsLoc)
