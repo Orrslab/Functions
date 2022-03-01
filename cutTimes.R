@@ -40,7 +40,26 @@ cutTimes <- function(data,TagTimeTable,keep,
 
 # Example building  a table to define the filter
   
-  # TagTimeTable <- data.frame(TAG=c("430", "228", "229"),
+  # TagTimeTable <- data.frame(ds_name=c("430", "228", "229"),
   #                            startTime=as.POSIXct(c("2021-12-26 00:00:06","2021-12-26 04:00:06","2021-12-26 12:00:06 "),tz='UTC'),
   #                            endtime=  as.POSIXct(c("2021-12-26 24:00:0","2021-12-26 20:00:06","2021-12-26 16:00:06 "),tz='UTC'))
-  
+  # data1 <- cutTimes(data,TagTimeTable,keep=T,
+  #                    dataTimevarName='dateTime',dataIdentifierName='TAG',
+  #                    tableStartName='startTime', tableEndName='endTime',tableIdentifierName='ds_name')
+
+subsetTimes <- function(data,TimevarName='dateTime',IdentifierName='TAG',mingaptokeep)
+{
+  library(dplyr)
+  colnames(data)[(colnames(data)==TimevarName)] <- 'dateTime'
+  colnames(data)[(colnames(data)==IdentifierName)] <- 'TAG'
+  data <- data %>%  arrange(TAG,dateTime) %>% 
+                    mutate(reducedTime=floor(as.numeric(dateTime)/60/mingaptokeep)) %>% 
+                    group_by(TAG,reducedTime) %>% 
+                    slice(1) %>% 
+                    ungroup() %>% 
+                    dplyr::select(-c(reducedTime))
+  colnames(data)[(colnames(data)=='dateTime')] <- TimevarName
+  colnames(data)[(colnames(data)=='TAG')] <-IdentifierName
+  return(as.data.frame(data))
+}
+
