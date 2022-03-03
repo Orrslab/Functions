@@ -152,17 +152,18 @@ PlotSegStop <- function(stopdat,data2,DAY,DayColName=c("DAY"))
     # DAY - a single day to plot, must be contained in the values of days in the original data
     # the name of the day column name
   
-  A <- stopdat[which(stopdat$DAY==DAY),]
-  AA <- data2[which(data2$DAY==DAY),]
-  names(A)[which(colnames(A)==DayColName)] <- "DAY"
-  names(AA)[which(colnames(AA)==DayColName)] <- "DAY"
+
+  names(stopdat)[which(colnames(stopdat)==DayColName)] <- "DAY"
+  names(data2)[which(colnames(data2)==DayColName)] <- "DAY"
+  stopdat <- stopdat[which(stopdat$DAY==DAY),]
+  data2 <- data2[which(data2$DAY==DAY),]
   
   
-  A<-A%>%
+  stopdat<-stopdat%>%
     mutate("segOrADP"=ifelse(is.na(ADP.ID),"SEG","ADP"))
-  AtmpStop<-A%>%
+  AtmpStop<-stopdat%>%
     group_by(ADP.ID, ADP.X, ADP.Y, ADP.duration, ADP.qlt,DAY)%>%
-    summarise("cnt"=n(),
+    dplyr::summarise("cnt"=n(),
               "start_time"=min(dateTime),"end_time"=max(dateTime))%>%
     ungroup()
   # AtmpStop <- AtmpStop[-which(is.na(AtmpStop$ADP.X)),] #this is the original line, but I changed it due to ERRORS
@@ -171,23 +172,23 @@ PlotSegStop <- function(stopdat,data2,DAY,DayColName=c("DAY"))
   
   ll<-leaflet() %>% #addProviderTiles('Esri.WorldImagery') %>%
     addTiles() %>% 
-    addCircles(data=A, lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,color = 'red', group="track",
+    addCircles(data=stopdat, lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,color = 'red', group="track",
                popup=~sprintf("time= %s",dateTime)) %>% 
-    addCircles(data=A %>%subset(segOrADP=="SEG") , lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,color = 'blue', group="seg",
+    addCircles(data=stopdat %>%subset(segOrADP=="SEG") , lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,color = 'blue', group="seg",
                popup=~sprintf("SEG.ID= %i,time= %s,TIME=%0.0f",seg.ID,dateTime,TIME)) %>% 
     addCircles(data=AtmpStop, lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,radius = 5,color = 'green', group="ADP",
                popup=~sprintf("ADP.ID= %i,time= %s, count=%i",ADP.ID,start_time,cnt)) %>%
-    addCircles(data=A %>%subset(segOrADP=="ADP"), lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,radius = 5,color = 'yellow', group="stop",
+    addCircles(data=stopdat %>%subset(segOrADP=="ADP"), lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,radius = 5,color = 'yellow', group="stop",
                popup=~sprintf("ADP.ID= %i,time= %s,TIME=%0.0f",ADP.ID,dateTime,TIME)) %>% 
-    addPolylines(data=A,
+    addPolylines(data=stopdat,
                  lng = ~LON,
                  lat = ~LAT,
                  weight = 1,
                  fillOpacity = 0.7,
                  color = 'red') %>% 
-    addCircles(data=AA, lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,radius = 5,color = 'black', group="original",
+    addCircles(data=data2, lng = ~LON, lat = ~LAT, weight = 5, fillOpacity = 1,radius = 5,color = 'black', group="original",
                popup=~sprintf("time= %s,TIME=%0.0f",dateTime,TIME)) %>% 
-    addPolylines(data=AA,
+    addPolylines(data=data2,
                  lng = ~LON,
                  lat = ~LAT,
                  weight = 1,
