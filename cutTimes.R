@@ -20,15 +20,15 @@ cutTimes <- function(data,TagTimeTable,keep,
   for (Idx in seq(1,nrow(TagTimeTable)))
   {tag <- TagTimeTable$TAG[Idx]
   startTime <- TagTimeTable$startTime[Idx]
-  endtime <- TagTimeTable$endtime[Idx]
+  endTime <- TagTimeTable$endTime[Idx]
   print(tag)
-  # keep <- TagTimeTable$endtime[Idx]
+  # keep <- TagTimeTable$endTime[Idx]
   if(!keep) 
-  {print(sprintf('TAG, %s, discarding times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endtime[Idx]))
-    data <- dplyr::filter(data,dateTime<startTime|dateTime>endtime|TAG!=tag)}
+  {print(sprintf('TAG, %s, discarding times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endTime[Idx]))
+    data <- dplyr::filter(data,dateTime<startTime|dateTime>endTime|TAG!=tag)}
   else      
-  {print(sprintf('TAG, %s, keeping times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endtime[Idx]))
-    data <- dplyr::filter(data,(dateTime>startTime&dateTime<endtime)|TAG!=tag)}
+  {print(sprintf('TAG, %s, keeping times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endTime[Idx]))
+    data <- dplyr::filter(data,(dateTime>startTime&dateTime<endTime)|TAG!=tag)}
   }
   colnames(data)[(colnames(data)=='dateTime')] <- dataTimevarName
   colnames(data)[(colnames(data)=='TAG')] <-dataIdentifierName
@@ -42,7 +42,7 @@ cutTimes <- function(data,TagTimeTable,keep,
   
   # TagTimeTable <- data.frame(ds_name=c("430", "228", "229"),
   #                            startTime=as.POSIXct(c("2021-12-26 00:00:06","2021-12-26 04:00:06","2021-12-26 12:00:06 "),tz='UTC'),
-  #                            endtime=  as.POSIXct(c("2021-12-26 24:00:0","2021-12-26 20:00:06","2021-12-26 16:00:06 "),tz='UTC'))
+  #                            endTime=  as.POSIXct(c("2021-12-26 24:00:0","2021-12-26 20:00:06","2021-12-26 16:00:06 "),tz='UTC'))
   # data1 <- cutTimes(data,TagTimeTable,keep=T,
   #                    dataTimevarName='dateTime',dataIdentifierName='TAG',
   #                    tableStartName='startTime', tableEndName='endTime',tableIdentifierName='ds_name')
@@ -50,16 +50,16 @@ cutTimes <- function(data,TagTimeTable,keep,
 subsetTimes <- function(data,TimevarName='dateTime',IdentifierName='TAG',mingaptokeep)
 {
   library(dplyr)
-  colnames(data)[(colnames(data)==TimevarName)] <- 'dateTime'
-  colnames(data)[(colnames(data)==IdentifierName)] <- 'TAG'
-  data <- data %>%  arrange(TAG,dateTime) %>% 
-                    mutate(reducedTime=floor(as.numeric(dateTime)/60/mingaptokeep)) %>% 
-                    group_by(TAG,reducedTime) %>% 
+  colnames(data)[(colnames(data)==TimevarName)] <- 'dateTimeTemp'
+  colnames(data)[(colnames(data)==IdentifierName)] <- 'TAGTemp'
+  data <- data %>%  arrange(TAGTemp,dateTimeTemp) %>% 
+                    mutate(reducedTime=floor(as.numeric(dateTimeTemp)/60/mingaptokeep)) %>% 
+                    group_by(TAGTemp,reducedTime) %>% 
                     slice(1) %>% 
                     ungroup() %>% 
                     dplyr::select(-c(reducedTime))
-  colnames(data)[(colnames(data)=='dateTime')] <- TimevarName
-  colnames(data)[(colnames(data)=='TAG')] <-IdentifierName
+  colnames(data)[(colnames(data)=='dateTimeTemp')] <- TimevarName
+  colnames(data)[(colnames(data)=='TAGTemp')] <-IdentifierName
   return(as.data.frame(data))
 }
 
