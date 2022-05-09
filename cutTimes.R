@@ -21,7 +21,8 @@ cutTimes <- function(data,TagTimeTable,keep,
   {tag <- TagTimeTable$TAG[Idx]
   startTime <- TagTimeTable$startTime[Idx]
   endTime <- TagTimeTable$endTime[Idx]
-  print(tag)
+  if (tag %in% unique(data$TAG))
+  {    print(tag)
   # keep <- TagTimeTable$endTime[Idx]
   if(!keep) 
   {print(sprintf('TAG, %s, discarding times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endTime[Idx]))
@@ -29,7 +30,7 @@ cutTimes <- function(data,TagTimeTable,keep,
   else      
   {print(sprintf('TAG, %s, keeping times between %s and %s', TagTimeTable$TAG[Idx],TagTimeTable$startTime[Idx],TagTimeTable$endTime[Idx]))
     data <- dplyr::filter(data,(dateTime>startTime&dateTime<endTime)|TAG!=tag)}
-  }
+  }}
   colnames(data)[(colnames(data)=='dateTime')] <- dataTimevarName
   colnames(data)[(colnames(data)=='TAG')] <-dataIdentifierName
   colnames(TagTimeTable)[(colnames(TagTimeTable)=='startTime')] <- tableStartName
