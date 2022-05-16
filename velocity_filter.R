@@ -22,6 +22,23 @@ for(i in 1:steps){
 return(data)  
 }
 
+addDistanceSpeed<-function(input.loc.df){
+  
+  if (length(which(colnames(input.loc.df) %in% c("TIME","X","Y")))<3){
+    Er <- simpleError(paste("addDistanceSpeed: missing one of the columns TIME,X,Y\n",
+                            "  TIME expected to be 13 length integer for epoch time in millisecond",
+                            "  X,Y coordinats in local mercator projection (metric units)"))
+    stop(Er)
+  }
+  
+  output.loc.df <- input.loc.df %>% group_by(TAG) %>% 
+    arrange(TIME) %>% select(! c("distance","dT","spd"))
+  mutate(distance=c(NA,(diff(X,1)^2 + diff(Y,1)^2) ^ 0.5),
+         dT=c(NA,as.integer(diff(TIME,1))/1000),
+         spd=de/dt)
+  return(output.loc.df)
+}
+
 # velocity filter removes a location  according to distance
 # details:
       # it removes a location whenever both the distance from the previous point to it and the distance from it to the next point are greater than distThreshold
