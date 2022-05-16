@@ -7,6 +7,7 @@ ConnectLib <- function (path2func="/functions/") {
                 "mapview",  "suncalc","toolsForAtlas")
   sapply(pcks, require, char = TRUE)        #sourcing these packages
   funcFiles <- list.files(path2func,pattern = "\\.R$")  
+  funcFiles <- funcFiles[-which(funcFiles=="ATLAS_main.R" )]
   invisible(lapply(paste0(path2func,funcFiles), source))        #sourcing these packages
 }
 
