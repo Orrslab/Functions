@@ -74,6 +74,9 @@ defineStopPoints<-function(data,
   for (tg in TagList){
     # what is this tag;s sampling frequency?
     freq<-round(min(data$dT[which(data$TAG==tg)],na.rm=TRUE),0)*1000
+    if (!any(freq %in% ind_rts$smp_rte))
+    { #simpleError(sprintf("your data contains frequency =  %g , which is not included in your ADP parameters ",freq))
+      stop(sprintf("TAG %i contains frequency =  %g , which is not included in your ADP parameters ",tg,freq))}
     # Get AdpFixedPoint criterias from the table according to sampling rate:
     smp_rte <- ind_rts$smp_rte[which(ind_rts$smp_rte==freq)] # sample rate
     adp_rng <- ind_rts$adp_rng[which(ind_rts$smp_rte==freq)] # adaptive Fixed point buffer radius
