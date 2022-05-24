@@ -2,7 +2,7 @@
 # requires an ATLAS data.frame is "X" and "Y" in itm coordinates
 # does not return any variable
 # red points, pink lines, presents data when cursor is on a point: number of detection, time, spd,std,TAG
-atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery')
+  atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery') # 'OpenStreetMap.BZH'
 {
   varlist =c("PENALTY","spd","angl","stdVarXY")
   for (varname in varlist)
@@ -257,9 +257,9 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
       dd1[,varname] <- NA
     if (!(varname %in% names(dd2)))
       dd2[,varname] <- NA
-    if (!(varname %in% names(dd2)))
+    if (!(varname %in% names(dd3)))
       dd3[,varname] <- NA
-    if (!(varname %in% names(dd2)))
+    if (!(varname %in% names(dd4)))
       dd4[,varname] <- NA
   } 
   # itm<-"+init=epsg:2039 +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
