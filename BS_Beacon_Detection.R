@@ -5,7 +5,7 @@ require(dplyr)
 require(RSQLite)
 require(gridExtra)
 require(tidyr)
-source('C:/Users/97254/Google Drive/POST/ATLAS/scripts/atlaslogins.R')
+# source('C:/Users/97254/Google Drive/POST/ATLAS/scripts/atlaslogins.R')
 
 
   
