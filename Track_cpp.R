@@ -2,13 +2,16 @@
 #install.packages('Rcpp')
 require('Rcpp')
 # knitr:::input_dir()
+print(' the file Track_cpp.R runs an essential sourceCpp commnad,
+        if your current directory (getwd()) does not contain a functions/TrackConf.cpp file
+        you can source it beforehand and inhibit the command form the file')
 sourceCpp('functions/TrackConf.cpp')
 
 # IdxDist(as.matrix(RawLoc1 %>% select(X,Y)),0,1)
 # pointConfidanceLevel(as.matrix(RawLoc1 %>% dplyr::select(X,Y,NBS,stdVarXY)),0,0,0)
 # TrackConfidanceVec(as.matrix(A %>% dplyr::select(X,Y,NBS,stdVarXY)),160,80)
 
-TrackConfidanceLevelcpp <- function(Data,conectedVel=20,stdlim=80,minNBSforConf2=7,
+TrackConfidanceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
   # the function is a wrapper to a cpp code (TrackConfidanceVec) saved in file "TrackConf.cpp"
@@ -42,8 +45,9 @@ TrackConfidanceLevelcpp <- function(Data,conectedVel=20,stdlim=80,minNBSforConf2
   tagData <- Data %>% dplyr::filter(TAG==tags[tagInd])
   timediffs=unique(tagData$TIME[1:min(nrow(tagData),1e4)]-lag(tagData$TIME[1:min(nrow(tagData),1e4)]))/1000
   numinalTimeDiff <- min(round(timediffs)[which(round(timediffs)>0.5)])
-  conectedDist <- numinalTimeDiff*conectedVel
-  tagData$Conf <-TrackConfidanceVec(as.matrix(tagData %>% dplyr::select(X,Y,aBS,val2)),
+  if (is.na(conectedDist))
+      {conectedDist <- numinalTimeDiff*conectedVel}
+  tagData$Conf <-TrackConfidanceVec(as.matrix(tagData %>% dplyr::select(X,Y,aBS,stdVarXY)),
                                     minNBSforConf2,minNBSforConf1,Nconf1forConf2,conectedDist,stdlim)
   listoffilteredData[[tagInd]] <- tagData
   }
