@@ -15,10 +15,18 @@ source(file.path(getwd(), "Scripts", "config.R"))
 # return value:
     # returns a list of two data.frames, "DET", includes the detection with the period and "LOC" includes the localizations
 
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name,includeDet=TRUE,includeLoc=TRUE)
+Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name_harod,includeDet=TRUE,includeLoc=TRUE)
 {
   #connects to the Harod server
-  if (SYS==system_name){ 
+  if (SYS==system_name_harod){
+    # Get the Harod database credentials from the configuration file
+    db_username = db_username_harod
+    db_pass = db_pass_harod
+    db_host_ip = db_host_ip_harod
+    db_port_number = db_port_number_harod
+    db_name = db_name_harod
+    
+    # Connect to the database
     dbc <- dbConnect(RMySQL::MySQL(),
                      user = db_username,    # username 
                      password = db_pass,    # password
