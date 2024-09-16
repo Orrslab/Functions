@@ -5,13 +5,8 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-# DECIDE LATER IF I WANT TO USE A CONFIG FILE
-# path_to_config_file = "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Scripts/"
-# source(paste0(path_to_config_file,"Config.R"))
-
-# path of the data analysis repo ("Functions") in your computer
-path_to_atlas_data_analysis_repo <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/"
-path_to_scripts <- paste0(path_to_atlas_data_analysis_repo,"Scripts/")
+# Get the required paths from the config file config.R
+source(file.path(getwd(), "Scripts", "config.R"))
 
 tag_numbers = c(972006000837, 972006000944, 972006000544)
 
@@ -27,6 +22,5 @@ source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
 
 # Calculate the confidence of each location point
 confidence_vector <- TrackConfidanceLevelcpp(RawLoc0,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,minNBSforConf1=4,Nconf1forConf2=5)
-  
 
-  
+
