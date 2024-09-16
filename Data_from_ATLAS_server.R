@@ -2,6 +2,9 @@
 required_packages <- c("DBI", "RMySQL", "RSQLite")
 sapply(required_packages, library, character.only = TRUE)
 
+# Load the config file
+source(file.path(getwd(), "Scripts", "config.R"))
+
 # a function to read data directly from the ATLAS server
 # requires a VPN connection to TAU servers or any other relevant server
 # input variables:
@@ -12,16 +15,16 @@ sapply(required_packages, library, character.only = TRUE)
 # return value:
     # returns a list of two data.frames, "DET", includes the detection with the period and "LOC" includes the localizations
 
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS="Harod",includeDet=TRUE,includeLoc=TRUE)
+Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name,includeDet=TRUE,includeLoc=TRUE)
 {
   #connects to the Harod server
-  if (SYS=="Harod"){ 
+  if (SYS==system_name){ 
     dbc <- dbConnect(RMySQL::MySQL(),
-                     user = 'roatlasharod',            # username 
-                     password = 'roatlasHarodOrr5678#',# password
-                     host = '132.66.79.21',            # host ip address
-                     port=5900,                        # port Number
-                     dbname='harod')                   # name of data base
+                     user = db_username,    # username 
+                     password = db_pass,    # password
+                     host = db_host_ip,     # host ip address
+                     port=db_port_number,   # port Number
+                     dbname=db_name)        # name of data base
   } else {
     stop("system not defined")
   }
