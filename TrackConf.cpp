@@ -21,7 +21,7 @@ double IdxDist(NumericMatrix Data, int Ind1, int Ind2) {
 // // [[Rcpp::export]]
 
 
-double pointConfidanceLevel(NumericMatrix Data,int Ind, int IndC1,int IndC2,int minNBSforConf2,int minNBSforConf1,
+double pointConfidenceLevel(NumericMatrix Data,int Ind, int IndC1,int IndC2,int minNBSforConf2,int minNBSforConf1,
                             int Nconf1forConf2,int CountC1,double conectedDist=160,double stdlim=80) {
   // Calculate the confidence filter of a single location point
   
@@ -149,8 +149,8 @@ NumericVector TrackConfidenceVec(NumericMatrix Data,int minNBSforConf2,int minNB
   // Run from zero to 'nrows': left to right
   for (int Ind=0;Ind<nRows;Ind++) {
     
-    // Apply the 'pointConfidanceLevel' function to evaluate the confidence level
-    Conf=pointConfidanceLevel(Data,Ind,IndC1,IndC2,minNBSforConf2,minNBSforConf1,Nconf1forConf2,CountC1,conectedDist,stdlim);
+    // Apply the 'pointConfidenceLevel' function to evaluate the confidence level
+    Conf=pointConfidenceLevel(Data,Ind,IndC1,IndC2,minNBSforConf2,minNBSforConf1,Nconf1forConf2,CountC1,conectedDist,stdlim);
     
     // If the confidence level of the current point is "1" or "2", update it in 'confVec'
     if (Conf>ConfVec(Ind)) {
@@ -178,8 +178,8 @@ NumericVector TrackConfidenceVec(NumericMatrix Data,int minNBSforConf2,int minNB
   // Run from 'nrows' to zero: right to left in order to compare the confidence of each point to the points in front of it
   for (int Ind=nRows-1;Ind>=0;Ind--) {
     
-    // Apply the 'pointConfidanceLevel' function to evaluate the confidence level
-    Conf=pointConfidanceLevel(Data,Ind,IndC1,IndC2,minNBSforConf2,minNBSforConf1,Nconf1forConf2,CountC1, conectedDist,stdlim);
+    // Apply the 'pointConfidenceLevel' function to evaluate the confidence level
+    Conf=pointConfidenceLevel(Data,Ind,IndC1,IndC2,minNBSforConf2,minNBSforConf1,Nconf1forConf2,CountC1, conectedDist,stdlim);
     
     // If the confidence level of the current point is "1" or "2", update it in 'confVec'
     if (Conf>ConfVec(Ind)) {
