@@ -18,9 +18,9 @@ source(paste0(path_to_scripts,"install_required_R_packages.R"))
 source(paste0(path_to_scripts,"get_ATLAS_data.R"))
 #TODO Add a part that saves the data into SQLite and retrieved it from there
 
-source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
-
-# Calculate the confidence of each location point
-confidence_vector <- TrackConfidanceLevelcpp(RawLoc0,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,minNBSforConf1=4,Nconf1forConf2=5)
+# source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
+# 
+# # Calculate the confidence of each location point
+# confidence_vector <- TrackConfidenceLevelcpp(RawLoc0,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,minNBSforConf1=4,Nconf1forConf2=5)
 
 

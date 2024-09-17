@@ -12,7 +12,7 @@ sourceCpp('TrackConf.cpp')
 # knitr:::input_dir()
 
 # Evaluate the confidence level of each localization in 'Data', using the functions in TrackConf.cpp
-TrackConfidanceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
+TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
   # the function is a wrapper to a cpp code (TrackConfidanceVec) saved in file "TrackConf.cpp"
@@ -115,7 +115,7 @@ TrackConfidanceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 
 # A <- RawLoc0 %>% filter(TAG>0)
 # B <- TrackConfidanceLevel(A,20,80)
-# C <- TrackConfidanceLevelcpp(A,20,80)
+# C <- TrackConfidenceLevelcpp(A,20,80)
 # # A <- RawLoc0 %>% filter((TIME>1651800692452-20000)&(TIME<1651800692452+20000))%>% filter(TAG>0)
 # # 
 # # 
