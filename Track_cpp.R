@@ -38,7 +38,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
   #   'stdlim': the maximal allowed value of 'stdVARXY' value.
   #
   #   (*) A localization point is considered "connected" if its' distance from another confident point,
-  #  		distance= 'conectedVel' * 'numinalTimeDifference', is smaller than the threshold 'conectedDist'.
+  #  		distance= 'conectedVel' * 'minimalTimeDifference', is smaller than the threshold 'conectedDist'.
   #   	The variable 'minimalTimeDifference' is the minimal time-difference between sampling points within the dataset. 
   
   # Check that all the data necessary for the confidence evaluation is available
@@ -54,7 +54,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
     }
     
     # TODO: change val2 to stdVarXY
-    print("TrackConfidanceLevel calculates stdVarXY as greater eigenvalue")
+    print("TrackConfidenceLevel calculates stdVarXY as greater eigenvalue")
     Data <- Data %>% mutate(val2= sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2)) # greater eigenvalue
   }
   
@@ -87,11 +87,11 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
     timediffs=unique(tagData$TIME[1:min(nrow(tagData),1e4)]-lag(tagData$TIME[1:min(nrow(tagData),1e4)]))/1000
     
     # Find the smallest unique time difference that is greater than 0.5 seconds
-    numinalTimeDiff <- min(round(timediffs)[which(round(timediffs)>0.5)])
+    minimalTimeDiff <- min(round(timediffs)[which(round(timediffs)>0.5)])
     
     # Calculate the threshold distance, which will later be used to determine if two localizations are "connected"
     if (is.na(conectedDist)) {
-      conectedDist <- numinalTimeDiff*conectedVel
+      conectedDist <- minimalTimeDiff*conectedVel
     }
     
     # Apply the function 'TrackConfidanceVec' from the file 'TrackConf.cpp'
@@ -148,8 +148,8 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 #     Data$Conf=-1
 #   Data$aBS <- Data$NBS
 #   timediffs=unique(Data$TIME[1:min(nrow(Data),1e4)]-lag(Data$TIME[1:min(nrow(Data),1e4)]))/1000
-#   numinalTimeDiff <- min(round(timediffs)[which(round(timediffs)>0.5)])
-#   conectedDist <- numinalTimeDiff*conectedVel
+#   minimalTimeDiff <- min(round(timediffs)[which(round(timediffs)>0.5)])
+#   conectedDist <- minimalTimeDiff*conectedVel
 #   IndC1 <- NA
 #   IndC2 <- NA
 #   for (Ind in 1:nrow(Data))
