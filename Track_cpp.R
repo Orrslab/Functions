@@ -11,7 +11,6 @@ sourceCpp('TrackConf.cpp')
 
 # knitr:::input_dir()
 
-# Evaluate the confidence level of each localization in 'Data', using the functions in TrackConf.cpp
 TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
@@ -45,15 +44,14 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
   {stop("TrackConfidenceLevel needs the variables TAG,X,Y,NBS, and TIME (in miliseconds) to run ")}
   
   # Calculate the larger eigenvalue of the covariate matrix of the X and Y coordinates of the location
-  if (!('val2' %in% names(Data))) 
+  if (!('stdVarXY' %in% names(Data))) 
   {
     if (!all(c('VARX','VARY','COVXY') %in% names(Data))) {
-      stop("TrackConfidenceLevel needs either val2 or VARX,VARY,COVXY to run")
+      stop("TrackConfidenceLevel needs either stdVarXY or VARX,VARY,COVXY to run")
     }
     
-    # TODO: change val2 to stdVarXY
-    print("TrackConfidenceLevel calculates stdVarXY as greater eigenvalue")
-    Data <- Data %>% mutate(val2= sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2)) # greater eigenvalue
+    print("TrackConfidenceLevel calculates stdVarXY as the larger eigenvalue of the covariance matrix")
+    Data <- Data %>% mutate(stdVarXY= sqrt(((VARX+VARY)+sqrt(VARX^2+VARY^2-2*VARX*VARY+4*COVXY^2))/2)) # greater eigenvalue
   }
   
   # Rearrange the data rows 'Data' from the beginning-time to the end-time (ascending order)
