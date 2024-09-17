@@ -156,7 +156,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 #   {
 #     # if(Data$TIME[Ind]==1649870541423)
 #     # {print(Ind)}
-#     Conf=pointConfidanceLevel(Data,Ind,IndC1,IndC2,conectedDist,stdlim)
+#     Conf=pointConfidenceLevel(Data,Ind,IndC1,IndC2,conectedDist,stdlim)
 #     if (Conf>Data$Conf[Ind])
 #     {Data$Conf[Ind]=Conf}
 #     if (Conf>0) 
@@ -172,7 +172,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 #   {
 #     # if(Data$TIME[Ind]==1649870541423)
 #     # {print(Ind)}
-#     Conf=pointConfidanceLevel(Data,Ind,IndC1,IndC2,conectedDist=160,stdlim=80)
+#     Conf=pointConfidenceLevel(Data,Ind,IndC1,IndC2,conectedDist=160,stdlim=80)
 #     if (Conf>Data$Conf[Ind])
 #     {Data$Conf[Ind]=Conf}
 #     if (Conf>0) 
@@ -186,7 +186,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 #   return(Data)
 #   
 # }
-# pointConfidanceLevel <- function(Data,Ind,IndC1,IndC2,conectedDist=160,stdlim=80)
+# pointConfidenceLevel <- function(Data,Ind,IndC1,IndC2,conectedDist=160,stdlim=80)
 # {
 #   Conf=0
 #   if (Data$aBS[Ind]>3)
@@ -208,7 +208,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
 #     total += x(i, j);
 #   }
 # 
-# cppFunction('double pointConfidanceLevel(NumericMatrix Data,int Ind, int IndC1, int IndC2,double conectedDist=160, double stdlim=80 ) {
+# cppFunction('double pointConfidenceLevel(NumericMatrix Data,int Ind, int IndC1, int IndC2,double conectedDist=160, double stdlim=80 ) {
 #   double Conf=0;
 #   if (Data(Ind,3)>3)  {
 #       if (IdxDist(Data,Ind,IndC1)<conectedDist|IdxDist(Data,Ind,IndC2)<conectedDist) {
