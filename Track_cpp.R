@@ -44,13 +44,13 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
   # Check that all the data necessary for the confidence evaluation is available
   # If not all the mentioned columns below are included in the data set, stop the function from running and output a warning
   if (!all(c('TAG','X','Y','NBS','TIME') %in% names(Data)))
-  {stop("TrackConfidanceLevel needs the variables TAG,X,Y,NBS, and TIME (in miliseconds) to run ")}
+  {stop("TrackConfidenceLevel needs the variables TAG,X,Y,NBS, and TIME (in miliseconds) to run ")}
   
   # Calculate the larger eigenvalue of the covariate matrix of the X and Y coordinates of the location
   if (!('val2' %in% names(Data))) 
   {
     if (!all(c('VARX','VARY','COVXY') %in% names(Data))) {
-      stop("TrackConfidanceLevel needs either val2 or VARX,VARY,COVXY to run")
+      stop("TrackConfidenceLevel needs either val2 or VARX,VARY,COVXY to run")
     }
     
     # TODO: change val2 to stdVarXY
