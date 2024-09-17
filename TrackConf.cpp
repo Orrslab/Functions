@@ -112,7 +112,7 @@ double pointConfidanceLevel(NumericMatrix Data,int Ind, int IndC1,int IndC2,int 
 
 // [[Rcpp::export]]
 
-NumericVector TrackConfidanceVec(NumericMatrix Data,int minNBSforConf2,int minNBSforConf1,int Nconf1forConf2,
+NumericVector TrackConfidenceVec(NumericMatrix Data,int minNBSforConf2,int minNBSforConf1,int Nconf1forConf2,
                                    double conectedDist=20,double stdlim=80) {
   // evaluate the confidence level of each localisation point in the data set
   //

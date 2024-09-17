@@ -15,7 +15,7 @@ sourceCpp('TrackConf.cpp')
 TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
-  # the function is a wrapper to a cpp code (TrackConfidanceVec) saved in file "TrackConf.cpp"
+  # the function is a wrapper to a cpp code (TrackConfidenceVec) saved in file "TrackConf.cpp"
   # that calculates the confidence of any point in a track without discarding it
   # it runs a loop on all data points per tag and gives higher confidence mark (in the range [0,1,2] )
   # to points which have large NBS or are close to confidant points
@@ -94,8 +94,8 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
       conectedDist <- minimalTimeDiff*conectedVel
     }
     
-    # Apply the function 'TrackConfidanceVec' from the file 'TrackConf.cpp'
-    tagData$Conf <-TrackConfidanceVec(as.matrix(tagData %>% dplyr::select(X,Y,aBS,stdVarXY)),
+    # Apply the function 'TrackConfidenceVec' from the file 'TrackConf.cpp'
+    tagData$Conf <-TrackConfidenceVec(as.matrix(tagData %>% dplyr::select(X,Y,aBS,stdVarXY)),
                                       minNBSforConf2,minNBSforConf1,Nconf1forConf2,conectedDist,stdlim)
     
     # Store the filtered data in the previously created 'listoffilteredData'
@@ -105,7 +105,7 @@ TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=8
   # Combine the list of data frames 'listoffilteredData' into a single data frame called 'Data'
   Data <- do.call(rbind.data.frame,listoffilteredData)
 
-  # Remove the column 'aBS' from 'Data' - WHY DID THEY CREATE THIS COLUMN AND NOT USED THE COLUMN 'NBS' IN 'TrackConfidanceVec'?
+  # Remove the column 'aBS' from 'Data' - WHY DID THEY CREATE THIS COLUMN AND NOT USED THE COLUMN 'NBS' IN 'TrackConfidenceVec'?
   Data <- Data %>% dplyr::select(-aBS)
   
   # Return 'Data'
