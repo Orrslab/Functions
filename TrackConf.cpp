@@ -131,10 +131,9 @@ NumericVector TrackConfidenceVec(NumericMatrix Data,int minNBSforConf2,int minNB
   //
   //  'stdlim': the maximal allowed value of 'stdVARXY' value
   //
-  //  'minimalTimeDifference': the minimal time-difference between sampling points within the dataset
-  //
   //  (*) A localization point is considered 'connected' if its' distance from another confident point,
   //    distance= 'conectedVel' * 'minimalTimeDifference', is smaller than the threshold 'conectedDist'.
+  //    'minimalTimeDifference': the minimal time-difference between sampling points within the data set
   
   // Define and initialize variables
   int IndC1 = -1;
