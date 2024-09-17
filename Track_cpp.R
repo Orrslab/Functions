@@ -15,31 +15,29 @@ sourceCpp('TrackConf.cpp')
 TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
-  # the function is a wrapper to a cpp code (TrackConfidenceVec) saved in file "TrackConf.cpp"
-  # that calculates the confidence of any point in a track without discarding it
-  # it runs a loop on all data points per tag and gives higher confidence mark (in the range [0,1,2] )
-  # to points which have large NBS or are close to confidant points
- 
-  # Arguments:
-  #
-  #   'Data': the dataset, which contains the localizations for which the confidence level should be evaluated
-  #
-  #   'minNBSforConf1', 'minNBSforConf2': the minimal allowed numbers of Base Stations participated in 
-  #  	   the evaluation of the localization of the observed data point, used for the assessment of confidence level 1 and 2, respectively
-  #
-  #   'Nconf1forConf2': the minimal number of connected points with confidence level "1", which is used as a threshold to assess
-  #		   if the observed localization point should obtain a confidence level of "2".
-  #
-  #   'conectedDist': the threshold distance [m] used to determine if two analyzed localisations are 'connected'(*).
-  #
-  #   'conectedVel': the speed [m/s] used for calculation of the threshold distance, 
-  #	  	 which defines if two localization points are "connected"(*)-
-  #
-  #   'stdlim': the maximal allowed value of 'stdVARXY' value.
-  #
-  #   (*) A localization point is considered "connected" if its' distance from another confident point,
-  #  		distance= 'conectedVel' * 'minimalTimeDifference', is smaller than the threshold 'conectedDist'.
-  #   	The variable 'minimalTimeDifference' is the minimal time-difference between sampling points within the dataset. 
+  
+  #' Evaluate Confidence Levels for Localization Points
+  #'
+  #' This function is a wrapper around a C++ function (`TrackConfidenceVec`) stored in the file \code{TrackConf.cpp}. 
+  #' It calculates the confidence level of any point in a track without discarding it. The function runs a loop 
+  #' on all data points per tag and assigns a higher confidence mark (in the range [0, 1, 2]) to points 
+  #' that have a large number of Base Stations (NBS) or are close to confident points.
+  #'
+  #' @param Data A dataset containing the localizations for which the confidence level should be evaluated.
+  #' @param minNBSforConf1 Minimum number of Base Stations (NBS) required to assign a confidence level of 1.
+  #' @param minNBSforConf2 Minimum number of Base Stations (NBS) required to assign a confidence level of 2.
+  #' @param Nconf1forConf2 Minimum number of 'connected' points with confidence level 1 required to assign a confidence level of 2 to a point.
+  #' @param conectedDist Threshold distance (in meters) to determine if two analyzed localizations are 'connected'.
+  #' @param conectedVel Speed (in meters per second) used to calculate the threshold distance for determining if two points are 'connected'.
+  #' @param stdlim Maximum allowed value for the \code{stdVARXY} variable.
+  #'
+  #' @details
+  #' A localization point is considered "connected" to another confident point if the distance between the points 
+  #' (calculated as \code{conectedVel} * \code{minimalTimeDifference}) is smaller than the threshold distance 
+  #' \code{conectedDist}. The variable \code{minimalTimeDifference} represents the minimal time-difference 
+  #' between sampling points in the dataset.
+  #'
+  #' @return A vector of confidence levels for each localization point in the dataset.
   
   # Check that all the data necessary for the confidence evaluation is available
   # If not all the mentioned columns below are included in the data set, stop the function from running and output a warning
