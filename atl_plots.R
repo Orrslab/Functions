@@ -135,6 +135,15 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     summarize(do_union = FALSE) %>%
     st_cast("LINESTRING")
   
+  # Convert Unix timestamp to POSIXct and format as UTC
+  llpd1_sf$TIME_seconds <- llpd1_sf$TIME / 1000
+  llpd1_sf$dateTimeUTC <- as.POSIXct(llpd1_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
+  llpd1_sf$dateTimeFormatted <- format(llpd1_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
+  
+  llpd2_sf$TIME_seconds <- llpd2_sf$TIME / 1000
+  llpd2_sf$dateTimeUTC <- as.POSIXct(llpd2_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
+  llpd2_sf$dateTimeFormatted <- format(llpd2_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
+  
   # Define color palette
   col <- brewer.pal(n = 6, name = 'Dark2')
   
@@ -145,7 +154,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     
     # Add circles at the locations of the first dataset 'dd1'
     addCircles(data = llpd1_sf, weight = 1, fillOpacity = 1, color = col[4], group = legendLabels[1],
-               popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTime),
+               popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", Z=", as.character(llpd1_sf$Z),
                                           ", NBS=", as.character(llpd1_sf$NBS),
@@ -167,7 +176,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     
     # Add circles at the locations of the first dataset 'dd2'
     addCircles(data = llpd2_sf, weight = 1, fillOpacity = 1, color = col[3], group = legendLabels[2],
-               popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTime),
+               popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", Z=", as.character(llpd2_sf$Z),
                                           ", NBS=", as.character(llpd2_sf$NBS),
