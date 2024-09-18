@@ -144,7 +144,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     addProviderTiles(MapProvider) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 5, fillOpacity = 1, color = col[4], group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 1, fillOpacity = 1, color = col[4], group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTime),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", Z=", as.character(llpd1_sf$Z),
@@ -166,7 +166,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = col[4], group = legendLabels[1]) %>%
     
     # Add circles at the locations of the first dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 5, fillOpacity = 1, color = col[3], group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 1, fillOpacity = 1, color = col[3], group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTime),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", Z=", as.character(llpd2_sf$Z),
