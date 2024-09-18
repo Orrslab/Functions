@@ -84,7 +84,7 @@
 }
 
   
-atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLables=c("1","2")) 
+atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels) 
 {
   
   #' @description
@@ -93,7 +93,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLables=c(
   #' 
   #' @param dd1,dd2 The data sets that should be plotted.
   #' @param MapProvider The map tiles provider (default is 'Esri.WorldImagery').
-  #' @param legendLables Labels of 'dd1' and 'dd2' for the map's legend.
+  #' @param legendLabels Labels of 'dd1' and 'dd2' for the map's legend. Example: c("1", "2")
   #' 
   #' @return An interactive map that displays two different tracks (datasets) with distinct colors and popups.
   #' 
@@ -109,90 +109,94 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLables=c(
         dd1[,varname] <- NA
     if (!(varname %in% names(dd2)))
       dd2[,varname] <- NA
-  } 
+  }
   
-  # Define the coordinate reference systems (CRS) for the data
-  itm<-"+init=epsg:2039 "
+  # Define CRS for the datasets
+  itm <- 2039  # EPSG code for your local CRS
+  wgs84 <- 4326  # EPSG code for WGS84
   
-  # Define the coordinate reference systems (CRS) for the map
-  wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  # Convert data frames to sf objects
+  dd1_sf <- st_as_sf(dd1, coords = c("X", "Y"), crs = itm)
+  dd2_sf <- st_as_sf(dd2, coords = c("X", "Y"), crs = itm)
   
-  # Convert both 'dd1' and 'dd2' from the local CRS (epsg:2039) to WGS84 (latitude/longitude).
-  coordinates(dd1)<-~X+Y
-  proj4string(dd1)<-CRS(itm)
-  llpd1 <- spTransform(dd1, wgs84)
+  # Transform to WGS84
+  llpd1_sf <- st_transform(dd1_sf, crs = wgs84)
+  llpd2_sf <- st_transform(dd2_sf, crs = wgs84)
   
-  coordinates(dd2)<-~X+Y
-  proj4string(dd2)<-CRS(itm)
-  llpd2 <- spTransform(dd2, wgs84)
+  # Group points by TAG, and then create LINESTRING for polylines
+  # Grouping by tag is done to avoid connecting the geometries of different animals
+  llpd1_lines <- llpd1_sf %>%
+    group_by(TAG) %>%
+    summarize(do_union = FALSE) %>%  # Prevent union of geometries
+    st_cast("LINESTRING")
   
-  # Define a color palette for the map
-  require("RColorBrewer")
-  # display.brewer.all()
-  # display.brewer.pal(n = 4, name = 'RdYlBu')
-  # col=brewer.pal(n = 4, name = 'RdYlBu')
-  col=brewer.pal(n = 6, name = 'Dark2')
+  llpd2_lines <- llpd2_sf %>%
+    group_by(TAG) %>%
+    summarize(do_union = FALSE) %>%
+    st_cast("LINESTRING")
   
-  # Create the interactive map
-  ll<-leaflet() %>%
-    # Add the base map tiles from the specified provider
-    addProviderTiles(MapProvider ) %>% # 'CartoDB.Positron' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
+  # Define color palette
+  col <- brewer.pal(n = 6, name = 'Dark2')
+  
+  ll <- leaflet() %>%
     
-    # Adds circles for the locations from data set 'dd1', with a popup showing detailed information
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[1],
-               popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
-                                          ", TIME=",as.character((llpd1$TIME)),
-                                          ", Z=",as.character((llpd1$Z)),
-                                          ", NBS=",as.character((llpd1$NBS)),
-                                          ", NCON=",as.character((llpd1$NCONSTRAINTS)),
-                                          ", allBS=",llpd1$allBS,
-                                          ", pen=",as.character(round(llpd1$PENALTY)),
-                                          ", spd=",as.character(round(llpd1$spd)),
-                                          ", dist=",as.character(round(llpd1$distance)),
-                                          ", moveAngle=",as.character(round(llpd1$moveAngle)),
-                                          ", std=",as.character(round(llpd1$stdVarXY)),
-                                          ", val1=",as.character(round(llpd1$val1)),
-                                          ",val2=",as.character(round(llpd1$val2)),
-                                          ",ellipsDir=",as.character(round(llpd1$ellipsDir)),
-                                          ",DistMed5=",as.character(round(llpd1$DistMed5)),
-                                          ", TAG=",llpd1$TAG))) %>%
+    # Add the base map
+    addProviderTiles(MapProvider) %>%
     
-    # Add the polylines for the 'dd1' dataset
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[1]) %>% 
+    # Add circles at the locations of the first dataset 'dd1'
+    addCircles(data = llpd1_sf, weight = 5, fillOpacity = 1, color = col[4], group = legendLabels[1],
+               popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTime),
+                                          ", TIME=", as.character(llpd1_sf$TIME),
+                                          ", Z=", as.character(llpd1_sf$Z),
+                                          ", NBS=", as.character(llpd1_sf$NBS),
+                                          ", NCON=", as.character(llpd1_sf$NCONSTRAINTS),
+                                          ", allBS=", llpd1_sf$allBS,
+                                          ", pen=", as.character(round(llpd1_sf$PENALTY)),
+                                          ", spd=", as.character(round(llpd1_sf$spd)),
+                                          ", dist=", as.character(round(llpd1_sf$distance)),
+                                          ", moveAngle=", as.character(round(llpd1_sf$moveAngle)),
+                                          ", std=", as.character(round(llpd1_sf$stdVarXY)),
+                                          ", val1=", as.character(round(llpd1_sf$val1)),
+                                          ", val2=", as.character(round(llpd1_sf$val2)),
+                                          ", ellipsDir=", as.character(round(llpd1_sf$ellipsDir)),
+                                          ", DistMed5=", as.character(round(llpd1_sf$DistMed5)),
+                                          ", TAG=", llpd1_sf$TAG))) %>%
     
-    # Adds circles for the locations from data set 'dd2', with a popup showing detailed information
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[2],
-               popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
-                                          ", TIME=",as.character((llpd2$TIME)),
-                                          ", Z=",as.character((llpd2$Z)),
-                                          ", NBS=",as.character((llpd2$NBS)),
-                                          ", NCON=",as.character((llpd2$NCONSTRAINTS)),
-                                          ", allBS=",llpd2$allBS,
-                                          ", pen=",as.character(round(llpd2$PENALTY)),
-                                          ", spd=",as.character(round(llpd2$spd)),
-                                          ",dist=",as.character(round(llpd2$distance)),
-                                          ",moveAngle=",as.character(round(llpd2$moveAngle)),
-                                          ", std=",as.character(round(llpd2$stdVarXY)),
-                                          ", val1=",as.character(round(llpd2$val1)),
-                                          ",val2=",as.character(round(llpd2$val2)),
-                                          ",ellipsDir=",as.character(round(llpd2$ellipsDir)),
-                                          ", DistMed5=",as.character(round(llpd2$DistMed5)),
-                                          ", TAG=",llpd2$TAG))) %>%
+    # Add lines that connect the point locations included in 'dd1'
+    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = col[4], group = legendLabels[1]) %>%
     
-    # Add the polylines for the 'dd2' dataset
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[2]) %>% 
+    # Add circles at the locations of the first dataset 'dd2'
+    addCircles(data = llpd2_sf, weight = 5, fillOpacity = 1, color = col[3], group = legendLabels[2],
+               popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTime),
+                                          ", TIME=", as.character(llpd2_sf$TIME),
+                                          ", Z=", as.character(llpd2_sf$Z),
+                                          ", NBS=", as.character(llpd2_sf$NBS),
+                                          ", NCON=", as.character(llpd2_sf$NCONSTRAINTS),
+                                          ", allBS=", llpd2_sf$allBS,
+                                          ", pen=", as.character(round(llpd2_sf$PENALTY)),
+                                          ", spd=", as.character(round(llpd2_sf$spd)),
+                                          ", dist=", as.character(round(llpd2_sf$distance)),
+                                          ", moveAngle=", as.character(round(llpd2_sf$moveAngle)),
+                                          ", std=", as.character(round(llpd2_sf$stdVarXY)),
+                                          ", val1=", as.character(round(llpd2_sf$val1)),
+                                          ", val2=", as.character(round(llpd2_sf$val2)),
+                                          ", ellipsDir=", as.character(round(llpd2_sf$ellipsDir)),
+                                          ", DistMed5=", as.character(round(llpd2_sf$DistMed5)),
+                                          ", TAG=", llpd2_sf$TAG))) %>%
+    
+    # Add lines that connect the point locations included in 'dd2'
+    addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = col[3], group = legendLabels[2]) %>%
     
     # Add a scale bar to the map
-    addScaleBar(position = c("bottomleft"), 
-                options = scaleBarOptions(imperial=FALSE,maxWidth=200)) %>% 
+    addScaleBar(position = c("bottomleft"), options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
     
-    # Adds a layers' control to switch between different datasets
+    # Add a layer control to the map to allow users to toggle the visibility of the different tracks.
     addLayersControl(
-      overlayGroups = legendLables,
-      options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
-  
-  # Display the map
-  ll
+      overlayGroups = legendLabels,
+      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
+
+  return(ll)
+  # print(ll) # To display the map without returning it.
 }
 
 
@@ -443,7 +447,7 @@ atl_mapleafGPS1 <- function(gpsTrack,dd1,MapProvider='Esri.WorldImagery')
 }
 
 
-atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLables=c("1","2","3","4"))
+atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLabels=c("1","2","3","4"))
 {
   
   #' @title Visualize and compare movement data from four ATLAS datasets on an interactive map using leaflet.
@@ -453,7 +457,7 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
   #' @param dd3 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
   #' @param dd4 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
   #' @param MapProvider A string specifying the base map provider. Default is 'Esri.WorldImagery'.
-  #' @param legendLables A character vector of labels for the different datasets (dd1, dd2, dd3, dd4).
+  #' @param legendLabels A character vector of labels for the different datasets (dd1, dd2, dd3, dd4).
   #'
   #' @return A leaflet map object with overlaid circles and polylines representing the movement data.
   #' 
@@ -510,7 +514,7 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
     addProviderTiles(MapProvider) %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
     
     # Add circles for the 'dd1' data, with popups showing detailed information
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[1],
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
                                           ", NBS=",as.character((llpd1$NBS)),
@@ -521,10 +525,10 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
                                           ", TAG=",llpd1$TAG))) %>%
     
     # Add polylines for the 'dd1' dataset
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[1]) %>% 
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLabels[1]) %>% 
     
     # Add circles for the 'dd2' data, with popups showing detailed information
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[2],
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
                                           ", TIME=",as.character((llpd2$TIME)),
                                           ", NBS=",as.character((llpd2$NBS)),
@@ -535,10 +539,10 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
                                           ", TAG=",llpd2$TAG))) %>%
     
     # Add polylines for the 'dd2' dataset
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[2]) %>% 
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLabels[2]) %>% 
     
     # Add circles for the 'dd3' data, with popups showing detailed information
-    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLables[3],
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLabels[3],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
                                           ", TIME=",as.character((llpd3$TIME)),
                                           ", NBS=",as.character((llpd3$NBS)),
@@ -549,10 +553,10 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
                                           ", TAG=",llpd3$TAG))) %>%
     
     # Add polylines for the 'dd3' dataset
-    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLables[3]) %>% 
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLabels[3]) %>% 
     
     # Add circles for the 'dd4' data, with popups showing detailed information
-    addCircles(data=llpd4, weight = 5, fillOpacity = 1,color = col[6],group=legendLables[4],
+    addCircles(data=llpd4, weight = 5, fillOpacity = 1,color = col[6],group=legendLabels[4],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
                                           ", TIME=",as.character((llpd4$TIME)),
                                           ", NBS=",as.character((llpd4$NBS)),
@@ -563,7 +567,7 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
                                           ", TAG=",llpd4$TAG))) %>%
     
     # Add polylines for the 'dd4' dataset
-    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLables[4]) %>% 
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLabels[4]) %>% 
     
     # Add a scale bar to the bottom left of the map
     addScaleBar(position = c("bottomleft"), 
@@ -571,7 +575,7 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
     
     # Add a control to switch between the "ATLAS" and "GPS" layers.
     addLayersControl(
-      overlayGroups = legendLables,
+      overlayGroups = legendLabels,
       options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
   
   # Display the map
@@ -579,7 +583,7 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
 }
 
 
-atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLables=c("GPS","1","2","3","4"))
+atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLabels=c("GPS","1","2","3","4"))
 {
   
   #' @title Plot GPS Track and Additional four ALTAS datasets on an Interactive Leaflet Map
@@ -598,7 +602,7 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
   #' @param dd4 A SpatialPointsDataFrame for the fourth ATLAS dataset. Must contain `X`, `Y` coordinates.
   #' @param MapProvider A character string representing the map tile provider for the background. 
   #'   Default is `'Esri.WorldImagery'`. Other options include `'OpenStreetMap.Mapnik'`, `'Stadia.AlidadeSmooth'`, etc.
-  #' @param legendLables A character vector of labels for the map layers, used in the legend. 
+  #' @param legendLabels A character vector of labels for the map layers, used in the legend. 
   #'   The default is `c("GPS", "1", "2", "3", "4")`.
   #'
   #' @return An interactive Leaflet map with five layers: the GPS track and the four ATLAS datasets (`dd1`, `dd2`, `dd3`, `dd4`), 
@@ -660,12 +664,12 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
     addProviderTiles(MapProvider) %>% # 'Esri.WorldImagery' 'OpenStreetMap.Mapnik' 'Stadia.AlidadeSmooth','CartoDB.Positron'
     
     # Add the GPS track: circles, popups with metadata, and polylines
-    addCircles(data=llpdgps, weight = 1, fillOpacity = 1,color = "black",group=legendLables[1],
+    addCircles(data=llpdgps, weight = 1, fillOpacity = 1,color = "black",group=legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpdgps$dateTime))))) %>%
-    addPolylines(data=llpdgps@coords, weight = 1, opacity = 1,col="black",group=legendLables[1]) %>% 
+    addPolylines(data=llpdgps@coords, weight = 1, opacity = 1,col="black",group=legendLabels[1]) %>% 
     
     # Add the first ATLAS dataset ('dd1'): circles, popups with metadata, and polylines
-    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLables[2],
+    addCircles(data=llpd1, weight = 5, fillOpacity = 1,color = col[4],group=legendLabels[2],
                popup = ~htmlEscape(paste0("1:time=",as.character((llpd1$dateTime)),
                                           ", TIME=",as.character((llpd1$TIME)),
                                           ", NBS=",as.character((llpd1$NBS)),
@@ -676,10 +680,10 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
                                           ", Error=",llpd1$Error,
                                           ", TAG=",llpd1$TAG))) %>%
     
-    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLables[2]) %>% 
+    addPolylines(data=llpd1@coords, weight = 1, opacity = 1,col=col[4],group=legendLabels[2]) %>% 
     
     # Add the second ATLAS dataset ('dd2'): circles, popups with metadata, and polylines
-    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLables[3],
+    addCircles(data=llpd2, weight = 5, fillOpacity = 1,color = col[3],group=legendLabels[3],
                popup = ~htmlEscape(paste0("2:time=",as.character((llpd2$dateTime)),
                                           ", TIME=",as.character((llpd2$TIME)),
                                           ", NBS=",as.character((llpd2$NBS)),
@@ -690,10 +694,10 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
                                           ", Error=",llpd2$Error,
                                           ", TAG=",llpd2$TAG))) %>%
     
-    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLables[3]) %>% 
+    addPolylines(data=llpd2@coords, weight = 1, opacity = 1,col=col[3],group=legendLabels[3]) %>% 
     
     # Add the third ATLAS dataset ('dd3'): circles, popups with metadata, and polylines
-    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLables[4],
+    addCircles(data=llpd3, weight = 5, fillOpacity = 1,color = col[1],group=legendLabels[4],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd3$dateTime)),
                                           ", TIME=",as.character((llpd3$TIME)),
                                           ", NBS=",as.character((llpd3$NBS)),
@@ -704,10 +708,10 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
                                           ", Error=",llpd3$Error,
                                           ", TAG=",llpd3$TAG))) %>%
     
-    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLables[4]) %>% 
+    addPolylines(data=llpd3@coords, weight = 1, opacity = 1,col=col[1],group=legendLabels[4]) %>% 
     
     # Add the fourth ATLAS dataset ('dd4'): circles, popups with metadata, and polylines
-    addCircles(data=llpd4, weight = 1, fillOpacity = 1,color = col[6],group=legendLables[5],
+    addCircles(data=llpd4, weight = 1, fillOpacity = 1,color = col[6],group=legendLabels[5],
                popup = ~htmlEscape(paste0("3:time=",as.character((llpd4$dateTime)),
                                           ", TIME=",as.character((llpd4$TIME)),
                                           ", NBS=",as.character((llpd4$NBS)),
@@ -718,7 +722,7 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
                                           ", Error=",llpd4$Error,
                                           ", TAG=",llpd4$TAG))) %>%
     
-    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLables[5]) %>% 
+    addPolylines(data=llpd4@coords, weight = 1, opacity = 1,col=col[6],group=legendLabels[5]) %>% 
     
     # Add a scale bar to the bottom left of the map
     addScaleBar(position = c("bottomleft"), 
@@ -726,7 +730,7 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
     
     # Add a layer control so users can toggle the visibility of different groups (GPS, 1, 2, 3, 4).
     addLayersControl(
-      overlayGroups = legendLables,
+      overlayGroups = legendLabels,
       options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)) 
   
   # Display the map
