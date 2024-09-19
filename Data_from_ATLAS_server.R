@@ -7,6 +7,8 @@ source(file.path(getwd(), "Scripts", "config.R"))
 
 # Load the functions that connect to the ATLAS database
 source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
+
+# Load the functions that convert time formats
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
 
