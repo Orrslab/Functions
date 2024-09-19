@@ -84,7 +84,7 @@
 }
 
   
-atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels) 
+atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c("1", "2")) 
 {
   
   #' @description
@@ -136,11 +136,11 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels)
     st_cast("LINESTRING")
   
   # Convert Unix timestamp to POSIXct and format as UTC
-  llpd1_sf$TIME_seconds <- llpd1_sf$TIME / 1000
+  llpd1_sf$TIME_seconds <- llpd1_sf$TIME / 1000 # convert time from miliseconds to seconds
   llpd1_sf$dateTimeUTC <- as.POSIXct(llpd1_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
   llpd1_sf$dateTimeFormatted <- format(llpd1_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
   
-  llpd2_sf$TIME_seconds <- llpd2_sf$TIME / 1000
+  llpd2_sf$TIME_seconds <- llpd2_sf$TIME / 1000 # convert time from miliseconds to seconds
   llpd2_sf$dateTimeUTC <- as.POSIXct(llpd2_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
   llpd2_sf$dateTimeFormatted <- format(llpd2_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
   
