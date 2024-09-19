@@ -5,18 +5,31 @@ sapply(required_packages, library, character.only = TRUE)
 # Load the config file
 source(file.path(getwd(), "Scripts", "config.R"))
 
-# a function to read data directly from the ATLAS server
-# requires a VPN connection to TAU servers or any other relevant server
-# input variables:
-    # Start_Time_Str - a time  sting in the format '2020-10-10 12:00:00' in UTC
-    # End_Time_Str   - a time  sting in the format '2020-10-10 12:00:00' in UTC
-    # FullTag        - a vector of Tags in the format 972006000223
-    # SYS            - the name of the system (currently only Harod is implemented)
-# return value:
-    # returns a list of two data.frames, "DET", includes the detection with the period and "LOC" includes the localizations
-
 Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name_harod,includeDet=TRUE,includeLoc=TRUE)
 {
+  
+  #' @title Read Data from the ATLAS Server
+  #'
+  #' This function reads data directly from the ATLAS server, given a specific time range and vector of tags.
+  #' A VPN connection to the Tel Aviv University (TAU) servers or any other relevant server is required.
+  #' The function currently only supports the "Harod" system.
+  #'
+  #' @param Start_Time_Str A character string representing the start time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
+  #' @param End_Time_Str A character string representing the end time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
+  #' @param FullTag A vector of tags (as integers) in the format \code{972006000223}.
+  #' @param SYS The name of the system. Currently, only \code{"Harod"} is implemented.
+  #' @param includeDet Logical. If \code{TRUE}, detections data is included in the return value. Default is \code{TRUE}.
+  #' @param includeLoc Logical. If \code{TRUE}, localizations data is included in the return value. Default is \code{TRUE}.
+  #'
+  #' @return A list of two data frames:
+  #' \item{DET}{A data frame containing detections, including columns: \code{TAG}, \code{TIME}, \code{BS}, \code{RSSI}, \code{GAIN}, \code{SNR}, \code{SAMPLES_CLK}.}
+  #' \item{LOC}{A data frame containing localizations, including columns: \code{TAG}, \code{TIME}, \code{X}, \code{Y}, \code{Z}, \code{VARX}, \code{VARY}, \code{COVXY}, \code{NBS}, \code{PENALTY}.}
+  #'
+  #' @details
+  #' The function converts the start and end time strings into ATLAS time (in milliseconds) 
+  #' and queries the ATLAS server for detections and/or localizations within the specified time range. 
+  #' The data for each tag in \code{FullTag} is fetched separately.
+  
   #connects to the Harod server
   if (SYS==system_name_harod){
     # Get the Harod database credentials from the configuration file
