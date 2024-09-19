@@ -4,6 +4,9 @@ sapply(required_packages, library, character.only = TRUE)
 
 # Load the config file
 source(file.path(getwd(), "Scripts", "config.R"))
+# Load the functions that connect to the ATLAS database
+source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
+source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
 
 #' Read Data from the ATLAS Server
@@ -31,47 +34,35 @@ source(file.path(getwd(), "Scripts", "config.R"))
 Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name_harod,includeDet=TRUE,includeLoc=TRUE)
 {
   
-  #connects to the Harod server
+  # Get the credentials of the ATLAS database you need to connect to
   if (SYS==system_name_harod){
     # Get the Harod database credentials from the configuration file
-    db_username = db_username_harod
-    db_pass = db_pass_harod
-    db_host_ip = db_host_ip_harod
-    db_port_number = db_port_number_harod
-    db_name = db_name_harod
+    db_username = db_username_harod         # username
+    db_pass = db_pass_harod                 # password
+    db_host_ip = db_host_ip_harod           # host ip address
+    db_port_number = db_port_number_harod   # port Number
+    db_name = db_name_harod                 # name of data base
     
-    # Connect to the database
-    dbc <- dbConnect(RMySQL::MySQL(),
-                     user = db_username,    # username 
-                     password = db_pass,    # password
-                     host = db_host_ip,     # host ip address
-                     port=db_port_number,   # port Number
-                     dbname=db_name)        # name of data base
   } else {
     stop("system not defined")
   }
   
-  # --- Examine the tables contained in the database 
-  # dbListTables(dbc)           
-  
-  # --- Examine the names of the columns in a table
-  # dbListFields(dbc, 'DETECTIONS')
-  # dbListFields(dbc, 'LOCALIZATIONS')
-  
-  # --- Set start & end time and convert to ATLAS time
+  #connect to the database
+  dbc <- connect_to_atlas_db(db_username, 
+                             db_pass, 
+                             db_host_ip, 
+                             db_port_number, 
+                             db_name)
 
-  Start_Time_Str_Temp <- as.character.Date(Start_Time_Str) 
-  ATLAS_Start_Time<-as.numeric(as.POSIXct(Start_Time_Str_Temp,
-                                          "%Y-%m-%d %H:%M:%S", tz="UTC"))*1000
-  End_Time_Str_Temp <- as.character.Date(End_Time_Str)
-  ATLAS_End_Time<-as.numeric(as.POSIXct(End_Time_Str_Temp,
-                                        "%Y-%m-%d %H:%M:%S", tz="UTC"))*1000 
+  # Convert the start and end times to the ATLAS time format
+  ATLAS_Start_Time <- time_str_to_utc_timestamp(Start_Time_Str)
+  ATLAS_End_Time <- time_str_to_utc_timestamp(End_Time_Str)
 
   # Initialize lists for detections and localizations
   AllTagsDet <- list() 
   AllTagsLoc <- list()
 
-  # Query for detections: check if includeDet is TRUE
+  # If 'includeDet' is TRUE, retrieve the detections data from the database
   if(includeDet) {  
     for (i in 1:length(FullTag)) { 
       # build a  DETECTIONS query for the system, the results include the variables listed below
@@ -82,7 +73,7 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=syst
     }
   }
   
-  # Query for localizations: check if includeLoc is TRUE
+  # If 'includeLoc' is TRUE, retrieve the locations data from the database
   if(includeLoc) {
     for (i in 1:length(FullTag)) { 
       # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
@@ -93,11 +84,20 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=syst
     }
   }
   
-  # Disconnect from the database and combine results
-  dbDisconnect(dbc)
+  # Disconnect from the database
+  disconnect_from_db(dbc)
+  
+  # Combine the ATLAS data of different tags to a single data frame
   RawDet0 <- do.call(rbind.data.frame, AllTagsDet)
   RawLoc0 <- do.call(rbind.data.frame, AllTagsLoc)
-  A <- list("DET"=RawDet0,"LOC"=RawLoc0)
   
-  return(A)
+  return(list("DET"=RawDet0,"LOC"=RawLoc0))
 }
+
+# # Example of using the function 'Data_from_ATLAS_server'
+# 
+# tag_numbers = c(972006000837)
+# Start_Time_Str ='2023-12-24 00:08:00' # start time in UTC
+# End_Time_Str   ='2023-12-24 00:09:00' # end time in UTC
+# 
+# AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,tag_numbers)
