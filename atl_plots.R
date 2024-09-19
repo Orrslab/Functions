@@ -1,3 +1,7 @@
+library(dplyr)
+
+source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
+
 
 #' Create a map of a single ATLAS dataset
 #'
@@ -139,14 +143,9 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c(
     summarize(do_union = FALSE) %>%
     st_cast("LINESTRING")
   
-  # Convert Unix timestamp to POSIXct and format as UTC
-  llpd1_sf$TIME_seconds <- llpd1_sf$TIME / 1000 # convert time from miliseconds to seconds
-  llpd1_sf$dateTimeUTC <- as.POSIXct(llpd1_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
-  llpd1_sf$dateTimeFormatted <- format(llpd1_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
-  
-  llpd2_sf$TIME_seconds <- llpd2_sf$TIME / 1000 # convert time from miliseconds to seconds
-  llpd2_sf$dateTimeUTC <- as.POSIXct(llpd2_sf$TIME_seconds, origin = "1970-01-01", tz = "UTC")
-  llpd2_sf$dateTimeFormatted <- format(llpd2_sf$dateTimeUTC, "%Y-%m-%d %H:%M:%S")
+  # Convert Unix timestamp to a UTC humandate in ATLAS format
+  llpd1_sf$dateTimeFormatted <- unix_timestamp_to_human_date(llpd1_sf$TIME)
+  llpd2_sf$dateTimeFormatted <- unix_timestamp_to_human_date(llpd2_sf$TIME)
   
   # Define color palette
   col <- brewer.pal(n = 6, name = 'Dark2')
