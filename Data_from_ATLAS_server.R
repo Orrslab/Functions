@@ -10,7 +10,7 @@ source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
 
-#' Read Data from the ATLAS Server
+#' Retrieve Data from the ATLAS Server
 #'
 #' This function reads data directly from the ATLAS server, given a specific time range and vector of tags.
 #' A VPN connection to the Tel Aviv University (TAU) servers or any other relevant server is required.
