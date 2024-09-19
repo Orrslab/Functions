@@ -1,22 +1,24 @@
 
-  atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery') # 'OpenStreetMap.BZH'
+#' Create a map of a single ATLAS dataset
+#'
+#' @description
+#' plot an interactive map of the ATLAS location points, a popup of information about each point, 
+#' and trajectories between consequent points- from a single data set, for example a single track
+#' 
+#' @param dd A data frame that contains X (longitude) and Y (latitude) columns, 
+#' representing spatial coordinates of the location in itm coordinates: Israeli Transverse Mercator (EPSG:2039)
+#' @param MapProvider A string defining the map tile provider for the background map. 
+#' The default is 'Esri.WorldImagery'. 
+#' An alternative option ('OpenStreetMap.BZH') is commented out but can be used by changing the parameter.
+#' 
+#' @return An interactive leaflet map with the plotted data points, info popups, and paths
+#' 
+#' @import leaflet
+#' @import sp
+#' @importFrom RColorBrewer brewer.pal
+#'
+atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery') # 'OpenStreetMap.BZH'
 {
-    
-    #' @description
-        #' plot an interactive map of the ATLAS location points, a popup of information about each point, 
-        #' and trajectories between consequent points- from a single data set, for example a single track
-    #' 
-    #' @param dd A data frame that contains X (longitude) and Y (latitude) columns, 
-    #' representing spatial coordinates of the location in itm coordinates: Israeli Transverse Mercator (EPSG:2039)
-    #' @param MapProvider A string defining the map tile provider for the background map. 
-    #' The default is 'Esri.WorldImagery'. 
-    #' An alternative option ('OpenStreetMap.BZH') is commented out but can be used by changing the parameter.
-    #' 
-    #' @return An interactive leaflet map with the plotted data points, info popups, and paths
-    #' 
-    #' @import leaflet
-    #' @import sp
-    #' @importFrom RColorBrewer brewer.pal
   
     # A list of variables to check or add to the data frame if they don't exist
     varlist =c("PENALTY","spd","angl","stdVarXY")
@@ -83,23 +85,25 @@
     ll
 }
 
-  
+
+#' Create a map of two different ATLAS datasets
+#' 
+#' @description
+#' plot an interactive map of the ATLAS location points, a popup of information about each point, 
+#' and trajectories between consequent points- from a single data set, for example a single track
+#' 
+#' @param dd1,dd2 The data sets that should be plotted.
+#' @param MapProvider The map tiles provider (default is 'Esri.WorldImagery').
+#' @param legendLabels Labels of 'dd1' and 'dd2' for the map's legend. Example: c("1", "2")
+#' 
+#' @return An interactive map that displays two different tracks (datasets) with distinct colors and popups.
+#' 
+#' @import leaflet
+#' @import sp
+#' @importFrom RColorBrewer brewer.pal  
+#'
 atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c("1", "2")) 
 {
-  
-  #' @description
-  #' plot an interactive map of the ATLAS location points, a popup of information about each point, 
-  #' and trajectories between consequent points- from a single data set, for example a single track
-  #' 
-  #' @param dd1,dd2 The data sets that should be plotted.
-  #' @param MapProvider The map tiles provider (default is 'Esri.WorldImagery').
-  #' @param legendLabels Labels of 'dd1' and 'dd2' for the map's legend. Example: c("1", "2")
-  #' 
-  #' @return An interactive map that displays two different tracks (datasets) with distinct colors and popups.
-  #' 
-  #' @import leaflet
-  #' @import sp
-  #' @importFrom RColorBrewer brewer.pal
   
   # Check if the required columns exist in both 'dd1' and 'dd2'. 
   # If a column is missing, add it with NA values.
@@ -209,36 +213,36 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c(
 }
 
 
+#' Plot Movement Data with Stops on a Leaflet Map
+#'
+#' @param dd A list containing two data frames:
+#'   \describe{
+#'     \item{FiltLoc1}{A data frame with ATLAS movement data, containing "X" and "Y" coordinates in the 'itm' coordinate system.}
+#'     \item{ADP}{A data frame with stop positions, containing "medX" and "medY" coordinates for stop locations.}
+#'   }
+#' @param Tags Optional. A vector of tags (IDs) to filter and plot specific individuals or objects. If NULL, all tags will be plotted.
+#' @param Days Optional. A vector of days to filter the data. If NULL, all days will be plotted.
+#' 
+#' @return A leaflet map displaying:
+#'   \itemize{
+#'     \item Movement data in blue (lines and points).
+#'     \item Stops in red (circle markers).
+#'   }
+#'   Information shown on hover (popup) includes:
+#'   \itemize{
+#'     \item For movement points: time, standard deviation, and tag ID.
+#'     \item For stop points: stop duration in minutes.
+#'   }
+#' 
+#' @details This function generates a leaflet map to visualize movement data from the ATLAS system, combined with stop locations. 
+#'          The stops are displayed as red points, while the movement data is shown with blue lines and points. 
+#'          Users can filter by specific tags and days, with interactive pop-ups showing detailed information such as detection counts, speeds, and stop durations.
+#'
+#' @import leaflet
+#' @import sp
+#'
 atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
 {
-  
-  #' @title Plot Movement Data with Stops on a Leaflet Map
-  #'
-  #' @param dd A list containing two data frames:
-  #'   \describe{
-  #'     \item{FiltLoc1}{A data frame with ATLAS movement data, containing "X" and "Y" coordinates in the 'itm' coordinate system.}
-  #'     \item{ADP}{A data frame with stop positions, containing "medX" and "medY" coordinates for stop locations.}
-  #'   }
-  #' @param Tags Optional. A vector of tags (IDs) to filter and plot specific individuals or objects. If NULL, all tags will be plotted.
-  #' @param Days Optional. A vector of days to filter the data. If NULL, all days will be plotted.
-  #' 
-  #' @return A leaflet map displaying:
-  #'   \itemize{
-  #'     \item Movement data in blue (lines and points).
-  #'     \item Stops in red (circle markers).
-  #'   }
-  #'   Information shown on hover (popup) includes:
-  #'   \itemize{
-  #'     \item For movement points: time, standard deviation, and tag ID.
-  #'     \item For stop points: stop duration in minutes.
-  #'   }
-  #' 
-  #' @details This function generates a leaflet map to visualize movement data from the ATLAS system, combined with stop locations. 
-  #'          The stops are displayed as red points, while the movement data is shown with blue lines and points. 
-  #'          Users can filter by specific tags and days, with interactive pop-ups showing detailed information such as detection counts, speeds, and stop durations.
-  #'
-  #' @import leaflet
-  #' @import sp
   
   # Check data validity
   if( all(c("X","Y") %in% colnames(dd))) 
@@ -293,29 +297,30 @@ atl_mapleaf_withstops <- function(dd,Tags=NULL,Days=NULL)
   ll
 }
 
+
+#' Visualize Movement Tracks by Day on a Leaflet Map
+#'
+#' @param Data A data frame containing movement data with at least the following columns:
+#'   \describe{
+#'     \item{TAG}{Identifier for the tracked object or individual.}
+#'     \item{DAY}{Date or day of the observation.}
+#'     \item{X}{X-coordinate of the movement.}
+#'     \item{Y}{Y-coordinate of the movement.}
+#'   }
+#' @param Tag A specific tag (ID) to filter and plot the movement tracks.
+#' @param Color Optional. Color to use for the lines representing the tracks. Defaults to "red".
+#' @param calcDAY Optional. Logical indicating whether to calculate day numbers. Defaults to FALSE.
+#'
+#' @return A Leaflet map object with movement tracks for each day. Tracks are colored according to the specified `Color`.
+#' 
+#' @details This function plots movement data for a specified tag over different days. 
+#'          Each day's track is displayed as a polyline on the map.
+#'          The map includes a layer control to toggle visibility of tracks by day.
+#'          
+#' @import leaflet
+#' @import sp
+#' 
 Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
-  
-  #' @title Visualize Movement Tracks by Day on a Leaflet Map
-  #'
-  #' @param Data A data frame containing movement data with at least the following columns:
-  #'   \describe{
-  #'     \item{TAG}{Identifier for the tracked object or individual.}
-  #'     \item{DAY}{Date or day of the observation.}
-  #'     \item{X}{X-coordinate of the movement.}
-  #'     \item{Y}{Y-coordinate of the movement.}
-  #'   }
-  #' @param Tag A specific tag (ID) to filter and plot the movement tracks.
-  #' @param Color Optional. Color to use for the lines representing the tracks. Defaults to "red".
-  #' @param calcDAY Optional. Logical indicating whether to calculate day numbers. Defaults to FALSE.
-  #'
-  #' @return A Leaflet map object with movement tracks for each day. Tracks are colored according to the specified `Color`.
-  #' 
-  #' @details This function plots movement data for a specified tag over different days. 
-  #'          Each day's track is displayed as a polyline on the map.
-  #'          The map includes a layer control to toggle visibility of tracks by day.
-  #'          
-  #' @import leaflet
-  #' @import sp
   
   # Set Coordinate Reference Systems (CRS) of the data and map
   itm<-"+init=epsg:2039 "
@@ -364,32 +369,34 @@ Leaf_TrackByDays <- function(Data,Tag,Color="red",calcDAY=F) {
 }
 
 
+#' Create an interactive map of an ATLAS dataset versus a GPS dataset
+#' 
+#' @description 
+#' This function creates an interactive map using the leaflet package. It plots two datasets:
+#' - `dd1`: The ATLAS-derived data (requires columns "X" and "Y" in EPSG:2039 coordinates).
+#' - `gpsTrack`: The GPS data (requires columns "X" and "Y" in EPSG:2039 coordinates).
+#' The map displays circles and lines for the ATLAS data and circles for the GPS data.
+#'
+#' @param gpsTrack A data frame containing GPS data with columns "X" and "Y" in EPSG:2039 coordinates.
+#' @param dd1 A data frame containing original data with columns "X" and "Y" in EPSG:2039 coordinates.
+#' @param MapProvider A character string specifying the map provider. Defaults to 'Esri.WorldImagery'.
+#'
+#' @return A leaflet map object.
+#'
+#' @details
+#' - The function uses the EPSG:2039 projection for the input data and transforms it to WGS84 coordinates for plotting.
+#' - The map includes:
+#'   - Circles and lines for the original data (in the color specified by the `Color` parameter).
+#'   - Circles for the GPS data (in red color).
+#' - Popups display detailed information when hovering over the data points.
+#' - Includes a scale bar and layer control to toggle between the original and GPS data layers.
+#'
+#' @import leaflet
+#' @import sp
+#' @importFrom RColorBrewer brewer.pal
+#'
 atl_mapleafGPS1 <- function(gpsTrack,dd1,MapProvider='Esri.WorldImagery')
 {
-  
-  #' @description 
-      #' This function creates an interactive map using the leaflet package. It plots two datasets:
-      #' - `dd1`: The ATLAS-derived data (requires columns "X" and "Y" in EPSG:2039 coordinates).
-      #' - `gpsTrack`: The GPS data (requires columns "X" and "Y" in EPSG:2039 coordinates).
-      #' The map displays circles and lines for the ATLAS data and circles for the GPS data.
-  #'
-  #' @param gpsTrack A data frame containing GPS data with columns "X" and "Y" in EPSG:2039 coordinates.
-  #' @param dd1 A data frame containing original data with columns "X" and "Y" in EPSG:2039 coordinates.
-  #' @param MapProvider A character string specifying the map provider. Defaults to 'Esri.WorldImagery'.
-  #'
-  #' @return A leaflet map object.
-  #'
-  #' @details
-  #' - The function uses the EPSG:2039 projection for the input data and transforms it to WGS84 coordinates for plotting.
-  #' - The map includes:
-  #'   - Circles and lines for the original data (in the color specified by the `Color` parameter).
-  #'   - Circles for the GPS data (in red color).
-  #' - Popups display detailed information when hovering over the data points.
-  #' - Includes a scale bar and layer control to toggle between the original and GPS data layers.
-  #'
-  #' @import leaflet
-  #' @import sp
-  #' @importFrom RColorBrewer brewer.pal
   
   # Check data validity
   varlist =c("PENALTY","stdVarXY")
@@ -456,23 +463,23 @@ atl_mapleafGPS1 <- function(gpsTrack,dd1,MapProvider='Esri.WorldImagery')
 }
 
 
+#' Visualize and compare movement data from four ATLAS datasets on an interactive map using leaflet.
+#'
+#' @param dd1 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
+#' @param dd2 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
+#' @param dd3 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
+#' @param dd4 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
+#' @param MapProvider A string specifying the base map provider. Default is 'Esri.WorldImagery'.
+#' @param legendLabels A character vector of labels for the different datasets (dd1, dd2, dd3, dd4).
+#'
+#' @return A leaflet map object with overlaid circles and polylines representing the movement data.
+#' 
+#' @import leaflet
+#' @import sp
+#' @import RColorBrewer
+#'
 atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLabels=c("1","2","3","4"))
 {
-  
-  #' @title Visualize and compare movement data from four ATLAS datasets on an interactive map using leaflet.
-  #'
-  #' @param dd1 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
-  #' @param dd2 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
-  #' @param dd3 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
-  #' @param dd4 A data frame containing movement data with "X" and "Y" coordinates in ITM (EPSG:2039) projection.
-  #' @param MapProvider A string specifying the base map provider. Default is 'Esri.WorldImagery'.
-  #' @param legendLabels A character vector of labels for the different datasets (dd1, dd2, dd3, dd4).
-  #'
-  #' @return A leaflet map object with overlaid circles and polylines representing the movement data.
-  #' 
-  #' @import leaflet
-  #' @import sp
-  #' @import RColorBrewer
   
   # Check the data validity
   varlist =c("PENALTY","stdVarXY")
@@ -592,34 +599,34 @@ atl_mapleaf4 <- function(dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendL
 }
 
 
+#' Plot GPS Track and Additional four ALTAS datasets on an Interactive Leaflet Map
+#'
+#' @description
+#' This function plots a GPS track along with four additional datasets on an interactive Leaflet map. 
+#' Each dataset is projected from the Israeli Transverse Mercator (EPSG:2039) projection to WGS84, 
+#' and circles and polylines are drawn on the map. The function allows for custom map providers 
+#' and color schemes and displays relevant information in popups.
+#' 
+#'
+#' @param gpsTrack A SpatialPointsDataFrame containing the GPS track data with columns `X`, `Y` for coordinates.
+#' @param dd1 A SpatialPointsDataFrame for the first ATLAS dataset. Must contain `X`, `Y` coordinates.
+#' @param dd2 A SpatialPointsDataFrame for the second ATLAS dataset. Must contain `X`, `Y` coordinates.
+#' @param dd3 A SpatialPointsDataFrame for the third ATLAS dataset. Must contain `X`, `Y` coordinates.
+#' @param dd4 A SpatialPointsDataFrame for the fourth ATLAS dataset. Must contain `X`, `Y` coordinates.
+#' @param MapProvider A character string representing the map tile provider for the background. 
+#'   Default is `'Esri.WorldImagery'`. Other options include `'OpenStreetMap.Mapnik'`, `'Stadia.AlidadeSmooth'`, etc.
+#' @param legendLabels A character vector of labels for the map layers, used in the legend. 
+#'   The default is `c("GPS", "1", "2", "3", "4")`.
+#'
+#' @return An interactive Leaflet map with five layers: the GPS track and the four ATLAS datasets (`dd1`, `dd2`, `dd3`, `dd4`), 
+#'   including circles and polylines, with popups displaying metadata for each point.
+#'
+#' @import leaflet sp RColorBrewer
+#' @importFrom htmltools htmlEscape
+#' @importFrom sp spTransform proj4string CRS coordinates
+#'
 atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImagery',legendLabels=c("GPS","1","2","3","4"))
 {
-  
-  #' @title Plot GPS Track and Additional four ALTAS datasets on an Interactive Leaflet Map
-  #'
-  #' @description
-    #' This function plots a GPS track along with four additional datasets on an interactive Leaflet map. 
-    #' Each dataset is projected from the Israeli Transverse Mercator (EPSG:2039) projection to WGS84, 
-    #' and circles and polylines are drawn on the map. The function allows for custom map providers 
-    #' and color schemes and displays relevant information in popups.
-    #' 
-  #'
-  #' @param gpsTrack A SpatialPointsDataFrame containing the GPS track data with columns `X`, `Y` for coordinates.
-  #' @param dd1 A SpatialPointsDataFrame for the first ATLAS dataset. Must contain `X`, `Y` coordinates.
-  #' @param dd2 A SpatialPointsDataFrame for the second ATLAS dataset. Must contain `X`, `Y` coordinates.
-  #' @param dd3 A SpatialPointsDataFrame for the third ATLAS dataset. Must contain `X`, `Y` coordinates.
-  #' @param dd4 A SpatialPointsDataFrame for the fourth ATLAS dataset. Must contain `X`, `Y` coordinates.
-  #' @param MapProvider A character string representing the map tile provider for the background. 
-  #'   Default is `'Esri.WorldImagery'`. Other options include `'OpenStreetMap.Mapnik'`, `'Stadia.AlidadeSmooth'`, etc.
-  #' @param legendLabels A character vector of labels for the map layers, used in the legend. 
-  #'   The default is `c("GPS", "1", "2", "3", "4")`.
-  #'
-  #' @return An interactive Leaflet map with five layers: the GPS track and the four ATLAS datasets (`dd1`, `dd2`, `dd3`, `dd4`), 
-  #'   including circles and polylines, with popups displaying metadata for each point.
-  #'
-  #' @import leaflet sp RColorBrewer
-  #' @importFrom htmltools htmlEscape
-  #' @importFrom sp spTransform proj4string CRS coordinates
   
   # Handle missing variables
   varlist =c("PENALTY","stdVarXY")
@@ -747,24 +754,24 @@ atl_mapleaf5GPS <- function(gpsTrack,dd1,dd2,dd3,dd4,MapProvider='Esri.WorldImag
 }
 
 
+#' Plot GPS Data on a Satellite Map with ggmap
+#'
+#' This function plots GPS data on a satellite map using ggmap. The map is centered based on the 
+#' bounding box of the dataset, and the GPS points and paths are plotted with coloring by day and grouping by tag. 
+#' The function uses OSM (OpenStreetMap) as the source for map tiles and allows for customization 
+#' of longitude and latitude column names.
+#'
+#' @param dd A data frame containing the GPS data. It should have columns for longitude, latitude, day, and tag.
+#' @param lon_name A character string representing the name of the longitude column in the dataset. Default is `"LON"`.
+#' @param lat_name A character string representing the name of the latitude column in the dataset. Default is `"LAT"`.
+#'
+#' @return A ggmap object with GPS points and paths plotted on a satellite map, faceted by tag.
+#'
+#' @import ggmap ggplot2
+#' @importFrom ggmap get_map make_bbox ggmap
+#'
 atl_mapgg <- function(dd,lon_name="LON",lat_name="LAT")
 {
-  
-  #' @title Plot GPS Data on a Satellite Map with ggmap
-  #'
-  #' This function plots GPS data on a satellite map using ggmap. The map is centered based on the 
-  #' bounding box of the dataset, and the GPS points and paths are plotted with coloring by day and grouping by tag. 
-  #' The function uses OSM (OpenStreetMap) as the source for map tiles and allows for customization 
-  #' of longitude and latitude column names.
-  #'
-  #' @param dd A data frame containing the GPS data. It should have columns for longitude, latitude, day, and tag.
-  #' @param lon_name A character string representing the name of the longitude column in the dataset. Default is `"LON"`.
-  #' @param lat_name A character string representing the name of the latitude column in the dataset. Default is `"LAT"`.
-  #'
-  #' @return A ggmap object with GPS points and paths plotted on a satellite map, faceted by tag.
-  #'
-  #' @import ggmap ggplot2
-  #' @importFrom ggmap get_map make_bbox ggmap
   
   # Rename the columns to standard names "LON" and "LAT"
   colnames(dd)[which(colnames(dd)==lon_name)] <- "LON"
@@ -801,30 +808,30 @@ atl_mapgg <- function(dd,lon_name="LON",lat_name="LAT")
 }
 
 
+#' Plot Sequential Days for a Given Tag
+#'
+#' This function plots the movement data (X, Y coordinates) of a specific tag across different days. 
+#' For each day, it displays the track of movements in a sequential manner and pauses after each plot 
+#' for the user to review the current day's movement before continuing to the next day.
+#'
+#' @param data A data frame containing the movement data. It should include at least the following columns: 
+#' `X` (X coordinates), `Y` (Y coordinates), `TAG` (identifier for the subject being tracked), and `DAY` (day identifier).
+#' @param TAG_ex A single value specifying the number of the tag of interest. The function will plot the data corresponding to this tag.
+#' @param xlims A vector of length 2 specifying the x-axis limits for the plots. Default is 0, which will auto-calculate the limits based on the data.
+#' @param ylims A vector of length 2 specifying the y-axis limits for the plots. Default is 0, which will auto-calculate the limits based on the data.
+#'
+#' @details
+#' The function will iterate through all the unique days (`DAY`) associated with the specified tag (`TAG_ex`). 
+#' For each day, it will plot the X and Y coordinates and connect them with lines to represent movement. 
+#' After each day's plot, the function will pause and prompt the user to continue to the next day.
+#' 
+#' If `xlims` or `ylims` are not provided, the function will automatically calculate the axis limits based on 
+#' the maximum and minimum X and Y values for the specified tag.
+#'
+#' @return None. The function is used for plotting and interaction, with no return value.
+#'
 plotdays <- function(data,TAG_ex,xlims=0,ylims=0)
 {
-  
-  #' @title Plot Sequential Days for a Given Tag
-  #'
-  #' This function plots the movement data (X, Y coordinates) of a specific tag across different days. 
-  #' For each day, it displays the track of movements in a sequential manner and pauses after each plot 
-  #' for the user to review the current day's movement before continuing to the next day.
-  #'
-  #' @param data A data frame containing the movement data. It should include at least the following columns: 
-  #' `X` (X coordinates), `Y` (Y coordinates), `TAG` (identifier for the subject being tracked), and `DAY` (day identifier).
-  #' @param TAG_ex A single value specifying the number of the tag of interest. The function will plot the data corresponding to this tag.
-  #' @param xlims A vector of length 2 specifying the x-axis limits for the plots. Default is 0, which will auto-calculate the limits based on the data.
-  #' @param ylims A vector of length 2 specifying the y-axis limits for the plots. Default is 0, which will auto-calculate the limits based on the data.
-  #'
-  #' @details
-  #' The function will iterate through all the unique days (`DAY`) associated with the specified tag (`TAG_ex`). 
-  #' For each day, it will plot the X and Y coordinates and connect them with lines to represent movement. 
-  #' After each day's plot, the function will pause and prompt the user to continue to the next day.
-  #' 
-  #' If `xlims` or `ylims` are not provided, the function will automatically calculate the axis limits based on 
-  #' the maximum and minimum X and Y values for the specified tag.
-  #'
-  #' @return None. The function is used for plotting and interaction, with no return value.
   
   # If no x-axis limits are provided, automatically calculate them based on the specified tag's data
   if (xlims[1]==0) {
@@ -863,28 +870,28 @@ plotdays <- function(data,TAG_ex,xlims=0,ylims=0)
 }
 
 
+#' Plot a Square Given Two Diagonal Points
+#'
+#' This function plots a square using two diagonal points. The square can either be added 
+#' to an existing plot or drawn in a new plot depending on the 'override' parameter. 
+#' You can also specify the color of the square.
+#'
+#' @param x A numeric vector of length 2 representing the x-coordinates of the diagonal points.
+#' @param y A numeric vector of length 2 representing the y-coordinates of the diagonal points.
+#' @param a_col A string specifying the color of the square. Default is "red".
+#' @param override A logical value indicating whether to override the existing plot. 
+#'        If TRUE, a new plot is created; if FALSE, the square is added to an existing plot. 
+#'        Default is FALSE.
+#'
+#' @details
+#' The function takes two diagonal points, defined by the x and y coordinates, and draws a square.
+#' If `override = TRUE`, the function will create a new plot with the square. If `override = FALSE`,
+#' it adds the square to an existing plot without creating a new one.
+#'
+#' @return No return value. The function creates or modifies a plot by drawing a square.
+#'
 plotsqure <- function(x,y,a_col="red",override=FALSE)
 {
-  
-  #' @title Plot a Square Given Two Diagonal Points
-  #'
-  #' This function plots a square using two diagonal points. The square can either be added 
-  #' to an existing plot or drawn in a new plot depending on the 'override' parameter. 
-  #' You can also specify the color of the square.
-  #'
-  #' @param x A numeric vector of length 2 representing the x-coordinates of the diagonal points.
-  #' @param y A numeric vector of length 2 representing the y-coordinates of the diagonal points.
-  #' @param a_col A string specifying the color of the square. Default is "red".
-  #' @param override A logical value indicating whether to override the existing plot. 
-  #'        If TRUE, a new plot is created; if FALSE, the square is added to an existing plot. 
-  #'        Default is FALSE.
-  #'
-  #' @details
-  #' The function takes two diagonal points, defined by the x and y coordinates, and draws a square.
-  #' If `override = TRUE`, the function will create a new plot with the square. If `override = FALSE`,
-  #' it adds the square to an existing plot without creating a new one.
-  #'
-  #' @return No return value. The function creates or modifies a plot by drawing a square.
   
   # If 'override' is TRUE, create a new plot with the square
   if (override){
