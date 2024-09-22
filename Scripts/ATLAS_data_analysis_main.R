@@ -13,11 +13,18 @@ source(paste0(path_to_scripts,"install_required_R_packages.R"))
 source(paste0(path_to_scripts, "ATLAS_data_requests.R"))
 
 source(paste0(path_to_scripts,"get_ATLAS_data.R"))
+raw_location_data = get_ATLAS_data()
 
 source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
 
 # Calculate the confidence of each location point
-raw_data_with_confidence_levels <- TrackConfidenceLevelcpp(RawLoc0,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,minNBSforConf1=4,Nconf1forConf2=5)
+raw_data_with_confidence_levels <- TrackConfidenceLevelcpp(raw_location_data,
+                                                           conectedVel=20,
+                                                           conectedDist=NA,
+                                                           stdlim=80,
+                                                           minNBSforConf2=7,
+                                                           minNBSforConf1=4,
+                                                           Nconf1forConf2=5)
 
 # Filter all data with conf = 2
 data__with_confidence_2 <- raw_data_with_confidence_levels %>%
