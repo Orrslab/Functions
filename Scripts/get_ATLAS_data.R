@@ -4,7 +4,12 @@ source(file.path(getwd(), "Scripts", "config.R"))
 
 if (load_data_from_sqlite_file) {
   
-  print("Load ATLAS data from an SQLite file")
+  source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
+  filepath <- create_sqlite_filepath(tag_numbers, Start_Time_Str, End_Time_Str)
+  
+  source(paste0(path_to_atlas_data_analysis_repo, "load_atlas_data_from_sqlite.R"))
+  RawLoc0 <- load_atlas_data_from_sqlite(filepath)
+  
   
 } else {
   
