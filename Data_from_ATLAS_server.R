@@ -5,9 +5,6 @@ sapply(required_packages, library, character.only = TRUE)
 # Load the config file
 source(file.path(getwd(), "Scripts", "config.R"))
 
-# Load the functions that connect to the ATLAS database
-source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
-
 # Load the functions that convert time formats
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
@@ -21,7 +18,6 @@ source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 #' @param Start_Time_Str A character string representing the start time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
 #' @param End_Time_Str A character string representing the end time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
 #' @param FullTag A vector of tags (as integers) in the format \code{972006000223}.
-#' @param SYS The name of the system. Currently, only \code{"Harod"} is implemented.
 #' @param includeDet Logical. If \code{TRUE}, detections data is included in the return value. Default is \code{TRUE}.
 #' @param includeLoc Logical. If \code{TRUE}, localizations data is included in the return value. Default is \code{TRUE}.
 #'
@@ -34,29 +30,9 @@ source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 #' and queries the ATLAS server for detections and/or localizations within the specified time range. 
 #' The data for each tag in \code{FullTag} is fetched separately.
 
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=system_name_harod,includeDet=TRUE,includeLoc=TRUE)
+Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
 {
   
-  # Get the credentials of the ATLAS database you need to connect to
-  if (SYS==system_name_harod){
-    # Get the Harod database credentials from the configuration file
-    db_username = db_username_harod         # username
-    db_pass = db_pass_harod                 # password
-    db_host_ip = db_host_ip_harod           # host ip address
-    db_port_number = db_port_number_harod   # port Number
-    db_name = db_name_harod                 # name of data base
-    
-  } else {
-    stop("system not defined")
-  }
-  
-  #connect to the database
-  dbc <- connect_to_atlas_db(db_username, 
-                             db_pass, 
-                             db_host_ip, 
-                             db_port_number, 
-                             db_name)
-
   # Convert the start and end times to the ATLAS time format
   ATLAS_Start_Time <- time_str_to_utc_timestamp(Start_Time_Str)
   ATLAS_End_Time <- time_str_to_utc_timestamp(End_Time_Str)
@@ -80,15 +56,14 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag, SYS=syst
   if(includeLoc) {
     for (i in 1:length(FullTag)) { 
       # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
-      query = paste('select TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY from LOCALIZATIONS WHERE TAG=',FullTag[i], 
-                    'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
+      query = paste('SELECT TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY', 
+                    'FROM LOCALIZATIONS WHERE TAG=', FullTag[i], 
+                    'AND TIME >=', ATLAS_Start_Time, 
+                    'AND TIME <=', ATLAS_End_Time)
       All_Data <- dbGetQuery(dbc,query)
       AllTagsLoc[[i]] <- All_Data
     }
   }
-  
-  # Disconnect from the database
-  disconnect_from_db(dbc)
   
   # Combine the ATLAS data of different tags to a single data frame
   RawDet0 <- do.call(rbind.data.frame, AllTagsDet)
