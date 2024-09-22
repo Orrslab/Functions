@@ -8,18 +8,11 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "Scripts", "config.R"))
 
-tag_numbers = c(972006000837)
-Start_Time_Str ='2023-12-24 00:00:01' # start time in UTC
-End_Time_Str   ='2023-12-25 00:00:01' # end time in UTC
-
-# tag_numbers = c(972006000837, 972006000944, 972006000544)
-# Start_Time_Str ='2024-09-05 08:00:00' # start time in UTC
-# End_Time_Str   ='2024-09-05 09:00:00' # end time in UTC
-
 source(paste0(path_to_scripts,"install_required_R_packages.R"))
 
+source(paste0(path_to_scripts, "ATLAS_data_requests.R"))
+
 source(paste0(path_to_scripts,"get_ATLAS_data.R"))
-#TODO Add a part that saves the data into SQLite and retrieved it from there
 
 source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
 
