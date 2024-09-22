@@ -6,8 +6,6 @@ source(paste0(path_to_scripts,"ATLAS_data_analysis_main.R"))
 source(paste0(path_to_atlas_data_analysis_repo,"atl_plots.R"))
 
 library(leaflet)
-library(mapview)
-library(sp)
 library(sf)
 library(RColorBrewer)
 library(htmltools)
