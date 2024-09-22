@@ -1,9 +1,13 @@
 # Install all the requires R libraries and packages 
 # to run the ATLAS data analysis pipeline.
 
-# # Packages from the R repository
+# Packages from the R repository:
 
-required_packages <- c("roxygen2", "DBI", "RMySQL", "RSQLite", "Rcpp", "dplyr")
+# If you need to install other packages, add them to the required_packages list:
+required_packages <- c("roxygen2", 
+                       "DBI", "RMySQL", "RSQLite", 
+                       "Rcpp", "dplyr", 
+                       "leaflet", "sf", "RColorBrewer", "htmltools")
 
 # List from Eitam's code- DELETE LATER
 # required_packages <- list("data.table",  "dplyr",  "lubridate" ,  "dbscan" ,
