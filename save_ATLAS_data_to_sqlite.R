@@ -1,5 +1,5 @@
 # Load required packages
-required_packages <- c("RSQLite", "DBI", "dplyr")
+required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
 sapply(required_packages, library, character.only = TRUE)
 
 source(file.path(getwd(), "Scripts", "config.R"))
@@ -37,6 +37,27 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
 {
   source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
   filepath <- create_sqlite_filepath(tag_numbers, start_time, end_time)
+  
+  # If a file with the same name exists, ask the user whether to overwrite it
+  if (file.exists(filepath)) {
+    repeat {
+      cat(green("The file: \n'", basename(filepath), 
+                "' already exists.\n", "Do you want to overwrite it? (y/n): \n"))
+      user_input <- readline()
+      
+      if (tolower(user_input) == "y") {
+        # If 'y', proceed with overwriting
+        break
+      } else if (tolower(user_input) == "n") {
+        # If 'n', stop the function or print a message
+        message("Data will not saved into sqlite.")
+        return()
+      } else {
+        # If input is invalid, show error and ask again
+        cat('Invalid input. Please type "y" or "n" only.\n')
+      }
+    }
+  }
 
   # Connect to the SQLite database
   conn <- dbConnect(RSQLite::SQLite(), dbname = filepath)
