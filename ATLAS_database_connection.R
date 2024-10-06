@@ -41,8 +41,3 @@ connect_to_atlas_db <- function(SYS=system_name_harod) {
   
   return(dbc)
 }
-
-
-disconnect_from_db <- function(dbc) {
-  dbDisconnect(dbc)
-}
