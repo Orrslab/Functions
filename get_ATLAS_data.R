@@ -1,5 +1,5 @@
 
-source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
+source(file.path(getwd(), "config.R"))
 
 #' Retrieve ATLAS data from either the server or local SQLite files.
 #'

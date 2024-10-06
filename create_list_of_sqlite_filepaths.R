@@ -1,4 +1,4 @@
-source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
+source(file.path(getwd(), "config.R"))
 source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
 
 #' Create a list of SQLite file paths based on data requests.

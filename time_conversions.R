@@ -1,6 +1,6 @@
 
 # Load the config file
-source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
+source(file.path(getwd(), "config.R"))
 
 
 #' Convert a Time String to a UTC Time Stamp in Milliseconds
