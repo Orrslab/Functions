@@ -4,7 +4,7 @@
 # Packages from the R repository:
 
 # If you need to install other packages, add them to the required_packages list:
-required_packages <- c("roxygen2", 
+required_packages <- c("roxygen2", "crayon", 
                        "DBI", "RMySQL", "RSQLite", 
                        "Rcpp", "dplyr", 
                        "leaflet", "sf", "RColorBrewer", "htmltools")
