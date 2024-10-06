@@ -3,7 +3,7 @@ required_packages <- c("DBI", "RMySQL", "RSQLite")
 sapply(required_packages, library, character.only = TRUE)
 
 # Load the config file
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 # Load the functions that convert time formats
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))

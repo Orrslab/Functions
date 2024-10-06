@@ -1,6 +1,6 @@
 
 # Get the required paths from the config file config.R
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 source(paste0(path_to_scripts,"ATLAS_data_analysis_main.R"))
 source(paste0(path_to_atlas_data_analysis_repo,"atl_plots.R"))

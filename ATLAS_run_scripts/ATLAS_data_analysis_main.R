@@ -6,13 +6,13 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 # Get the required paths from the config file config.R
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 source(paste0(path_to_scripts,"install_required_R_packages.R"))
 
 source(paste0(path_to_scripts, "ATLAS_data_requests.R"))
 
-source(paste0(path_to_scripts,"get_ATLAS_data.R"))
+source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
 raw_location_data = get_ATLAS_data()
 
 source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))

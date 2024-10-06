@@ -3,7 +3,7 @@
 required_packages <- c("RSQLite", "DBI")
 sapply(required_packages, library, character.only = TRUE)
 
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 #' Load ATLAS Localizations Data from SQLite Database
 #'

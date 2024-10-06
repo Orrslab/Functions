@@ -2,12 +2,12 @@
 ## Paths
 # path of the data analysis repo ("Functions") in your computer
 path_to_atlas_data_analysis_repo <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/"
-path_to_scripts <- paste0(path_to_atlas_data_analysis_repo,"Scripts/")
+path_to_scripts <- paste0(path_to_atlas_data_analysis_repo,"ATLAS_run_scripts/")
 path_to_sqlite_files <- ("C:/Users/netat/Documents/Movement_Ecology/ATLAS/ATLAS_data_sqlite/")
 
 ## Define if to retrieve data from the ATLAS server (TRUE),
 # or load data from an existing .sqlite file (FALSE)
-retrieve_data_from_server <- TRUE
+retrieve_data_from_server <- FALSE
 
 # Choose if to save or not to save new data retrieved from the ATLAS server
 # The code checks this variable only if load_data_from_sqlite_file == FALSE
