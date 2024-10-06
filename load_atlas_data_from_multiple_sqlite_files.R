@@ -3,7 +3,7 @@
 required_packages <- c("RSQLite", "dplyr")
 sapply(required_packages, library, character.only = TRUE)
 
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 #' Load data from multiple SQLite files and consolidate into a single data frame.
 #'

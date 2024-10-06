@@ -2,7 +2,7 @@
 required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
 sapply(required_packages, library, character.only = TRUE)
 
-source(file.path(getwd(), "Scripts", "config.R"))
+source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
 
 #' Save ATLAS Data to SQLite Database
 #'
