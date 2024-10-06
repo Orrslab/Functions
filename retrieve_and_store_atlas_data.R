@@ -1,3 +1,4 @@
+library("dplyr")
 
 # Load the functions that connect to the ATLAS database
 source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
@@ -57,7 +58,7 @@ retrieve_and_store_atlas_data <- function(data_requests) {
   }
   
   # Disconnect from the database
-  disconnect_from_db(db_conn)
+  dbDisconnect(db_conn)
   
   raw_location_data <- bind_rows(all_data_frames)
   
