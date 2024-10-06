@@ -20,7 +20,6 @@ load_atlas_data_from_multiple_sqlite_files <- function(sqlite_filepaths) {
   all_data_frames <- list()  
   
   for (sqlite_filepath in sqlite_filepaths) {
-    
     source(paste0(path_to_atlas_data_analysis_repo, "load_atlas_data_from_sqlite.R"))
     RawLoc0 <- load_atlas_data_from_sqlite(sqlite_filepath)
     

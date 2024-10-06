@@ -22,6 +22,13 @@ source(file.path(getwd(), "Scripts", "config.R"))
 #' 
 load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   
+  # check if the file exists
+  if (!file.exists(sqlite_filepath)) {
+    warning(paste0("Warning: Cannot load file from sqlite: \n",
+                   "The file '", basename(sqlite_filepath), "' does not exist.\n"))
+    return(NULL) # Exit the function
+  }
+  
   conn <- dbConnect(RSQLite::SQLite(), dbname=sqlite_filepath)
   
   RawLoc0 <- dbGetQuery(conn, "SELECT * FROM LOCALIZATIONS")
