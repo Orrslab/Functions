@@ -8,10 +8,13 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "config.R"))
 
+# Install the required R packages- in not yet installed
 source(paste0(path_to_scripts,"install_required_R_packages.R"))
 
+# Get the desired tag numbers and date ranges for the data retrieval
 source(paste0(path_to_scripts, data_requests_file_name))
 
+# Get the ATLAS data- either from the server, or from an SQLite file
 source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
 raw_location_data = get_ATLAS_data()
 
