@@ -3,7 +3,7 @@ library(DBI)
 library(RMySQL)
 
 # Load the config file
-source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
+source(file.path(getwd(), "config.R"))
 # Load the functions that connect to the ATLAS database
 source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
 

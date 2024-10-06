@@ -6,7 +6,7 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 # Get the required paths from the config file config.R
-source(file.path(getwd(), "ATLAS_run_scripts", "config.R"))
+source(file.path(getwd(), "config.R"))
 
 source(paste0(path_to_scripts,"install_required_R_packages.R"))
 
