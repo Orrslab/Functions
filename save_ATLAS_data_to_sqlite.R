@@ -65,7 +65,7 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
   # Write localizations data to the database, if provided
   if (!is.null(localizations_data)) {
     dbWriteTable(conn, "LOCALIZATIONS", localizations_data, overwrite=TRUE)
-    print("Localizations data saved.")
+    message("Localizations data saved.")
   }
   
   # Write detections data to the database, if provided
