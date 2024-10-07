@@ -162,7 +162,7 @@ NumericVector TrackConfidenceVec(NumericMatrix Data,int minNBSforConf2,int minNB
       CountC1=CountC1+1;
       }
     
-    // If the confidence level of the current point is "2", set IndC1=Ind, and set CountC1=0
+    // If the confidence level of the current point is "2", set IndC2=Ind, and set CountC1=0
     if (Conf==2) {
       IndC2=Ind;
       CountC1=0;
