@@ -173,7 +173,7 @@ atl_mapleaf2 <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c(
                                           ", ellipsDir=", as.character(round(llpd1_sf$ellipsDir)),
                                           ", DistMed5=", as.character(round(llpd1_sf$DistMed5)),
                                           ", TAG=", llpd1_sf$TAG))) %>%
-    
+
     # Add lines that connect the point locations included in 'dd1'
     addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = col[4], group = legendLabels[1]) %>%
     

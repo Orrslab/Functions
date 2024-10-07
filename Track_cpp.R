@@ -37,7 +37,7 @@ sourceCpp('TrackConf.cpp')
 TrackConfidenceLevelcpp <- function(Data,conectedVel=20,conectedDist=NA,stdlim=80,minNBSforConf2=7,
                                     minNBSforConf1=4,Nconf1forConf2=5)
 {
-
+  
   # Check that all the data necessary for the confidence evaluation is available
   # If not all the mentioned columns below are included in the data set, stop the function from running and output a warning
   if (!all(c('TAG','X','Y','NBS','TIME') %in% names(Data)))
