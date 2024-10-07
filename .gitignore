@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+ATLAS_run_scripts/ATLAS_data_analysis_main_algorithm_scheme.drawio
+ATLAS_run_scripts/ATLAS_data_analysis_main_algorithm_scheme.png
 config.R
