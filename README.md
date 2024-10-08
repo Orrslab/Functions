@@ -1,5 +1,5 @@
 # Animal Tracker: ATLAS data analysis
-*	ATLAS: Advanced Tracking and Localization of Animals in real-life Systems
+*	ATLAS: Advanced Tracking and Localization of Animals in real-life Systems.
 *	The ATLAS system was developed by prof. Sivan Toledo from Tel Aviv University.
 *	This GitHub repository contains a collection of R scripts and functions designed to help researchers to analyse animal movement data from the ATLAS system.
 
@@ -12,10 +12,10 @@ The Functions repo has three main folders:
 2. **ATLAS_run_scripts:** scripts that process and filter the ATLAS data
 3. **Legacy_functions:** older functions that are not being currently maintained
 
-There is a whole script which does everything you might need to for using the ATLAS data to analyze the animals’ movement.  
-It is found in: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
-This script uses most of the functions in the root directory. Below you will find detailed instructions on how to use this script.
-To understand what the functions in the root directory do, there is a detailed documentation inside each function.
+There is a script which does everything you might need for using the ATLAS data to analyze the animals’ movement.  
+The script is found in: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
+Below you will find detailed instructions on how to run it.
+The script uses many of the functions in the root directory. To understand what they do, there is a detailed documentation inside of each function file.
 
 ## Getting started
 1.	Make sure you have R, RStudio (if you prefer), and RTools installed on your computer
@@ -26,14 +26,14 @@ To understand what the functions in the root directory do, there is a detailed d
 
 ### Overview
 
-The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need to for using the ATLAS data to analyze the animals’ movement. 
+The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need to for using the ATLAS data to analyze animals’ movement.  
 This includes:
-*	Retrieving multiple data batches from the ATLAS database
-*	Saving the ATLAS data into SQLite files
-*	Loading ATLAS data from SQLite files, for a faster run
-*	Applying the ‘confidence filter’ to remove outliers from the location data
+1.	Retrieving multiple data batches from the ATLAS database
+2.	Saving the ATLAS data into SQLite files
+3.	Loading ATLAS data from the saved SQLite files, for a faster run
+4.	Applying the ‘confidence filter’ to remove outliers from the location data
 
-**R packages used in the script**
+**R packages used in the script**  
 The following packages are required, and will be automatically installed when using the script- **no need to install them- the installation is included in the script**
 
 **Documentations and comments**
@@ -61,7 +61,7 @@ The following packages are required, and will be automatically installed when us
 
 ### Running instructions of the script: step-by-step
 
-1. Get the configuration file _‘config.R’_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
+1. Get the configuration file _‘config.R’_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.  
 2. If you are working remote or with a laptop which does not belong to TAU, connect to the VPN server of TAU
 3. In the config file, set the following variables:
    3.1. Paths
