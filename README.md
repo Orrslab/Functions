@@ -27,6 +27,7 @@ The script uses many of the functions in the root directory. To understand what 
 ### Overview
 
 The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need to for using the ATLAS data to analyze animals’ movement.  
+
 This includes:
 1.	Retrieving multiple data batches from the ATLAS database
 2.	Saving the ATLAS data into SQLite files
@@ -34,6 +35,7 @@ This includes:
 4.	Applying the ‘confidence filter’ to remove outliers from the location data
 
 **R packages used in the script**  
+
 The following packages are required, and will be automatically installed when using the script- **no need to install them- the installation is included in the script**
 
 **Documentations and comments**
@@ -61,31 +63,46 @@ The following packages are required, and will be automatically installed when us
 
 ### Running instructions of the script: step-by-step
 
-1. Get the configuration file _‘config.R’_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.  
+1. Get the configuration file _‘config.R’_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
+
 2. If you are working remote or with a laptop which does not belong to TAU, connect to the VPN server of TAU
+
 3. In the config file, set the following variables:
+   
    3.1. Paths
+        
         3.1.1. _‘path_to_atlas_data_analysis_repo’_: full path to were this repo is saved in  your PC.
+        
         3.1.2. _‘path_to_sqlite_files’_: full path in which you want to save the SQLite files.
+   
    3.2. Data Retrieval Settings
+        
         3.2.1. _‘retrieve_data_from_server’_:
                * TRUE: if you want to retrieve new ATLAS data from the ATLAS database in the server
                * FALSE: if you want to load the ATLAS data from a previously-saved SQLite file
+        
         3.2.2. _‘save_data_to_sqlite_file’_: 
                (will be used if _‘retrieve_data_from_server’_ == TRUE)
                * TRUE: if you want to save the retrieved ATLAS data into an SQLite file
                * FALSE: if you do not want to save the retrieved ATLAS data
+
 4. Set the desired tag numbers and date ranges:
+   
    4.1. Open the file _‘ATLAS_run_scripts\\ATLAS_data_requests.R’_
+   
    4.2. Update the desired tag numbers and date ranges for which you want to get the ATLAS data:
+        
         4.2.1. You can retrieve data from multiple tags and multiple dates, by adding as many items as you like to the _‘data_requests’_ list.
+        
         4.2.2. For each list item set the tag numbers and the date range. 
         Examples:
         * A single tag number: tag = 972006000426
         * Multiple tag numbers: tag = c(972006000837, 972006000841)
         * start_time = '2022-04-10 00:00:01'
         * end_time = '2022-04-10 23:59:00'
+   
    4.3. For convenience, you can create different files for different data retrievals, to better organize which data batches to load or retrieve. If you give these files different names, make sure to update the name in the _config.R_ file.
+
 5. Run the script: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
 
 ## Contribute
