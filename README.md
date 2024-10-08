@@ -63,9 +63,9 @@ The following packages are required, and will be automatically installed when us
 
 ### Running instructions of the script: step-by-step
 
-1. Get the configuration file _‘config.R’_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
+1. Get the configuration file _config.R_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
 
-2. If you are working remote or with a laptop which does not belong to TAU, connect to the VPN server of TAU
+2. If you are working remote or with a laptop which does not belong to TAU, connect to the VPN server of TAU.
 
 3. In the config file, set the following variables:
    
@@ -88,20 +88,20 @@ The following packages are required, and will be automatically installed when us
 
 4. Set the desired tag numbers and date ranges:
    
-   4.1. Open the file _‘ATLAS_run_scripts\\ATLAS_data_requests.R’_
+   4.1. Open the file _ATLAS_run_scripts\\ATLAS_data_requests.R_
    
    4.2. Update the desired tag numbers and date ranges for which you want to get the ATLAS data:
         
-        4.2.1. You can retrieve data from multiple tags and multiple dates, by adding as many items as you like to the _‘data_requests’_ list.
+        4.2.1. You can retrieve data from multiple tags and multiple dates, by adding as many items as you like to the ‘data_requests’ list.
         
-        4.2.2. For each list item set the tag numbers and the date range. 
+        4.2.2. For each list item set the tag numbers and the date range in UTC. 
         Examples:
         * A single tag number: tag = 972006000426
         * Multiple tag numbers: tag = c(972006000837, 972006000841)
         * start_time = '2022-04-10 00:00:01'
         * end_time = '2022-04-10 23:59:00'
    
-   4.3. For convenience, you can create different files for different data retrievals, to better organize which data batches to load or retrieve. If you give these files different names, make sure to update the name in the _config.R_ file.
+   4.3. For convenience, you can create different files for different data retrievals, to better organize which data batches to load or retrieve. If you give these files different names, make sure to update the file name in _config.R_.
 
 5. Run the script: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
 
