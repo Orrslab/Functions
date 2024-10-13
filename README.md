@@ -21,7 +21,7 @@ The script uses many of the functions in the root directory. To understand what 
 1. Make sure you have R, RStudio (if you prefer), and RTools installed on your computer
 2. Make sure you have a VPN connection to the TAU server
 3. Clone this repo to your PC
-4. Get the configuration file _config.R_  from your supervisor. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
+4. Make sure you have the configuration file _config.R_. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
 5. Save the configuration file in your root directory of the repository: path\\to\\repository\\Functions\\config.R
 
 ## Using the script of the ATLAS data analysis pipeline
