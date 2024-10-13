@@ -28,7 +28,7 @@ The script uses many of the functions in the root directory. To understand what 
 
 ### Overview
 
-The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need to for using the ATLAS data to analyze animals’ movement.  
+The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need for using the ATLAS data to analyze animals’ movement.  
 
 This includes:
 1.	Retrieving multiple data batches from the ATLAS database
@@ -40,20 +40,20 @@ This includes:
 
 The following packages are required, and will be automatically installed when using the script- **no need to install them- the installation is included in the script**
 
-<u>Documentations and comments</u>
+Documentations and comments
 * roxygen2
 *	crayon
 
-<u>Data retrieval from the ATLAS database</u>
+Data retrieval from the ATLAS database
 *	DBI
 *	RMySQL
 *	RSQLite
 
-<u>Applying the confidence filter</u>
+Applying the confidence filter
 *	Rcpp
 *	dplyr
 
-<u>Plotting ATLAS data on an interactive map</u>
+Plotting ATLAS data on an interactive map
 *	leaflet
 *	sf
 *	RColorBrewer
@@ -65,7 +65,7 @@ The following packages are required, and will be automatically installed when us
 
 ### Running instructions of the script: step-by-step
 
-1. If you are working remote or with a laptop which does not belong to TAU, connect to the VPN server of TAU.
+1. If you are working remote or with a laptop which does not belong to Tel Aviv University, connect to the VPN server of TAU.
 
 2. In the _config.R_ file, set the following variables:
    
@@ -92,7 +92,7 @@ The following packages are required, and will be automatically installed when us
    
    3.2. Update the desired tag numbers and date ranges for which you want to get the ATLAS data:
         
-        3.2.1. You can retrieve data of multiple tags and from multiple dates, by adding as many items as you like to the ‘data_requests’ list.
+        3.2.1. You can retrieve data of multiple pairs of tag numbers and date ranges, by adding as many items as you like to the ‘data_requests’ list.
         
         3.2.2. For each list item set the tag numbers and the date range in UTC. 
         Examples:
