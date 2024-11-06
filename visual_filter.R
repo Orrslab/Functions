@@ -27,6 +27,53 @@
           # the first contains the points left after filtration
           # the second is the collected points (each point has another variable "segment" that specifies its sample)
 
+
+#' Filter and Plot Daily Movement Data with Interactive Controls
+#'
+#' This function allows for the interactive filtering and plotting of movement data for a single tag, 
+#' displaying one day at a time. Users can apply various filters directly on the plot, including zooming, 
+#' removing specific points, or selecting points within a custom-defined area.
+#'
+#' @param data A data frame containing movement data, with at least two columns labeled `"X"` and `"Y"` for coordinates.
+#' @param printoptions Logical, if `TRUE` (default), the function prints available options at each iteration.
+#' @param DefalutN2filter Integer, optional. Defines the number of points to filter out by default for the 'n' command.
+#' If `FALSE` (default), the user is prompted to specify the number of points to filter out each time.
+#'
+#' @details
+#' The function iterates through each day in the data and waits for a user command. 
+#' Available commands include:
+#' \itemize{
+#'   \item \code{c}: Show the next day’s movement data.
+#'   \item \code{i}: Zoom in by selecting two diagonal points to define the zoom area.
+#'   \item \code{o}: Zoom out to the original view, showing the entire day.
+#'   \item \code{s}: Filter points within a specified square area by selecting two diagonal points.
+#'   \item \code{n}: Remove specific points by clicking on the map. If \code{DefalutN2filter} is set, 
+#'                   this number of points will be filtered automatically; otherwise, you will be asked to specify.
+#'   \item \code{l}: Draw a line between two points and highlight all points between them. 
+#'                   You can choose to keep or discard these points.
+#'   \item \code{p}: Select points within a square (using two diagonal points) and choose to keep or discard them.
+#'   \item \code{b}: Discard the current day’s data, ending the loop and returning collected data so far.
+#'   \item \code{B}: Move back to the previous day and discard the current day’s data.
+#'   \item \code{D}: Discard the current day and select a specific day to display.
+#'   \item \code{t}: Set a default number of points to filter out for the 'n' command.
+#'   \item \code{d}: Toggle display options.
+#' }
+#'
+#' @return A data frame with filtered points retained after all operations. If specific points were collected, 
+#' the function returns a list with two data frames:
+#' \describe{
+#'   \item{filtered_points}{A data frame with points remaining after filtering.}
+#'   \item{collected_points}{A data frame of collected points, with an additional column \code{"segment"} 
+#'   indicating the segment group.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming `movement_data` is your data frame with columns "X" and "Y":
+#' filter_result <- filter_movement_data(movement_data, printoptions = TRUE, DefalutN2filter = FALSE)
+#' }
+#'
+#' @export
 visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
 {
 
