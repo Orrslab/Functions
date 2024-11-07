@@ -2,11 +2,6 @@
 library(DBI)
 library(RMySQL)
 
-# Load the config file
-source(file.path(getwd(), "config.R"))
-# Load the functions that connect to the ATLAS database
-source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
-
 #' Inspect the ATLAS database structure
 #'
 #' This function inspects the structure of the ATLAS database, including the names of tables,
@@ -67,15 +62,17 @@ inspect_database <- function(db_conn) {
 
 # The following script uses the 'inspect_database' to inspect the structure of the Harod database:
 
+# Load the config file
+source(file.path(getwd(), "config.R"))
+# Load the functions that connect to the ATLAS database
+source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
+
 # Connect to the database
-db_conn <- connect_to_atlas_db(db_username_harod, 
-                               db_pass_harod, 
-                               db_host_ip_harod, 
-                               db_port_number_harod, 
-                               db_name_harod)
+db_conn <- connect_to_atlas_db()
 
 # Get the database structure
 db_schema <- inspect_database(db_conn)
 
 # Close the connection
 dbDisconnect(db_conn)
+
