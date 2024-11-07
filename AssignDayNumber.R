@@ -26,9 +26,6 @@
 #' )
 #' AssignDayNumber(data, DayStartTime="00:00:00", TimeColName="dateTime", GroupIdentifier="TAG", Julian=FALSE)
 #'
-#' @importFrom dplyr mutate group_by ungroup
-#' @importFrom lubridate yday date
-#'
 #' @export
 
 AssignDayNumber <- function(data,DayStartTime="00:00:00",TimeColName = "dateTime",GroupIdentifier = "TAG",Julian=FALSE)
