@@ -24,6 +24,34 @@ time_str_to_utc_timestamp <- function(timestring)
   
 }
 
+#' Convert Milliseconds Timestamp to POSIXct
+#'
+#' This function converts a Unix timestamp in milliseconds to a `POSIXct` date-time object in UTC.
+#'
+#' @param timestamp_ms A numeric vector representing Unix timestamps in milliseconds (ms since 1970-01-01).
+#'
+#' @return A `POSIXct` vector in UTC, representing the converted date-time values.
+#' @examples
+#' # Example usage with a single timestamp
+#' convert_to_POSIXct(1703376004071)
+#'
+#' # Example usage with a vector of timestamps
+#' convert_to_POSIXct(c(1703376004071, 1703377004071))
+#'
+#' @export
+convert_to_POSIXct <- function(timestamp_ms) {
+  # Check if input is numeric
+  if (!is.numeric(timestamp_ms)) {
+    stop("The input must be a numeric vector representing Unix timestamps in milliseconds.")
+  }
+  
+  # Convert milliseconds to seconds and then to POSIXct in UTC
+  posix_time <- as.POSIXct(timestamp_ms / 1000, origin = "1970-01-01", tz = atlas_time_zone)
+  
+  # Return the converted POSIXct time
+  return(posix_time)
+}
+
 
 #' Convert Unix Timestamp to a Human-readable Date in ATLAS Format
 #'
@@ -37,10 +65,8 @@ time_str_to_utc_timestamp <- function(timestring)
 #' If the input is a single value, the return will be a single string.
 #' 
 unix_timestamp_to_human_date <- function(unix_timestamp) {
-  # Convert time from milliseconds to seconds
-  timestamp_seconds <- unix_timestamp / 1000 
   # Convert to POSIXct object
-  converted_atlas_time <- as.POSIXct(timestamp_seconds, origin = "1970-01-01", tz = atlas_time_zone)
+  converted_atlas_time <- convert_to_POSIXct(unix_timestamp)
   # Format the POSIXct object to the desired format
   atlas_time_formatted <- format(converted_atlas_time, atlas_time_format)
   return(atlas_time_formatted)
