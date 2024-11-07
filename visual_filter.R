@@ -1,32 +1,3 @@
-# accepts a movement data of one tag plots every day separately and allows on-plot filtering and choosing
-# input variables:
-    # data - a positions data (coordinates are in columns labeled "X" and "Y")
-    # printoptions - sholud the function print the options at each step (default=TRUE,
-    # DefalutN2filter - see n option (throw  specific points, default=FALSE)
-# at every iteration the function waits for user command:
-      # c = show next day,
-      # i = zoom-in (according to two points on diagonal), 
-      # o = zoom-out(back to a scope containin the entire day)
-      # s = throw two points square (according to two points on diagonal), 
-      # n = throw  specific points (these points should be pointed specifically on the map)
-      #     if DefalutN2filter is FALSE, you will be requred to specify the number of point to filter-out
-      #     you can stop choosing by clicking stop on the map
-      #     if DefalutN2filter was choosen as another value, this is the number of points to filter-out
-      # l = collect/mark a line between two points (point two points on the track, all points in b
-      #     between will be colored red, then you can either collect them or not)
-      # p = collect points in a squre,
-      #     specify a square by designating two diagonal points, all points will be colored, yopu can either collect them or not!
-      # b = discard current day, break loop return the data collected and filter so far.
-      # B = discard current day, move a day backwards 
-      # D = discard current day, choose specific day
-      # t = set a default number of filtered to points(n),
-      # d = toggle option not presentation")
-# output
-      # the function return a data.frame with all the points left after filtration.
-      # if specific points were collected, the function returns a list of two data.frames, 
-          # the first contains the points left after filtration
-          # the second is the collected points (each point has another variable "segment" that specifies its sample)
-
 
 #' Filter and Plot Daily Movement Data with Interactive Controls
 #'
@@ -74,6 +45,7 @@
 #' }
 #'
 #' @export
+
 visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
 {
 
