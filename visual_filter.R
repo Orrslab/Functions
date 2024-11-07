@@ -41,7 +41,7 @@
 #' @examples
 #' \dontrun{
 #' # Assuming `movement_data` is your data frame with columns "X" and "Y":
-#' filter_result <- filter_movement_data(movement_data, printoptions = TRUE, DefalutN2filter = FALSE)
+#' filter_result <- visual_filter(movement_data, printoptions = TRUE, DefalutN2filter = FALSE)
 #' }
 #'
 #' @export
