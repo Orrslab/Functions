@@ -24,69 +24,76 @@ source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery') # 'OpenStreetMap.BZH'
 {
   
-    # A list of variables to check or add to the data frame if they don't exist
-    varlist =c("PENALTY","spd","angl","stdVarXY")
+  # A list of variables to check or add to the data frame if they don't exist
+  varlist =c("PENALTY","spd","angl","stdVarXY")
+  
+  # For each variable in 'varlist', check if it exists in the data frame 'dd'. 
+  # If not, create a column with NA values.
+  for (varname in varlist) {
+    if (!(varname %in% names(dd)))
+      dd[,varname] <- NA
+  } 
+  
+  # Check if the required columns "X" and "Y" (coordinates) are present in 'dd'.
+  # If either is missing, stop the function and return an error.
+  if(! all(c("X","Y") %in% colnames(dd))) {
+    Er <- simpleError("data must contain X and Y columns")
+    stop(Er)
+  }
+  
+  # If the data frame is empty (no rows), stop the function and return an error.
+  if( nrow(dd)==0) {
+    Er <- simpleError("you must provide at least a single data point")
+    stop(Er)
+  }
+  
+  # Define CRS for the datasets
+  itm <- 2039  # EPSG code for your local CRS
+  wgs84 <- 4326  # EPSG code for WGS84
+  
+  # Convert data frames to sf objects
+  dd_sf <- st_as_sf(dd, coords = c("X", "Y"), crs = itm)
+  
+  # Transform to WGS84
+  llpd_sf <- st_transform(dd_sf, crs = wgs84)
+  
+  # Group points by TAG, and then create LINESTRING for polylines
+  # Grouping by tag is done to avoid connecting the geometries of different animals
+  llpd_lines <- llpd_sf %>%
+    group_by(TAG) %>%
+    summarize(do_union = FALSE) %>%  # Prevent union of geometries
+    st_cast("LINESTRING")
+  
+  # Convert Unix timestamp to a UTC humandate in ATLAS format
+  llpd_sf$dateTimeFormatted <- unix_timestamp_to_human_date(llpd_sf$TIME)
+  
+  # Define color palette
+  col <- brewer.pal(n = 6, name = 'Dark2')
+  
+  ll <- leaflet() %>%
     
-    # For each variable in 'varlist', check if it exists in the data frame 'dd'. 
-    # If not, create a column with NA values.
-    for (varname in varlist) {
-      if (!(varname %in% names(dd)))
-        dd[,varname] <- NA
-    } 
+    # Add the base map
+    addProviderTiles(MapProvider) %>%
     
-    # Check if the required columns "X" and "Y" (coordinates) are present in 'dd'.
-    # If either is missing, stop the function and return an error.
-    if(! all(c("X","Y") %in% colnames(dd))) {
-      Er <- simpleError("data must contain X and Y columns")
-      stop(Er)
-    }
+    # Add circles at the locations of the first dataset 'dd1'
+    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = col[4],
+               popup = ~htmlEscape(paste0("date+time=", as.character(llpd_sf$dateTimeFormatted),
+                                          ", TIME=", as.character(llpd_sf$TIME),
+                                          ", Z=", as.character(llpd_sf$Z),
+                                          ", NBS=", as.character(llpd_sf$NBS),
+                                          ", NCON=", as.character(llpd_sf$NCONSTRAINTS),
+                                          ", pen=", as.character(round(llpd_sf$PENALTY)),
+                                          ", std=", as.character(round(llpd_sf$stdVarXY)),
+                                          ", TAG=", llpd_sf$TAG))) %>%
     
-    # If the data frame is empty (no rows), stop the function and return an error.
-    if( nrow(dd)==0) {
-      Er <- simpleError("you must provide at least a single data point")
-      stop(Er)
-    }
+    # Add lines that connect the point locations included in 'dd'
+    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = col[4]) %>%
     
-    # Define the coordinate reference system (CRS) for Israeli Transverse Mercator (EPSG:2039):
-    # +proj=tmerc +lat_0=31.73439361111111 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-48,55,52,0,0,0,0 +units=m +no_defs"
-    # This is used to convert coordinates into the proper format for mapping.
-    itm<-"+init=epsg:2039" 
-    # Define the WGS84 CRS, commonly used for global coordinates (latitude and longitude).
-    wgs84<-"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
-    
-    # Convert the 'dd' data frame into a spatial object by assigning the coordinates.
-    coordinates(dd) <- ~X+Y
-    
-    # Set the projection of 'dd' to the Israeli Transverse Mercator system (EPSG:2039).
-    proj4string(dd)<-CRS(itm)
-    
-    # Transform the coordinates from EPSG:2039 to WGS84 so they can be properly displayed on the map.
-    llpd <- spTransform(dd, wgs84) # "Latitude/Longitude Projection Data
-    
-    # Initialize a leaflet map object
-    ll<-leaflet() %>% 
-      # Add a tile layer from the specified map provider (default is 'Esri.WorldImagery')
-      addProviderTiles(MapProvider) %>% 
-      # uncomment this following line to get a grey empty background:
-      # Esri.WorldGrayCanvas #CartoDB.Positron
-      
-      # Add red circles to the map at the transformed coordinates.
-      # The popup shows various information about each point, including time, speed, angle, etc.
-      addCircles(data=llpd, weight = 5, fillOpacity = 1,color = "red",
-                 popup = ~htmlEscape(paste0("time=",as.character((llpd$dateTime)),
-                                            ",NBS=",as.character((llpd$NBS)),
-                                            ", spd=",as.character(round(llpd$spd)),
-                                            ", angl=",as.character(round(llpd$angl)),
-                                            ", pen=",as.character(round(llpd$PENALTY)),
-                                            ", std=",as.character(round(llpd$stdVarXY)),
-                                            ", TIME=",as.character((llpd$TIME)),
-                                            ", ant=",llpd$allBS,
-                                            ",TAG=",llpd$TAG))) %>%
-      # Add pink polylines (lines connecting the points) to represent movement paths or routes.
-      addPolylines(data=llpd@coords, weight = 1, opacity = 1,col="pink")
-    
-    # Display the map
-    ll
+    # Add a scale bar to the map
+    addScaleBar(position = c("bottomleft"), options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
+  
+  return(ll)
+  # print(ll) # To display the map without returning it.
 }
 
 
