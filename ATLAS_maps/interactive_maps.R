@@ -77,14 +77,9 @@ atl_mapleaf <- function(dd,MapProvider='Esri.WorldImagery') # 'OpenStreetMap.BZH
     
     # Add circles at the locations of the first dataset 'dd1'
     addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = col[4],
-               popup = ~htmlEscape(paste0("date+time=", as.character(llpd_sf$dateTimeFormatted),
+               popup = ~htmlEscape(paste0("Date+Time=", as.character(llpd_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd_sf$TIME),
-                                          ", Z=", as.character(llpd_sf$Z),
-                                          ", NBS=", as.character(llpd_sf$NBS),
-                                          ", NCON=", as.character(llpd_sf$NCONSTRAINTS),
-                                          ", pen=", as.character(round(llpd_sf$PENALTY)),
-                                          ", std=", as.character(round(llpd_sf$stdVarXY)),
-                                          ", TAG=", llpd_sf$TAG))) %>%
+                                          ", Tag Number=", sprintf("%04d", llpd_sf$TAG %% 10000)))) %>%
     
     # Add lines that connect the point locations included in 'dd'
     addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = col[4]) %>%
