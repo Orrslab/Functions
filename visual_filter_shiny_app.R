@@ -18,6 +18,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
+      h2(textOutput("day_display")),
       h3("Actions"),
       actionButton("next_day", "Next Day (c)"),
       actionButton("filter_square", "Filter Square Area (s)"),
@@ -59,25 +60,17 @@ server <- function(input, output, session) {
   
   # Filter the data from each day separately
   for (day_num in day_numbers_in_data) {
-
+    
     # Placeholder for data, filtered points, and collected points
     day_data <- reactive(data_for_filter[data_for_filter$DAY==day_num, ])
     
-    output$map <- renderLeaflet({
-      req(day_data())  # Ensure dd is available before rendering
-      
-      atl_mapleaf(day_data())  # Call the map function
-    })
+    # define a reactive variable for the day number which will be displayed above the map
+    day_number <- reactive(day_num)
     
-    # # Observe button click to trigger map updates or any action
-    # observeEvent(input$update_map, {
-    #   # You can update your map or data here
-    #   # If dd1 or dd2 need to change dynamically, you can modify them here
-    #   print("Map Updated!")  # Example action
-    #   output$map <- renderLeaflet({
-    #     atl_mapleaf2(dd1(), dd2())  # Re-render the map
-    #   })
-    # })
+    # Display the current day number in the UI
+    output$day_display <- renderText({
+      paste("Day", day_number())
+    })
     
     # Observers for each action
     observeEvent(input$next_day, {
@@ -127,6 +120,23 @@ server <- function(input, output, session) {
     observeEvent(input$toggle_display, {
       # Code for toggling display options (d)
     })
+    
+    output$map <- renderLeaflet({
+      req(day_data())  # Ensure dd is available before rendering
+      
+      atl_mapleaf(day_data())  # Call the map function
+    })
+    
+    # # Observe button click to trigger map updates or any action
+    # observeEvent(input$update_map, {
+    #   # You can update your map or data here
+    #   # If dd1 or dd2 need to change dynamically, you can modify them here
+    #   print("Map Updated!")  # Example action
+    #   output$map <- renderLeaflet({
+    #     atl_mapleaf2(dd1(), dd2())  # Re-render the map
+    #   })
+    # })
+    
     
   }
 
