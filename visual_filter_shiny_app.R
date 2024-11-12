@@ -122,27 +122,6 @@ server <- function(input, output, session) {
     req(day_data())
     update_atl_mapleaf(leafletProxy("map"), day_data())
   })
-
-  # output$map <- renderLeaflet({
-  #   req(day_data())  # Ensure dd is available before rendering
-  #   atl_mapleaf(day_data())  # Call the map function
-  # })
-  # 
-  # # Function to update the map using atl_mapleaf
-  # update_map <- function() {
-  #   req(day_data())
-  #   leafletProxy("map") %>%
-  #     clearMarkers() %>%
-  #     clearShapes()
-  #   
-  #   # Call atl_mapleaf with the filtered data to handle X, Y to lat/lon conversion and re-render
-  #   atl_mapleaf(day_data())
-  # }
-  # 
-  # # Use observe to trigger map update when the day changes
-  # observe({
-  #   update_map()  # Call the update_map function whenever day_data changes
-  # })
   
   # Navigate to the next day
   observeEvent(input$next_day, {
