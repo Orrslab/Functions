@@ -12,6 +12,54 @@ data_for_filter <- raw_location_data
 source(paste0(path_to_atlas_data_analysis_repo,"ATLAS_maps/", "interactive_maps.R"))
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
+# Helper function to initialize the base map
+initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery') {
+  leaflet() %>%
+    addProviderTiles(MapProvider) %>%
+    addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
+}
+
+# Helper function to update the map with data
+update_atl_mapleaf <- function(proxy, dd) {
+  if (!all(c("X", "Y", "TIME", "TAG") %in% colnames(dd))) {
+    stop("Data must contain X, Y, TIME, and TAG columns")
+  }
+  
+  # Define the color of the data points as purple
+  purple_color <- "#800080"  # Hex code for purple
+  
+  # Convert data to sf object and transform to WGS84
+  dd_sf <- st_as_sf(dd, coords = c("X", "Y"), crs = 2039) %>%
+    st_transform(crs = 4326)
+  
+  # Get bounding box coordinates to use for zooming
+  bbox <- st_bbox(dd_sf)
+  
+  # Create an unnamed vector for fitBounds (remove the names)
+  bbox_values <- as.numeric(c(bbox["xmin"], bbox["ymin"], bbox["xmax"], bbox["ymax"]))
+  
+  # Create LINESTRING for connecting points by tag
+  llpd_lines <- dd_sf %>%
+    group_by(TAG) %>%
+    summarize(do_union = FALSE) %>%
+    st_cast("LINESTRING")
+  
+  dd_sf$dateTimeFormatted <- unix_timestamp_to_human_date(dd_sf$TIME)
+  col <- brewer.pal(n = 6, name = 'Dark2')
+  
+  proxy %>%
+    clearMarkers() %>%
+    clearShapes() %>%
+    addCircles(data = dd_sf, weight = 1, fillOpacity = 1, color = purple_color,
+               popup = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                                          ", Timestamp=", TIME,
+                                          ", Tag Number=", sprintf("%04d", TAG %% 10000)))) %>%
+    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = purple_color) %>%
+    
+    # Set the map's view to fit the bounds of the data using the unnamed vector
+    fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+}
+
 # Define UI for the application
 ui <- fluidPage(
   titlePanel("Visual Filter: ATLAS Data"),
@@ -20,16 +68,13 @@ ui <- fluidPage(
     sidebarPanel(
       h2(textOutput("day_display")),
       h3("Actions"),
+      actionButton("select_points", "Select Specific Points (n)"),
+      actionButton("select_polygon", "Select a Polygon"),
+      actionButton("filter_selection", "Filter all Selected Data (p)"),
       actionButton("next_day", "Next Day (c)"),
-      actionButton("filter_square", "Filter Square Area (s)"),
-      actionButton("filter_points", "Remove Specific Points (n)"),
-      actionButton("draw_line", "Draw Line and Filter (l)"),
-      actionButton("select_points", "Select and Filter Points (p)"),
+      actionButton("previous_day", "Previous Day (B)"),
       actionButton("discard_day", "Discard Day (b)"),
-      actionButton("go_back_day", "Go Back to Previous Day (B)"),
-      actionButton("discard_and_select_day", "Discard and Select Day (D)"),
-      actionButton("set_default_filter", "Set Default Filter Points (t)"),
-      actionButton("toggle_display", "Toggle Display Options (d)")
+      actionButton("discard_and_select_day", "Discard and Select Day (D)") # select specific day number
     ),
     
     mainPanel(
@@ -58,88 +103,87 @@ server <- function(input, output, session) {
   {Er <- simpleWarning("Please use data from a single tag number. This app handles data from one tag at a time.")
   stop(Er)}
   
-  # Filter the data from each day separately
-  for (day_num in day_numbers_in_data) {
-    
-    # Placeholder for data, filtered points, and collected points
-    day_data <- reactive(data_for_filter[data_for_filter$DAY==day_num, ])
-    
-    # define a reactive variable for the day number which will be displayed above the map
-    day_number <- reactive(day_num)
-    
-    # Display the current day number in the UI
-    output$day_display <- renderText({
-      paste("Day", day_number())
-    })
-    
-    # Observers for each action
-    observeEvent(input$next_day, {
-      # Code for showing the next day’s movement data (c)
-    })
-    
-    observeEvent(input$zoom_in, {
-      # Code for zooming in to a specified area (i)
-    })
-    
-    observeEvent(input$zoom_out, {
-      # Code for zooming out to the original view (o)
-    })
-    
-    observeEvent(input$filter_square, {
-      # Code for filtering points in a square area (s)
-    })
-    
-    observeEvent(input$filter_points, {
-      # Code for removing specific points (n)
-    })
-    
-    observeEvent(input$draw_line, {
-      # Code for drawing a line and filtering points (l)
-    })
-    
-    observeEvent(input$select_points, {
-      # Code for selecting and filtering points in an area (p)
-    })
-    
-    observeEvent(input$discard_day, {
-      # Code for discarding the current day’s data (b)
-    })
-    
-    observeEvent(input$go_back_day, {
-      # Code for going back to the previous day (B)
-    })
-    
-    observeEvent(input$discard_and_select_day, {
-      # Code for discarding and selecting a specific day (D)
-    })
-    
-    observeEvent(input$set_default_filter, {
-      # Code for setting the default number of points to filter out (t)
-    })
-    
-    observeEvent(input$toggle_display, {
-      # Code for toggling display options (d)
-    })
-    
-    output$map <- renderLeaflet({
-      req(day_data())  # Ensure dd is available before rendering
-      
-      atl_mapleaf(day_data())  # Call the map function
-    })
-    
-    # # Observe button click to trigger map updates or any action
-    # observeEvent(input$update_map, {
-    #   # You can update your map or data here
-    #   # If dd1 or dd2 need to change dynamically, you can modify them here
-    #   print("Map Updated!")  # Example action
-    #   output$map <- renderLeaflet({
-    #     atl_mapleaf2(dd1(), dd2())  # Re-render the map
-    #   })
-    # })
-    
-    
-  }
+  # define a reactive variable for the day number which will be displayed above the map
+  current_day_number <- reactiveVal(day_numbers_in_data[1])
+  
+  # Display the current day number in the UI
+  output$day_display <- renderText({
+    paste("Day", current_day_number())
+  })
+  
+  # Reactive data frame for the data of the current day
+  day_data <- reactive(data_for_filter[data_for_filter$DAY==current_day_number(), ])
+  
+  output$map <- renderLeaflet({
+    initialize_atl_mapleaf()
+  })
+  
+  observe({
+    req(day_data())
+    update_atl_mapleaf(leafletProxy("map"), day_data())
+  })
 
+  # output$map <- renderLeaflet({
+  #   req(day_data())  # Ensure dd is available before rendering
+  #   atl_mapleaf(day_data())  # Call the map function
+  # })
+  # 
+  # # Function to update the map using atl_mapleaf
+  # update_map <- function() {
+  #   req(day_data())
+  #   leafletProxy("map") %>%
+  #     clearMarkers() %>%
+  #     clearShapes()
+  #   
+  #   # Call atl_mapleaf with the filtered data to handle X, Y to lat/lon conversion and re-render
+  #   atl_mapleaf(day_data())
+  # }
+  # 
+  # # Use observe to trigger map update when the day changes
+  # observe({
+  #   update_map()  # Call the update_map function whenever day_data changes
+  # })
+  
+  # Navigate to the next day
+  observeEvent(input$next_day, {
+    next_day_number <- current_day_number() + 1
+    if (next_day_number <= length(day_numbers_in_data)) {
+      current_day_number(next_day_number)
+    }
+  })
+  
+  observeEvent(input$previous_day, {
+    previous_day_number <- current_day_number() - 1
+    if (previous_day_number >= 1) {
+      current_day_number(previous_day_number)
+    }
+  })
+  
+  observeEvent(input$filter_square, {
+    # Code for filtering points in a square area (s)
+  })
+  
+  observeEvent(input$filter_points, {
+    # Code for removing specific points (n)
+  })
+  
+  
+  observeEvent(input$select_points, {
+    # Code for selecting and filtering points in an area (p)
+  })
+  
+  observeEvent(input$discard_day, {
+    # Code for discarding the current day’s data (b)
+  })
+  
+  observeEvent(input$go_back_day, {
+    # Code for going back to the previous day (B)
+  })
+  
+  observeEvent(input$discard_and_select_day, {
+    # Code for discarding and selecting a specific day (D)
+  })
+    
 }
 
 # Run the application 
