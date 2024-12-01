@@ -259,3 +259,7 @@ visual_filter <- function(data,printoptions=TRUE,DefalutN2filter=FALSE)
   {return(list(filterd=filtData[order(filtData$TAG,filtData$TIME),],
                collected=Collected_points[order(filtData$TAG,filtData$TIME),]))}
 }
+
+# Activate the Visual Filter
+source(paste0(path_to_atlas_data_analysis_repo, "visual_filter.R"))
+visual_filter_result <- visual_filter(raw_location_data, printoptions = TRUE, DefalutN2filter = FALSE)
