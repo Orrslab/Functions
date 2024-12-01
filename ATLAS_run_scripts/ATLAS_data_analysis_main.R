@@ -32,11 +32,22 @@ raw_location_data = get_ATLAS_data()
 # data__with_confidence_2 <- raw_data_with_confidence_levels %>%
 #   filter(Conf == 2)
 
-# Apply the visual filter
+# # Save the raw data with the DAY column to sqlite
+# source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
+# save_ATLAS_data_to_sqlite(localizations_data = raw_location_data, 
+#                           tag_number = 972006000836, 
+#                           start_time = '2023-12-24 00:00:01',
+#                           end_time = '2023-12-25 00:00:01')
+
+# Assign day numbers to the data
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 # convert the time column to the POSIXct format- required for using AssignDayNumber.R
 raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
 source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
 raw_location_data <- AssignDayNumber(data=raw_location_data, TimeColName = "dateTime")
-source(paste0(path_to_atlas_data_analysis_repo, "visual_filter.R"))
-visual_filter_result <- visual_filter(raw_location_data, printoptions = TRUE, DefalutN2filter = FALSE)
+
+# Save the raw data as CSV
+write.csv(raw_location_data, paste0(path_to_csv_files, "BO_0836.csv"), row.names = FALSE)
+
+# Activate the shiny Visual Filter
+# source(paste0(path_to_atlas_data_analysis_repo, "visual_filter_shiny_app.R"))
