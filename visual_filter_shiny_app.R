@@ -6,8 +6,8 @@ library(leaflet)
 library(sf)
 library(RColorBrewer)
 
-# TODO: Upload the data from a csv file
-data_for_filter <- raw_location_data
+# Upload the data from a csv file
+data_for_filter <- read.csv(paste0(path_to_csv_files, "BO_0836.csv"))
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0
