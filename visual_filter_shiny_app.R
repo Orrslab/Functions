@@ -53,7 +53,7 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity
       markerOptions = FALSE, # Disable marker drawing
       circleMarkerOptions = FALSE, # Disable circle marker drawing
       polylineOptions = FALSE, # Disable polyline drawing
-      editOptions = NULL # Remove edit and delete buttons
+      editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())
     ) %>%
     addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
   }
@@ -108,6 +108,7 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
   proxy %>%
     clearMarkers() %>%
     clearShapes() %>%
+    clearControls() %>%  # Clear existing controls (including the legend)
     
     # Add outliers with yellow color
     addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
