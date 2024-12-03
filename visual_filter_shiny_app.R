@@ -45,10 +45,10 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery') {
   leaflet() %>%
     addProviderTiles(MapProvider) %>%
     addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
-}
+  }
 
 # Helper function to update the map with data
-update_atl_mapleaf <- function(proxy, dd_sf) {
+update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
 
   # Ensure that the required columns are present in the dataset
   if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
@@ -139,8 +139,14 @@ update_atl_mapleaf <- function(proxy, dd_sf) {
     # Add lines connecting non-outliers
     addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
     
-    # Set the map's view to fit the bounds of the data
-    fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+    # Set the map's view to fit the bounds of the data only if necessary
+    {
+      if (zoom_flag) {
+        # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
+        proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+      }
+    }
+    
 }
 
 # Define UI for the application
@@ -224,7 +230,8 @@ server <- function(input, output, session) {
       day_data$data <- current_data
     
       leafletProxy("map") %>%
-        update_atl_mapleaf(day_data$data)
+        update_atl_mapleaf(day_data$data, zoom_flag = FALSE)
+      
     }
   
   })
