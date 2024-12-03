@@ -150,6 +150,15 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
     # Add lines connecting non-outliers
     addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
     
+    # Add a legend to the map
+    addLegend(
+      position = "topright",
+      colors = c(color_valid_points, color_outliers),
+      labels = c("Valid Points", "Outliers"),
+      title = "Point Types",
+      opacity = 1
+    ) %>%
+    
     # Set the map's view to fit the bounds of the data only if necessary
     {
       if (zoom_flag) {
