@@ -6,8 +6,16 @@ library(leaflet)
 library(sf)
 library(RColorBrewer)
 
+# clean the data and set some preferences
+rm(list=ls()) # clean history
+options(digits = 14) # Makes sure long numbers are not abbreviated.
+rm(list = setdiff(ls(), lsf.str())) # removes data, not
+
 # Upload the data from a csv file
-data_for_filter <- read.csv(paste0(path_to_csv_files, "BO_0836.csv"))
+file_name <- "BO_0430_from_2021-08-23_17-00-00_to_2021-08-24_05-00-00_raw.csv"
+file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
+full_path <- paste0(file_path, file_name)
+data_for_filter <- read.csv(full_path)
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0
@@ -15,6 +23,18 @@ data_for_filter$Outliers <- 0
 # Apply the baseline filter on the Speed, STD, and number of base stations
 source(paste0(path_to_atlas_data_analysis_repo, "apply_speed_std_nbs_filter.R"))
 data_for_filter <- apply_speed_std_nbs_filter(data_for_filter)
+
+# # add latitude and longitude columns to the data
+
+# Create an sf object with the projected CRS (EPSG:2039)
+data_for_filter_sf <- st_as_sf(data_for_filter, coords = c("X", "Y"), crs = 2039)
+
+# Transform the coordinates to EPSG:4326 (WGS84)
+data_for_filter_sf <- st_transform(data_for_filter_sf, crs = 4326)
+
+# Extract the transformed lat and lon columns
+data_for_filter_sf$lat <- st_coordinates(data_for_filter_sf)[, 2]
+data_for_filter_sf$lon <- st_coordinates(data_for_filter_sf)[, 1]
 
 # Scripts for the leaflet map
 source(paste0(path_to_atlas_data_analysis_repo,"ATLAS_maps/", "interactive_maps.R"))
@@ -28,11 +48,11 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery') {
 }
 
 # Helper function to update the map with data
-update_atl_mapleaf <- function(proxy, dd) {
+update_atl_mapleaf <- function(proxy, dd_sf) {
 
   # Ensure that the required columns are present in the dataset
-  if (!all(c("X", "Y", "TIME", "TAG", "Outliers") %in% colnames(dd))) {
-    stop("Data must contain X, Y, TIME, TAG, and Outliers columns")
+  if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
+    stop("Data must contain lon, lat, TIME, TAG, and Outliers columns")
   }
   
   # Define the colors for valid points (purple) and outliers (yellow)
@@ -40,18 +60,8 @@ update_atl_mapleaf <- function(proxy, dd) {
   color_outliers <- "yellow"
   
   # Filter out the outliers (non-outliers will be used to create lines)
-  dd_non_outliers <- dd %>% filter(Outliers == 0)
-  dd_outliers <- dd %>% filter(Outliers == 1)
-  
-  # Convert data to sf object and transform to WGS84 (EPSG:4326)
-  dd_sf <- st_as_sf(dd, coords = c("X", "Y"), crs = 2039) %>%
-    st_transform(crs = 4326)
-  
-  dd_non_outliers_sf <- st_as_sf(dd_non_outliers, coords = c("X", "Y"), crs = 2039) %>%
-    st_transform(crs = 4326)
-  
-  dd_outliers_sf <- st_as_sf(dd_outliers, coords = c("X", "Y"), crs = 2039) %>%
-    st_transform(crs = 4326)
+  dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
+  dd_outliers_sf <- dd_sf %>% filter(Outliers == 1)
   
   # Create dateTimeFormatted from TIME column if not already present
   if (!"dateTimeFormatted" %in% colnames(dd_sf)) {
@@ -89,39 +99,41 @@ update_atl_mapleaf <- function(proxy, dd) {
     clearShapes() %>%
     
     # Add outliers with yellow color
-    addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, color = color_outliers, radius=2,
+    addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
+                     label = ~htmlEscape(paste0(dateTimeFormatted)),
                      # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
                      #                            ", Timestamp=", TIME,
                      #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-                     # labelOptions = labelOptions(
-                     #   direction = "auto",
-                     #   opacity = 0.9,
-                     #   offset = c(10, 10),
-                     #   style = list(
-                     #     "background-color" = "white",
-                     #     "border" = "1px solid black",
-                     #     "padding" = "3px",
-                     #     "border-radius" = "3px"
-                     #   )
-                     # )
+                     labelOptions = labelOptions(
+                       direction = "auto",
+                       opacity = 0.9,
+                       offset = c(10, 10),
+                       style = list(
+                         "background-color" = "white",
+                         "border" = "1px solid black",
+                         "padding" = "3px",
+                         "border-radius" = "3px"
+                       )
+                     )
                      ) %>%
     
     # Add non-outliers with purple color
-    addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, color = color_valid_points, radius=2,
+    addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius=4,
+                     label = ~htmlEscape(paste0(dateTimeFormatted)),
                      # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
-                     #                            ", Timestamp=", TIME,
+                     #                            # ", Timestamp=", TIME,
                      #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-                     # labelOptions = labelOptions(
-                     #   direction = "auto",
-                     #   opacity = 0.9,
-                     #   offset = c(10, 10),
-                     #   style = list(
-                     #     "background-color" = "white",
-                     #     "border" = "1px solid black",
-                     #     "padding" = "3px",
-                     #     "border-radius" = "3px"
-                     #   )
-                     # )
+                     labelOptions = labelOptions(
+                       direction = "auto",
+                       opacity = 0.9,
+                       offset = c(10, 10),
+                       style = list(
+                         "background-color" = "white",
+                         "border" = "1px solid black",
+                         "padding" = "3px",
+                         "border-radius" = "3px"
+                       )
+                     )
                      ) %>%
     
     # Add lines connecting non-outliers
@@ -147,7 +159,7 @@ ui <- fluidPage(
     
     mainPanel(
       leafletOutput("map", width = "100%", height = 600),
-      tableOutput("filtered_data")
+      # tableOutput("filtered_data")
     )
   )
 )
@@ -155,12 +167,12 @@ ui <- fluidPage(
 # Define server logic for the application
 server <- function(input, output, session) {
   # Get the list of the days and tags, and validate that the input is sufficient to run the app
-  day_numbers_in_data <- unique(data_for_filter$DAY)
+  day_numbers_in_data <- unique(data_for_filter_sf$DAY)
   if(is.null(day_numbers_in_data)) 
   {Er <- simpleError("No DAY numbers were found in the provided data.")
   stop(Er)}
   
-  tag_numbers_in_data <- as.numeric(unique(data_for_filter$TAG))
+  tag_numbers_in_data <- as.numeric(unique(data_for_filter_sf$TAG))
   if(is.null(tag_numbers_in_data)) 
   {Er <- simpleError("No TAG numbers were found in the provided data.")
   stop(Er)}
@@ -173,24 +185,48 @@ server <- function(input, output, session) {
   # define a reactive variable for the day number which will be displayed above the map
   current_day_number <- reactiveVal(day_numbers_in_data[1])
   
+  # Reactive data frame for the data of the current day
+  day_data <- reactiveValues(data = data_for_filter_sf[data_for_filter_sf$DAY==day_numbers_in_data[1], ])
+
   # Display the current day number in the UI
   output$day_display <- renderText({
     paste("Day", current_day_number())
   })
   
-  # Reactive data frame for the data of the current day
-  day_data <- reactive(data_for_filter[data_for_filter$DAY==current_day_number(), ])
-  
-  # A list to store dynamic data frames for each day
-  selected_points <- reactiveVal(list())
-  
+  # Render the initial map
   output$map <- renderLeaflet({
     initialize_atl_mapleaf()
   })
   
-  observe({
-    req(day_data())
-    update_atl_mapleaf(leafletProxy("map"), day_data())
+  # Update the map when the current day changes
+  observeEvent(current_day_number(), {
+    # Update day_data for the current day
+    day_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_day_number(), ]
+    
+    # Update the map with new day's data
+    leafletProxy("map") %>%
+      update_atl_mapleaf(day_data$data)
+  })
+  
+  # Toggle a point when clicked
+  observeEvent(input$map_marker_click, {
+    
+    clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
+    
+    # Find the index of the clicked point
+    current_data <- day_data$data
+    index <- which(current_data$TIME == as.numeric(clicked_timestamp))
+    
+    if (length(index) == 1) { # Ensure only one point matches
+      # Toggle Outliers for the clicked point
+      current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
+      
+      day_data$data <- current_data
+    
+      leafletProxy("map") %>%
+        update_atl_mapleaf(day_data$data)
+    }
+  
   })
   
   # Navigate to the next day
@@ -208,9 +244,7 @@ server <- function(input, output, session) {
       current_day_number(previous_day_number)
     }
   })
-  
-  
-    
+
 }
 
 # Run the application 
