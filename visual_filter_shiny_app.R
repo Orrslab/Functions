@@ -5,6 +5,7 @@ library(dplyr)
 library(leaflet)
 library(sf)
 library(RColorBrewer)
+library(leaflet.extras)
 
 # clean the data and set some preferences
 rm(list=ls()) # clean history
@@ -44,6 +45,16 @@ source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity = 0.8) {
   leaflet() %>%
     addProviderTiles(MapProvider, options = providerTileOptions(opacity = tile_opacity)) %>%
+    addDrawToolbar(
+      targetGroup = "drawn_polygon",
+      polygonOptions = drawPolygonOptions(shapeOptions = drawShapeOptions(fillOpacity = 0.2)),
+      circleOptions = FALSE, # Disable circle drawing
+      rectangleOptions = FALSE, # Disable rectangle drawing
+      markerOptions = FALSE, # Disable marker drawing
+      circleMarkerOptions = FALSE, # Disable circle marker drawing
+      polylineOptions = FALSE, # Disable polyline drawing
+      editOptions = NULL # Remove edit and delete buttons
+    ) %>%
     addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
   }
 
@@ -157,7 +168,6 @@ ui <- fluidPage(
     sidebarPanel(
       h2(textOutput("day_display")),
       h3("Actions"),
-      actionButton("select_polygon", "Select a Polygon"),
       actionButton("filter_selection", "Filter all Selected Data"),
       actionButton("next_day", "Next Day"),
       actionButton("previous_day", "Previous Day")
@@ -234,6 +244,25 @@ server <- function(input, output, session) {
       
     }
   
+  })
+  
+  # Select outliers by polygon
+  observeEvent(input$map_draw_new_feature, {
+    # Get the drawn polygon's coordinates
+    polygon_coords <- input$map_draw_new_feature$geometry$coordinates[[1]]
+    polygon_sf <- st_polygon(list(matrix(unlist(polygon_coords), ncol = 2, byrow = TRUE)))
+    polygon_sf <- st_sfc(polygon_sf, crs = 4326)
+    
+    # Filter points inside the polygon, and mark them as Outliers = 1
+    updated_data <- day_data$data
+    points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
+    updated_data$Outliers[points_inside] <- 1
+    # Update the reactive data variable
+    day_data$data <- updated_data
+    
+    # Refresh the map
+    leafletProxy("map") %>%
+      update_atl_mapleaf(day_data$data, zoom_flag = FALSE)
   })
   
   # Navigate to the next day
