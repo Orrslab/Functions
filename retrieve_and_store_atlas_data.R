@@ -55,6 +55,12 @@ retrieve_and_store_atlas_data <- function(data_requests) {
                                 start_time = start_time,
                                 end_time = end_time)
     }
+    
+    if (save_data_to_csv_file) {
+      # source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
+      # filepath <- create_sqlite_filepath(tag_numbers, start_time, end_time)
+      write.csv(RawLoc0, paste0(path_to_csv_files, "BarnOwl"), row.names = FALSE)
+    }
   }
   
   # Disconnect from the database
