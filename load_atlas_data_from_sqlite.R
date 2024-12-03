@@ -38,3 +38,9 @@ load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   # Return the Localizations data
   return(RawLoc0)
 }
+
+# Usage example
+# file_name <- "eminem_night17.sqlite"
+# path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_data/"
+# file_path <- paste0(path, file_name)
+# data <- load_atlas_data_from_sqlite(file_path)
