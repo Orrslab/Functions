@@ -41,9 +41,9 @@ source(paste0(path_to_atlas_data_analysis_repo,"ATLAS_maps/", "interactive_maps.
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
 # Helper function to initialize the base map
-initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery') {
+initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity = 0.8) {
   leaflet() %>%
-    addProviderTiles(MapProvider) %>%
+    addProviderTiles(MapProvider, options = providerTileOptions(opacity = tile_opacity)) %>%
     addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
   }
 
