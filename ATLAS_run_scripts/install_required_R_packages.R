@@ -7,7 +7,7 @@
 required_packages <- c("roxygen2", "crayon", "lubridate",
                        "DBI", "RMySQL", "RSQLite", 
                        "Rcpp", "dplyr", 
-                       "leaflet", "sf", "RColorBrewer", "htmltools")
+                       "leaflet", "sf", "RColorBrewer", "htmltools", "leaflet.extras")
 
 # List from Eitam's code- DELETE LATER
 # required_packages <- list("data.table",  "dplyr",  "lubridate" ,  "dbscan" ,
