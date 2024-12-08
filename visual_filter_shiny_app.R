@@ -157,27 +157,21 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
     # Add non-outliers with gradient colors
     addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
                      label = ~htmlEscape(paste0(dateTimeFormatted)),
-                     labelOptions = labelOptions(direction = "auto", opacity = 0.9)) %>%
-    
-    
-    # # Add non-outliers with purple color
-    # addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius=4,
-    #                  label = ~htmlEscape(paste0(dateTimeFormatted)),
-    #                  # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
-    #                  #                            # ", Timestamp=", TIME,
-    #                  #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-    #                  labelOptions = labelOptions(
-    #                    direction = "auto",
-    #                    opacity = 0.9,
-    #                    offset = c(10, 10),
-    #                    style = list(
-    #                      "background-color" = "white",
-    #                      "border" = "1px solid black",
-    #                      "padding" = "3px",
-    #                      "border-radius" = "3px"
-    #                    )
-    #                  )
-    #                  ) %>%
+                     # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                     #                            # ", Timestamp=", TIME,
+                     #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+                     labelOptions = labelOptions(
+                       direction = "auto",
+                       opacity = 0.9,
+                       offset = c(10, 10),
+                       style = list(
+                         "background-color" = "white",
+                         "border" = "1px solid black",
+                         "padding" = "3px",
+                         "border-radius" = "3px"
+                       )
+                     )
+    ) %>%
     
     # Add lines connecting non-outliers
     addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
