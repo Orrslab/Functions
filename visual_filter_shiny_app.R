@@ -74,6 +74,31 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
   dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
   dd_outliers_sf <- dd_sf %>% filter(Outliers == 1)
   
+  # Handle empty datasets gracefully
+  if (nrow(dd_non_outliers_sf) > 0) {
+    # Normalize the TIME column
+    time_min <- min(dd_non_outliers_sf$TIME, na.rm = TRUE)
+    time_max <- max(dd_non_outliers_sf$TIME, na.rm = TRUE)
+    
+    # Avoid division by zero if all times are the same
+    if (time_min == time_max) {
+      time_normalized <- rep(0.5, nrow(dd_non_outliers_sf))  # All points have the same time
+    } else {
+      time_normalized <- (dd_non_outliers_sf$TIME - time_min) / (time_max - time_min)
+    }
+    
+    # Create a color gradient
+    color_gradient <- colorNumeric(palette = "Purples", domain = c(0, 1), na.color = "#808080")
+    
+    # Assign colors to the dataset
+    dd_non_outliers_sf <- dd_non_outliers_sf %>%
+      mutate(color = color_gradient(time_normalized))
+  } else {
+    # If there are no valid points, create a placeholder dataset
+    dd_non_outliers_sf <- dd_non_outliers_sf %>%
+      mutate(color = NA)
+  }
+  
   # Create dateTimeFormatted from TIME column if not already present
   if (!"dateTimeFormatted" %in% colnames(dd_sf)) {
     dd_sf <- dd_sf %>%
@@ -129,24 +154,30 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
                      )
                      ) %>%
     
-    # Add non-outliers with purple color
-    addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius=4,
+    # Add non-outliers with gradient colors
+    addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
                      label = ~htmlEscape(paste0(dateTimeFormatted)),
-                     # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
-                     #                            # ", Timestamp=", TIME,
-                     #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-                     labelOptions = labelOptions(
-                       direction = "auto",
-                       opacity = 0.9,
-                       offset = c(10, 10),
-                       style = list(
-                         "background-color" = "white",
-                         "border" = "1px solid black",
-                         "padding" = "3px",
-                         "border-radius" = "3px"
-                       )
-                     )
-                     ) %>%
+                     labelOptions = labelOptions(direction = "auto", opacity = 0.9)) %>%
+    
+    
+    # # Add non-outliers with purple color
+    # addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius=4,
+    #                  label = ~htmlEscape(paste0(dateTimeFormatted)),
+    #                  # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+    #                  #                            # ", Timestamp=", TIME,
+    #                  #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+    #                  labelOptions = labelOptions(
+    #                    direction = "auto",
+    #                    opacity = 0.9,
+    #                    offset = c(10, 10),
+    #                    style = list(
+    #                      "background-color" = "white",
+    #                      "border" = "1px solid black",
+    #                      "padding" = "3px",
+    #                      "border-radius" = "3px"
+    #                    )
+    #                  )
+    #                  ) %>%
     
     # Add lines connecting non-outliers
     addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
@@ -178,6 +209,7 @@ ui <- fluidPage(
     sidebarPanel(
       h2(textOutput("day_display")),
       h3("Actions"),
+      actionButton("select_valid", "Mark Polygon of Valid Points"),
       actionButton("filter_selection", "Filter all Selected Data"),
       actionButton("next_day", "Next Day"),
       actionButton("previous_day", "Previous Day")
