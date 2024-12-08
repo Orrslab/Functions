@@ -56,7 +56,7 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity
       editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())
     ) %>%
     addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
-  }
+}
 
 # Helper function to update the map with data
 update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
@@ -203,7 +203,16 @@ ui <- fluidPage(
     sidebarPanel(
       h2(textOutput("day_display")),
       h3("Actions"),
-      actionButton("select_valid", "Mark Polygon of Valid Points"),
+      # Add polygon action selection
+      radioButtons(
+        "polygon_action", 
+        label = "Polygon Action:", 
+        choices = c(
+          "Mark as Valid Points" = "mark_valid", 
+          "Mark as Outliers" = "mark_invalid"
+        ),
+        selected = "mark_invalid"
+      ),
       actionButton("filter_selection", "Filter all Selected Data"),
       actionButton("next_day", "Next Day"),
       actionButton("previous_day", "Previous Day")
@@ -282,17 +291,28 @@ server <- function(input, output, session) {
   
   })
   
-  # Select outliers by polygon
+  # Select a polygon
   observeEvent(input$map_draw_new_feature, {
-    # Get the drawn polygon's coordinates
-    polygon_coords <- input$map_draw_new_feature$geometry$coordinates[[1]]
+    # Extract the drawn polygon
+    feature <- input$map_draw_new_feature
+    
+    polygon_coords <- feature$geometry$coordinates[[1]]
+    
+    # Convert to sf polygon
     polygon_sf <- st_polygon(list(matrix(unlist(polygon_coords), ncol = 2, byrow = TRUE)))
     polygon_sf <- st_sfc(polygon_sf, crs = 4326)
     
     # Filter points inside the polygon, and mark them as Outliers = 1
     updated_data <- day_data$data
     points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
-    updated_data$Outliers[points_inside] <- 1
+    
+    # Determine action based on selected radio button
+    print(input$polygon_action)
+    if (input$polygon_action == "mark_invalid") {
+      updated_data$Outliers[points_inside] <- 1
+    } else if (input$polygon_action == "mark_valid") {
+      updated_data$Outliers[points_inside] <- 0
+    }
     # Update the reactive data variable
     day_data$data <- updated_data
     
