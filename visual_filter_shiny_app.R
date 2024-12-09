@@ -130,80 +130,190 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
     summarize(do_union = FALSE) %>%
     st_cast("LINESTRING")
   
-  proxy %>%
-    clearMarkers() %>%
-    clearShapes() %>%
-    clearControls() %>%  # Clear existing controls (including the legend)
-    
-    # Add outliers with yellow color
-    addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
-                     label = ~htmlEscape(paste0(dateTimeFormatted)),
-                     # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
-                     #                            ", Timestamp=", TIME,
-                     #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-                     labelOptions = labelOptions(
-                       direction = "auto",
-                       opacity = 0.9,
-                       offset = c(10, 10),
-                       style = list(
-                         "background-color" = "white",
-                         "border" = "1px solid black",
-                         "padding" = "3px",
-                         "border-radius" = "3px"
+  # If there are no outliers in the data set, add only the valid points
+  if (!nrow(dd_outliers_sf) > 0) {
+    proxy %>%
+      clearMarkers() %>%
+      clearShapes() %>%
+      clearControls() %>%  # Clear existing controls (including the legend)
+      
+      # Add non-outliers with gradient colors
+      addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
+                       label = ~htmlEscape(paste0(dateTimeFormatted)),
+                       # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                       #                            # ", Timestamp=", TIME,
+                       #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+                       labelOptions = labelOptions(
+                         direction = "auto",
+                         opacity = 0.9,
+                         offset = c(10, 10),
+                         style = list(
+                           "background-color" = "white",
+                           "border" = "1px solid black",
+                           "padding" = "3px",
+                           "border-radius" = "3px"
+                         )
                        )
-                     )
-                     ) %>%
-    
-    # Add non-outliers with gradient colors
-    addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
-                     label = ~htmlEscape(paste0(dateTimeFormatted)),
-                     # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
-                     #                            # ", Timestamp=", TIME,
-                     #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
-                     labelOptions = labelOptions(
-                       direction = "auto",
-                       opacity = 0.9,
-                       offset = c(10, 10),
-                       style = list(
-                         "background-color" = "white",
-                         "border" = "1px solid black",
-                         "padding" = "3px",
-                         "border-radius" = "3px"
-                       )
-                     )
-    ) %>%
-    
-    # Add lines connecting non-outliers
-    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-    
-    # Add a legend to the map
-    addLegend(
-      position = "topright",
-      colors = c(color_valid_points, color_outliers),
-      labels = c("Valid Points", "Outliers"),
-      title = "Point Types",
-      opacity = 1
-    ) %>%
-    
-    # Set the map's view to fit the bounds of the data only if necessary
-    {
-      if (zoom_flag) {
-        # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-        proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+      ) %>%
+      
+      # Add lines connecting non-outliers
+      addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
+      
+      # Add a legend to the map
+      addLegend(
+        position = "topright",
+        colors = c(color_valid_points, color_outliers),
+        labels = c("Valid Points", "Outliers"),
+        title = "Point Types",
+        opacity = 1
+      ) %>%
+      
+      # Set the map's view to fit the bounds of the data only if necessary
+      {
+        if (zoom_flag) {
+          # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
+          proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+        }
       }
-    }
-    
+  } else if (!nrow(dd_non_outliers_sf) > 0) {
+    # If there are no valid points in the data set, add only the outliers
+    proxy %>%
+      clearMarkers() %>%
+      clearShapes() %>%
+      clearControls() %>%  # Clear existing controls (including the legend)
+      
+      # Add outliers with yellow color
+      addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
+                       label = ~htmlEscape(paste0(dateTimeFormatted)),
+                       # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                       #                            ", Timestamp=", TIME,
+                       #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+                       labelOptions = labelOptions(
+                         direction = "auto",
+                         opacity = 0.9,
+                         offset = c(10, 10),
+                         style = list(
+                           "background-color" = "white",
+                           "border" = "1px solid black",
+                           "padding" = "3px",
+                           "border-radius" = "3px"
+                         )
+                       )
+      ) %>%
+      
+      # Add a legend to the map
+      addLegend(
+        position = "topright",
+        colors = c(color_valid_points, color_outliers),
+        labels = c("Valid Points", "Outliers"),
+        title = "Point Types",
+        opacity = 1
+      ) %>%
+      
+      # Set the map's view to fit the bounds of the data only if necessary
+      {
+        if (zoom_flag) {
+          # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
+          proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+        }
+      }
+  } else {
+    # Add the outliers and valid points to the map- complete proxy function
+    proxy %>%
+      clearMarkers() %>%
+      clearShapes() %>%
+      clearControls() %>%  # Clear existing controls (including the legend)
+      
+      # Add outliers with yellow color
+      addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
+                       label = ~htmlEscape(paste0(dateTimeFormatted)),
+                       # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                       #                            ", Timestamp=", TIME,
+                       #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+                       labelOptions = labelOptions(
+                         direction = "auto",
+                         opacity = 0.9,
+                         offset = c(10, 10),
+                         style = list(
+                           "background-color" = "white",
+                           "border" = "1px solid black",
+                           "padding" = "3px",
+                           "border-radius" = "3px"
+                         )
+                       )
+      ) %>%
+      
+      # Add non-outliers with gradient colors
+      addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
+                       label = ~htmlEscape(paste0(dateTimeFormatted)),
+                       # label = ~htmlEscape(paste0("DateTime=", dateTimeFormatted,
+                       #                            # ", Timestamp=", TIME,
+                       #                            ", Tag Number=", sprintf("%04d", TAG %% 10000))),
+                       labelOptions = labelOptions(
+                         direction = "auto",
+                         opacity = 0.9,
+                         offset = c(10, 10),
+                         style = list(
+                           "background-color" = "white",
+                           "border" = "1px solid black",
+                           "padding" = "3px",
+                           "border-radius" = "3px"
+                         )
+                       )
+      ) %>%
+      
+      # Add lines connecting non-outliers
+      addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
+      
+      # Add a legend to the map
+      addLegend(
+        position = "topright",
+        colors = c(color_valid_points, color_outliers),
+        labels = c("Valid Points", "Outliers"),
+        title = "Point Types",
+        opacity = 1
+      ) %>%
+      
+      # Set the map's view to fit the bounds of the data only if necessary
+      {
+        if (zoom_flag) {
+          # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
+          proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
+        }
+      }
+  }
 }
 
-# Define UI for the application
+# Define User Interface for the application
 ui <- fluidPage(
   titlePanel("Visual Filter: ATLAS Data"),
   
   sidebarLayout(
     sidebarPanel(
-      h2(textOutput("day_display")),
+      # Display the segment information dynamically
+      h2(textOutput("segment_display")),
       h3("Actions"),
-      # Add polygon action selection
+      # Data segment type
+      radioButtons(
+        "data_segment_action", 
+        label = "Segment Data by:", 
+        choices = c(
+          "Days" = "days", 
+          "Number of Points" = "number_of_points"
+        ),
+        selected = "days"
+      ),
+      # Conditional input for number of points
+      conditionalPanel(
+        condition = "input.data_segment_action == 'number_of_points'",
+        numericInput(
+          "num_points", 
+          label = "Enter Number of Points:", 
+          value = 2000, 
+          min = 1
+        )
+      ),
+      # Polygon selection
       radioButtons(
         "polygon_action", 
         label = "Polygon Action:", 
@@ -213,26 +323,21 @@ ui <- fluidPage(
         ),
         selected = "mark_invalid"
       ),
-      actionButton("filter_selection", "Filter all Selected Data"),
-      actionButton("next_day", "Next Day"),
-      actionButton("previous_day", "Previous Day")
+      actionButton("save_data", "Save Data"),
+      actionButton("next_segment", "Next Segment"),
+      actionButton("previous_segment", "Previous Segment")
     ),
     
     mainPanel(
-      leafletOutput("map", width = "100%", height = 600),
-      # tableOutput("filtered_data")
+      leafletOutput("map", width = "100%", height = 600)
     )
   )
 )
 
 # Define server logic for the application
 server <- function(input, output, session) {
-  # Get the list of the days and tags, and validate that the input is sufficient to run the app
-  day_numbers_in_data <- unique(data_for_filter_sf$DAY)
-  if(is.null(day_numbers_in_data)) 
-  {Er <- simpleError("No DAY numbers were found in the provided data.")
-  stop(Er)}
   
+  # Validate that the data contains tag numbers
   tag_numbers_in_data <- as.numeric(unique(data_for_filter_sf$TAG))
   if(is.null(tag_numbers_in_data)) 
   {Er <- simpleError("No TAG numbers were found in the provided data.")
@@ -243,15 +348,32 @@ server <- function(input, output, session) {
   {Er <- simpleWarning("Please use data from a single tag number. This app handles data from one tag at a time.")
   stop(Er)}
   
-  # define a reactive variable for the day number which will be displayed above the map
-  current_day_number <- reactiveVal(day_numbers_in_data[1])
+  # Validate that the data contains a DAY column
+  validate_data_for_days <- reactive({
+    if (input$data_segment_action == "days") {
+      day_numbers <- unique(data_for_filter_sf$DAY)
+      if (is.null(day_numbers) || length(day_numbers) == 0) {
+        stop("No DAY numbers were found in the provided data.")
+      }
+      return(day_numbers)
+    } else {
+      NULL
+    }
+  })
   
-  # Reactive data frame for the data of the current day
-  day_data <- reactiveValues(data = data_for_filter_sf[data_for_filter_sf$DAY==day_numbers_in_data[1], ])
-
-  # Display the current day number in the UI
-  output$day_display <- renderText({
-    paste("Day", current_day_number())
+  # Validate that the data set is not empty
+  validate_data_for_points <- reactive({
+    if (input$data_segment_action == "number_of_points") {
+      if (nrow(data_for_filter_sf) == 0) {
+        stop("No data points found in the provided data.")
+      }
+    }
+  })
+  
+  # Combine validations
+  observe({
+    validate_data_for_days()
+    validate_data_for_points()
   })
   
   # Render the initial map
@@ -259,36 +381,103 @@ server <- function(input, output, session) {
     initialize_atl_mapleaf()
   })
   
-  # Update the map when the current day changes
-  observeEvent(current_day_number(), {
-    # Update day_data for the current day
-    day_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_day_number(), ]
-    
-    # Update the map with new day's data
-    leafletProxy("map") %>%
-      update_atl_mapleaf(day_data$data)
+  # Reactive value for the current segment index
+  current_segment_index <- reactiveVal()
+  
+  # Reactive expression to monitor changes in the number of points
+  reactive_num_points <- reactive({
+    input$num_points
   })
   
+  # initiate the segment indices
+  observeEvent(input$data_segment_action, {
+    if (input$data_segment_action == "days") {
+      day_numbers <- validate_data_for_days() # Retrieve day numbers from the reactive
+      current_segment_index(day_numbers[1])   # Set the first day number as the starting segment
+    } else if (input$data_segment_action == "number_of_points") {
+      current_segment_index(1)                # Start with segment 1 for points
+    }
+  })
+  
+  # Reactive calculation for the current segment (day or points)
+  observeEvent(list(current_segment_index(), input$num_points), {
+    if (input$data_segment_action == "days") {
+      day_numbers <- validate_data_for_days()
+      day_numbers[current_segment_index()]
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      start <- current_segment_index()
+      end <- min(start + num_points - 1, nrow(data_for_filter_sf))
+      list(start = start, end = end)
+    }
+  })
+  
+  # Declare segment_data as a global reactive value
+  segment_data <- reactiveValues(data = NULL)
+  
+  # Reactive calculation for segment_data
+  observeEvent(list(current_segment_index(), input$num_points), {
+    if (input$data_segment_action == "days") {
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      start <- current_segment_index()
+      end <- min(start + num_points - 1, nrow(data_for_filter_sf))
+      segment_range <- list(start = start, end = end)
+      segment_data$data <- data_for_filter_sf[segment_range$start:segment_range$end, ]
+    }
+  })
+  
+  # Update the map and segment_data when the current segment changes
+  observeEvent(list(current_segment_index(), input$num_points), {
+    if (input$data_segment_action == "days") {
+      # Filter data for the current day
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      # Calculate the start and end rows for the current segment
+      start_row <- current_segment_index() 
+      end_row <- min(start_row + num_points - 1, nrow(data_for_filter_sf))
+      # Filter data for the current range of points
+      segment_data$data <- data_for_filter_sf[start_row:end_row, ]
+    }
+    
+    # Update the map with the new data
+    leafletProxy("map") %>%
+      update_atl_mapleaf(segment_data$data)
+  })
+  
+  # Display the current segment in the UI
+  output$segment_display <- renderText({
+    if (input$data_segment_action == "days") {
+      paste("Day", current_segment_index())
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      # Calculate the start and end points for the current segment
+      start_row <- current_segment_index()
+      end_row <- min(start_row + num_points - 1, nrow(data_for_filter_sf))
+      paste("Points", start_row, "-", end_row)
+    }
+  })
+
   # Toggle a point when clicked
   observeEvent(input$map_marker_click, {
     
     clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
     
     # Find the index of the clicked point
-    current_data <- day_data$data
+    current_data <- segment_data$data
     index <- which(current_data$TIME == as.numeric(clicked_timestamp))
     
     if (length(index) == 1) { # Ensure only one point matches
       # Toggle Outliers for the clicked point
       current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
       
-      day_data$data <- current_data
+      segment_data$data <- current_data
     
       leafletProxy("map") %>%
-        update_atl_mapleaf(day_data$data, zoom_flag = FALSE)
-      
+        update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
     }
-  
   })
   
   # Select a polygon
@@ -303,40 +492,79 @@ server <- function(input, output, session) {
     polygon_sf <- st_sfc(polygon_sf, crs = 4326)
     
     # Filter points inside the polygon, and mark them as Outliers = 1
-    updated_data <- day_data$data
+    updated_data <- segment_data$data
     points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
     
     # Determine action based on selected radio button
-    print(input$polygon_action)
     if (input$polygon_action == "mark_invalid") {
       updated_data$Outliers[points_inside] <- 1
     } else if (input$polygon_action == "mark_valid") {
       updated_data$Outliers[points_inside] <- 0
     }
     # Update the reactive data variable
-    day_data$data <- updated_data
+    segment_data$data <- updated_data
     
     # Refresh the map
     leafletProxy("map") %>%
-      update_atl_mapleaf(day_data$data, zoom_flag = FALSE)
+      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
   })
   
-  # Navigate to the next day
-  observeEvent(input$next_day, {
-    next_day_number <- current_day_number() + 1
-    if (next_day_number <= length(day_numbers_in_data)) {
-      current_day_number(next_day_number)
+  # Navigate to the next segment
+  observeEvent(input$next_segment, {
+    if (input$data_segment_action == "days") {
+      # Increment the current day number
+      next_day_number <- current_segment_index() + 1
+      day_numbers <- validate_data_for_days() # Retrieve day numbers from the reactive
+      if (next_day_number <= length(day_numbers)) {
+        current_segment_index(next_day_number)
+      }
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      # Get the current start point for the next segment
+      start_point <- current_segment_index()
+      # Calculate the new start point for the next segment
+      new_start_point <- start_point + num_points
+      # Ensure that we don't exceed the total number of points
+      if (new_start_point <= nrow(data_for_filter_sf)) {
+        current_segment_index(new_start_point)
+      }
     }
   })
   
-  # Navigate to the previous day
-  observeEvent(input$previous_day, {
-    previous_day_number <- current_day_number() - 1
-    if (previous_day_number >= 1) {
-      current_day_number(previous_day_number)
+  # Navigate to the previous segment
+  observeEvent(input$previous_segment, {
+    if (input$data_segment_action == "days") {
+      # Decrement the current day number
+      previous_day_number <- current_segment_index() - 1
+      if (previous_day_number >= 1) {
+        current_segment_index(previous_day_number)
+      }
+    } else if (input$data_segment_action == "number_of_points") {
+      num_points <- reactive_num_points()
+      # Get the current start point for the previous segment
+      start_point <- current_segment_index()
+      # Calculate the new start point for the previous segment
+      new_start_point <- max(1, start_point - num_points)  # Prevent going below 1
+      current_segment_index(new_start_point)
     }
   })
-
+  
+  # # Navigate to the next segment
+  # observeEvent(input$next_segment, {
+  #   next_day_number <- current_day_number() + 1
+  #   if (next_day_number <= length(day_numbers_in_data)) {
+  #     current_day_number(next_day_number)
+  #   }
+  # })
+  # 
+  # # Navigate to the previous segment
+  # observeEvent(input$previous_segment, {
+  #   previous_day_number <- current_day_number() - 1
+  #   if (previous_day_number >= 1) {
+  #     current_day_number(previous_day_number)
+  #   }
+  # })
+  
 }
 
 # Run the application 
