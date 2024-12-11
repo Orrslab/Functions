@@ -16,7 +16,7 @@ source(paste0(path_to_scripts, data_requests_file_name))
 
 # Get the ATLAS data- either from the server, or from an SQLite file
 source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
-raw_location_data = get_ATLAS_data()
+raw_location_data = get_ATLAS_data(data_requests, fodler_path_to_retrieve_sqlite_files, fodler_path_to_save_sqlite_files)
 
 # # Calculate the confidence of each location point
 # source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))
@@ -46,8 +46,8 @@ raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
 source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
 raw_location_data <- AssignDayNumber(data=raw_location_data, TimeColName = "dateTime")
 
-# Save the raw data as CSV
-write.csv(raw_location_data, paste0(path_to_csv_files, "BO_0836.csv"), row.names = FALSE)
+# # Save the raw data as CSV
+# write.csv(raw_location_data, paste0(path_to_csv_files, "BO.csv"), row.names = FALSE)
 
 # Activate the shiny Visual Filter
 # source(paste0(path_to_atlas_data_analysis_repo, "visual_filter_shiny_app.R"))

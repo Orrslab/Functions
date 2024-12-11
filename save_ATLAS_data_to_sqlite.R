@@ -8,8 +8,7 @@ source(file.path(getwd(), "config.R"))
 #'
 #' This function saves localization and detection data to an SQLite database. 
 #' The database file is named based on the provided tag number(s), start time, 
-#' and end time. The function calls `create_sqlite_filepath` to generate the 
-#' appropriate filename and file path.
+#' and end time.
 #'
 #' @param localizations_data A data frame containing localization data. 
 #'                           Default is NULL, meaning the data will not be saved if not provided.
@@ -25,6 +24,8 @@ source(file.path(getwd(), "config.R"))
 #'                 format 'YYYY-MM-DD HH:MM:SS'. Used to generate the 
 #'                 SQLite file name.
 #'
+#' @param fullpath the path in which the sqlite file should be saved
+#'
 #' @return This function does not return any value. It saves the provided 
 #'         data frames to the specified SQLite database file.
 #'
@@ -33,15 +34,13 @@ source(file.path(getwd(), "config.R"))
 #'          data frame is not provided, the corresponding table will not be created.
 #'          The database connection is closed after the operation is complete.
 #'          
-save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, tag_numbers, start_time, end_time)
+save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, fullpath)
 {
-  source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
-  filepath <- create_sqlite_filepath(tag_numbers, start_time, end_time)
-  
   # If a file with the same name exists, ask the user whether to overwrite it
-  if (file.exists(filepath)) {
+  fullpath <- as.character(fullpath)
+  if (file.exists(fullpath)) {
     repeat {
-      cat(green("The file: \n'", basename(filepath), 
+      cat(green("The file: \n'", basename(fullpath), 
                 "' already exists.\n", "Do you want to overwrite it? (y/n): \n"))
       user_input <- readline()
       
@@ -50,7 +49,7 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
         break
       } else if (tolower(user_input) == "n") {
         # If 'n', stop the function or print a message
-        message("Data will not saved into sqlite.")
+        message("Data will not be saved into sqlite.")
         return()
       } else {
         # If input is invalid, show error and ask again
@@ -60,7 +59,7 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
   }
 
   # Connect to the SQLite database
-  conn <- dbConnect(RSQLite::SQLite(), dbname = filepath)
+  conn <- dbConnect(RSQLite::SQLite(), dbname = fullpath)
   
   # Write localizations data to the database, if provided
   if (!is.null(localizations_data)) {
