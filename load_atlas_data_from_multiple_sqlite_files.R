@@ -11,15 +11,15 @@ source(file.path(getwd(), "config.R"))
 #' `load_atlas_from_sqlite` function for each file to retrieve the localization 
 #' data, and combines all the data into one data frame.
 #'
-#' @param sqlite_filepaths A character vector containing the paths to the SQLite files.
+#' @param sqlite_fullpaths A list containing the full paths to the SQLite files.
 #'
 #' @return A data frame containing the consolidated localization data from all specified SQLite files.
 #'
-load_atlas_data_from_multiple_sqlite_files <- function(sqlite_filepaths) {
+load_atlas_data_from_multiple_sqlite_files <- function(sqlite_fullpaths) {
   # Initialize a list to store data from each file
   all_data_frames <- list()  
   
-  for (sqlite_filepath in sqlite_filepaths) {
+  for (sqlite_filepath in sqlite_fullpaths) {
     source(paste0(path_to_atlas_data_analysis_repo, "load_atlas_data_from_sqlite.R"))
     RawLoc0 <- load_atlas_data_from_sqlite(sqlite_filepath)
     

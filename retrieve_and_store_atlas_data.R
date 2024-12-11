@@ -16,11 +16,14 @@ source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
 #'                      - tag: A character string representing the tag number.
 #'                      - start_time: A character string representing the start time.
 #'                      - end_time: A character string representing the end time.
+#'                      
+#' @param folder_path_to_store_sqlite_files the path in which the atlas data should be saved- excluding the file names. 
+#'                                   The file names will be generated here
 #'
 #' @return A data frame containing the combined localization data retrieved 
 #'         from the ATLAS system.
 #'         
-retrieve_and_store_atlas_data <- function(data_requests) {
+retrieve_and_store_atlas_data <- function(data_requests, folder_path_to_store_sqlite_files=NULL) {
   
   all_data_frames <- list()
   
@@ -48,12 +51,19 @@ retrieve_and_store_atlas_data <- function(data_requests) {
     
     if (save_data_to_sqlite_file) {
       
-      source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
-      
-      save_ATLAS_data_to_sqlite(localizations_data = RawLoc0, 
-                                tag_number = tag_numbers, 
-                                start_time = start_time,
-                                end_time = end_time)
+      if (is.null(folder_path_to_store_sqlite_files)) {
+        warning("No folder to save the SQLite data was provided. Exiting the script.")
+        stop("Run aborted due to missing folder path.")
+      } else {
+        # Generate the file name from the tag numbers and dates
+        source(paste0(path_to_atlas_data_analysis_repo, "create_list_of_sqlite_filepaths.R"))
+        fullpath_to_store_sqlite_files <- create_list_of_sqlite_filepaths(data_requests, folder_path_to_store_sqlite_files)
+        
+        # Save the data as sqlite
+        source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
+        save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
+                                  fullpath=fullpath_to_store_sqlite_files)
+      }
     }
     
     if (save_data_to_csv_file) {

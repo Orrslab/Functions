@@ -11,10 +11,12 @@ source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
 #'                      - tag: A character string representing the tag number.
 #'                      - start_time: A character string representing the start time.
 #'                      - end_time: A character string representing the end time.
+#'                      
+#' @param folder_path_to_sqlite_files The path that leads to the sqlite files
 #'
 #' @return A list of character strings representing the paths to the SQLite files.
 #'
-create_list_of_sqlite_filepaths <- function(data_requests) {
+create_list_of_sqlite_filepaths <- function(data_requests, folder_path_to_sqlite_files) {
   
   filepaths <- list()
   
@@ -26,7 +28,8 @@ create_list_of_sqlite_filepaths <- function(data_requests) {
     
     filepaths[[length(filepaths) + 1]] <- create_sqlite_filepath(tag_numbers,
                                                                  start_time,
-                                                                 end_time)
+                                                                 end_time,
+                                                                 folder_path_to_sqlite_files)
     
   }
   return(filepaths)
