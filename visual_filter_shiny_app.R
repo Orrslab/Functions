@@ -77,16 +77,16 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity
 }
 
 # Helper function to update the map with data
-update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE) {
+update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE, color_outliers = "yellow") {
 
   # Ensure that the required columns are present in the dataset
   if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
     stop("Data must contain lon, lat, TIME, TAG, and Outliers columns")
   }
   
-  # Define the colors for valid points (purple) and outliers (yellow)
+  # # Define the colors for valid points (purple) and outliers (yellow)
   color_valid_points <- "#800080"  # Purple color
-  color_outliers <- "yellow"
+  # color_outliers <- "yellow"
   
   # Filter out the outliers (non-outliers will be used to create lines)
   dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
@@ -402,20 +402,6 @@ server <- function(input, output, session) {
     initialize_atl_mapleaf()
   })
   
-  # Display the tag number and dates of the raw data
-  output$tag_display <- renderText({
-    paste("Tag:", tag_number)
-  })
-  
-  output$start_time_display <- renderText({
-    paste("Srart Time:", start_time)
-  })
-  
-  output$end_time_display <- renderText({
-    paste("End Time:", end_time)
-  })
-  
-  
   # Reactive value for the current segment index
   current_segment_index <- reactiveVal()
   
@@ -461,6 +447,43 @@ server <- function(input, output, session) {
       segment_range <- list(start = start, end = end)
       segment_data$data <- data_for_filter_sf[segment_range$start:segment_range$end, ]
     }
+  })
+  
+  # Get the start and end times of the current segment
+  
+  # Initialize reactive values for start_time and end_time
+  start_time_current_segment <- reactiveVal(NULL)
+  end_time_current_segment <- reactiveVal(NULL)
+  
+  observe({
+    
+    data <- segment_data$data
+    
+    # Convert Unix timestamps to POSIXct
+    segment_posixct_time <- as.POSIXct(data$TIME / 1000, origin = "1970-01-01", tz = atlas_time_zone)
+    
+    # Find and convert start and end times to human-readable format
+    start_time_human_readable <- format(as.POSIXct(min(data$TIME, na.rm = TRUE) / 1000, origin = "1970-01-01", tz = atlas_time_zone), "%Y-%m-%d %H:%M:%S")
+    end_time_human_readable <- format(as.POSIXct(max(data$TIME, na.rm = TRUE) / 1000, origin = "1970-01-01", tz = atlas_time_zone), "%Y-%m-%d %H:%M:%S")
+    
+    # Update the reactive values with human-readable times
+    start_time_current_segment(start_time_human_readable)
+    end_time_current_segment(end_time_human_readable)
+    
+  })
+
+  
+  # Display the tag number and dates of the raw data
+  output$tag_display <- renderText({
+    paste("Tag:", tag_number)
+  })
+  
+  output$start_time_display <- renderText({
+    paste("Start Time:", start_time_current_segment())
+  })
+  
+  output$end_time_display <- renderText({
+    paste("End Time:", end_time_current_segment())
   })
   
   # Update the map and segment_data when the current segment changes
@@ -544,16 +567,33 @@ server <- function(input, output, session) {
       update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
   })
   
-  # # Save the filtered data
-  # observeEvent(input$save_data, {
-  #   # Save the current data segment as sqlite
-  #   source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
-  #   save_ATLAS_data_to_sqlite(localizations_data = segment_data$data,
-  #                             tag_number = data_requests[[1]]$tag,
-  #                             start_time = data_requests[[1]]$start_time,
-  #                             end_time = data_requests[[1]]$end_time)
-  # 
-  # })
+  # Save the filtered data
+  observeEvent(input$save_data, {
+    # Create the file name and full path to save the filtered data
+    full_path_filtered_data <- create_sqlite_filepath(tag_number, 
+                                                      start_time_current_segment(), 
+                                                      end_time_current_segment(), 
+                                                      filtered_data_path)
+    
+    # Add _filtered to the file name
+    # Find the position of the last dot (before the extension)
+    pos <- regexpr("\\.sqlite$", full_path_filtered_data)
+    
+    # If a dot followed by 'sqlite' is found, insert '_raw' before it
+    if (pos > 0) {
+      full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_filtered", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
+    }
+    
+    # Save the current data segment as sqlite
+    source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
+    save_ATLAS_data_to_sqlite(localizations_data = segment_data$data,
+                              fullpath = full_path_filtered_data)
+    
+    # Refresh the map
+    leafletProxy("map") %>%
+      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
+
+  })
   
   # Navigate to the next segment
   observeEvent(input$next_segment, {
