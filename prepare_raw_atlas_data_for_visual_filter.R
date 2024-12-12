@@ -1,6 +1,8 @@
 # Get ATLAS data and prepare it for using the visual filter
 
-prepare_raw_atlas_data_for_visual_filter <- function(data_requests,
+prepare_raw_atlas_data_for_visual_filter <- function(tag_number,
+                                                     start_time,
+                                                     end_time,
                                                      retrieve_data_from_server,
                                                      save_data_to_sqlite_file,
                                                      raw_data_folder_path)
@@ -9,14 +11,21 @@ prepare_raw_atlas_data_for_visual_filter <- function(data_requests,
   # # Install the required R packages- in not yet installed
   # source(paste0(path_to_scripts,"install_required_R_packages.R"))
   
+  data_request <- list(
+    list(tag = tag_number, 
+    start_time = start_time, 
+    end_time = end_time)
+  )
+  
   # Generate the file names from the tag numbers and dates
   source(paste0(path_to_atlas_data_analysis_repo, "create_list_of_sqlite_filepaths.R"))
-  fullpaths_to_sqlite_files <- create_list_of_sqlite_filepaths(data_requests, 
+  fullpaths_to_sqlite_files <- create_list_of_sqlite_filepaths(data_request, 
                                                                folder_path_to_sqlite_files = raw_data_folder_path)
+  
   
   # Get the ATLAS data- either from the server, or from an SQLite file
   source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
-  raw_location_data = get_ATLAS_data(data_requests = data_requests, 
+  raw_location_data = get_ATLAS_data(data_requests = data_request, 
                                      retrieve_data_from_server = retrieve_data_from_server,
                                      save_data_to_sqlite_file = save_data_to_sqlite_file,
                                      full_paths_to_sqlite_files = fullpaths_to_sqlite_files)
