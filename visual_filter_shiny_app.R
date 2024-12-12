@@ -302,8 +302,70 @@ update_atl_mapleaf <- function(proxy, dd_sf, zoom_flag = TRUE, color_outliers = 
   }
 }
 
+save_filtered_data <- function(tag_number, start_time, end_time, filtered_data_path, segment_data) {
+  
+  # Create the file name and full path to save the filtered data
+  full_path_filtered_data <- create_sqlite_filepath(tag_number, 
+                                                    start_time, 
+                                                    end_time, 
+                                                    filtered_data_path)
+  
+  # Add _filtered to the file name
+  # Find the position of the last dot (before the extension)
+  pos <- regexpr("\\.sqlite$", full_path_filtered_data)
+  
+  # If a dot followed by 'sqlite' is found, insert '_raw' before it
+  if (pos > 0) {
+    full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_filtered", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
+  }
+  
+  # Save the current data segment as sqlite
+  source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
+  save_ATLAS_data_to_sqlite(localizations_data = segment_data,
+                            fullpath = full_path_filtered_data)
+  
+}
+
+move_to_next_segment <- function(data_segment_action, current_segment_index, validate_data_for_days, reactive_num_points, data_for_filter_sf) {
+  if (data_segment_action == "days") {
+    # Increment the current day number
+    next_day_number <- current_segment_index() + 1
+    day_numbers <- validate_data_for_days()  # Retrieve day numbers from the reactive
+    if (next_day_number <= length(day_numbers)) {
+      current_segment_index(next_day_number)
+    }
+  } else if (data_segment_action == "number_of_points") {
+    num_points <- reactive_num_points()  # Number of points for the next segment
+    start_point <- current_segment_index()  # Get the current start point
+    # Calculate the new start point for the next segment
+    new_start_point <- start_point + num_points
+    # Ensure that we don't exceed the total number of points
+    if (new_start_point <= nrow(data_for_filter_sf)) {
+      current_segment_index(new_start_point)
+    }
+  }
+}
+
+move_to_previous_segment <- function(data_segment_action, current_segment_index, validate_data_for_days, reactive_num_points, data_for_filter_sf) {
+  if (data_segment_action == "days") {
+    # Decrement the current day number
+    previous_day_number <- current_segment_index() - 1
+    if (previous_day_number >= 1) {
+      current_segment_index(previous_day_number)
+    }
+  } else if (data_segment_action == "number_of_points") {
+    num_points <- reactive_num_points()
+    # Get the current start point for the previous segment
+    start_point <- current_segment_index()
+    # Calculate the new start point for the previous segment
+    new_start_point <- max(1, start_point - num_points)  # Prevent going below 1
+    current_segment_index(new_start_point)
+  }
+}
+
 # Define User Interface for the application
 ui <- fluidPage(
+  
   titlePanel("Visual Filter: ATLAS Data"),
   
   sidebarLayout(
@@ -569,25 +631,12 @@ server <- function(input, output, session) {
   
   # Save the filtered data
   observeEvent(input$save_data, {
-    # Create the file name and full path to save the filtered data
-    full_path_filtered_data <- create_sqlite_filepath(tag_number, 
-                                                      start_time_current_segment(), 
-                                                      end_time_current_segment(), 
-                                                      filtered_data_path)
     
-    # Add _filtered to the file name
-    # Find the position of the last dot (before the extension)
-    pos <- regexpr("\\.sqlite$", full_path_filtered_data)
-    
-    # If a dot followed by 'sqlite' is found, insert '_raw' before it
-    if (pos > 0) {
-      full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_filtered", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
-    }
-    
-    # Save the current data segment as sqlite
-    source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
-    save_ATLAS_data_to_sqlite(localizations_data = segment_data$data,
-                              fullpath = full_path_filtered_data)
+    save_filtered_data(tag_number = tag_number,
+                       start_time = start_time_current_segment(),
+                       end_time = end_time_current_segment(),
+                       filtered_data_path = filtered_data_path,
+                       segment_data = segment_data$data)
     
     # Refresh the map
     leafletProxy("map") %>%
@@ -597,42 +646,107 @@ server <- function(input, output, session) {
   
   # Navigate to the next segment
   observeEvent(input$next_segment, {
-    if (input$data_segment_action == "days") {
-      # Increment the current day number
-      next_day_number <- current_segment_index() + 1
-      day_numbers <- validate_data_for_days() # Retrieve day numbers from the reactive
-      if (next_day_number <= length(day_numbers)) {
-        current_segment_index(next_day_number)
-      }
-    } else if (input$data_segment_action == "number_of_points") {
-      num_points <- reactive_num_points()
-      # Get the current start point for the next segment
-      start_point <- current_segment_index()
-      # Calculate the new start point for the next segment
-      new_start_point <- start_point + num_points
-      # Ensure that we don't exceed the total number of points
-      if (new_start_point <= nrow(data_for_filter_sf)) {
-        current_segment_index(new_start_point)
-      }
-    }
+    
+    showModal(
+      modalDialog(
+        title = "Save Data?",
+        "Do you want to save the current data before moving to the next segment?",
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("confirm_save_next", "Yes, Save and move to next segment"),
+          actionButton("skip_save_next", "No, Don't Save and move to next segment")
+        )
+      )
+    )
+    
+  })
+  
+  # Handle "Yes, Save and move to the next segment"
+  observeEvent(input$confirm_save_next, {
+    # Remove the popup window
+    removeModal()
+    # Save the filtered data
+    save_filtered_data(tag_number = tag_number,
+                       start_time = start_time_current_segment(),
+                       end_time = end_time_current_segment(),
+                       filtered_data_path = filtered_data_path,
+                       segment_data = segment_data$data)
+    
+    # Refresh the map
+    leafletProxy("map") %>%
+      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
+    # Move to the next segment
+    move_to_next_segment(
+      data_segment_action = input$data_segment_action,
+      current_segment_index = current_segment_index,
+      validate_data_for_days = validate_data_for_days,
+      reactive_num_points = reactive_num_points,
+      data_for_filter_sf = data_for_filter_sf
+    )
+  })
+  
+  # Handle "No, Don't Save and move to the next segment"
+  observeEvent(input$skip_save_next, {
+    removeModal()
+    move_to_next_segment(
+      data_segment_action = input$data_segment_action,
+      current_segment_index = current_segment_index,
+      validate_data_for_days = validate_data_for_days,
+      reactive_num_points = reactive_num_points,
+      data_for_filter_sf = data_for_filter_sf
+    )
   })
   
   # Navigate to the previous segment
   observeEvent(input$previous_segment, {
-    if (input$data_segment_action == "days") {
-      # Decrement the current day number
-      previous_day_number <- current_segment_index() - 1
-      if (previous_day_number >= 1) {
-        current_segment_index(previous_day_number)
-      }
-    } else if (input$data_segment_action == "number_of_points") {
-      num_points <- reactive_num_points()
-      # Get the current start point for the previous segment
-      start_point <- current_segment_index()
-      # Calculate the new start point for the previous segment
-      new_start_point <- max(1, start_point - num_points)  # Prevent going below 1
-      current_segment_index(new_start_point)
-    }
+    
+    showModal(
+      modalDialog(
+        title = "Save Data?",
+        "Do you want to save the current data before moving to the previous segment?",
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("confirm_save_previous", "Yes, Save and move to previous segment"),
+          actionButton("skip_save_previous", "No, Don't Save and move to previous segment")
+        )
+      )
+    )
+  })
+  
+  # Handle "Yes, Save and move to the previous segment"
+  observeEvent(input$confirm_save_previous, {
+    # Remove the popup window
+    removeModal()
+    # Save the filtered data
+    save_filtered_data(tag_number = tag_number,
+                       start_time = start_time_current_segment(),
+                       end_time = end_time_current_segment(),
+                       filtered_data_path = filtered_data_path,
+                       segment_data = segment_data$data)
+    
+    # Refresh the map
+    leafletProxy("map") %>%
+      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
+    # Move to the previous segment
+    move_to_previous_segment(
+      data_segment_action = input$data_segment_action,
+      current_segment_index = current_segment_index,
+      validate_data_for_days = validate_data_for_days,
+      reactive_num_points = reactive_num_points,
+      data_for_filter_sf = data_for_filter_sf
+    )
+  })
+  
+  # Handle "No, Don't Save and move to the previous segment"
+  observeEvent(input$skip_save_previous, {
+    removeModal()
+    move_to_previous_segment(
+      data_segment_action = input$data_segment_action,
+      current_segment_index = current_segment_index,
+      validate_data_for_days = validate_data_for_days,
+      reactive_num_points = reactive_num_points,
+      data_for_filter_sf = data_for_filter_sf
+    )
   })
   
 }
