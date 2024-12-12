@@ -26,7 +26,6 @@ if (upload_gps_data_from_csv) {
 } else {
   
   # Upload data from the ATLAS server or sqlite
-  source(paste0(getwd(), "/ATLAS_data_request_for_visual_filter.R"))
   source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
   data_for_filter <- prepare_raw_atlas_data_for_visual_filter(tag_number = tag_number,
                                                               start_time = start_time,
@@ -310,6 +309,9 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       # Display the segment information dynamically
+      p(textOutput("tag_display")),
+      p(textOutput("start_time_display")),
+      p(textOutput("end_time_display")),
       h2(textOutput("segment_display")),
       h3("Actions"),
       # Data segment type
@@ -399,6 +401,20 @@ server <- function(input, output, session) {
   output$map <- renderLeaflet({
     initialize_atl_mapleaf()
   })
+  
+  # Display the tag number and dates of the raw data
+  output$tag_display <- renderText({
+    paste("Tag:", tag_number)
+  })
+  
+  output$start_time_display <- renderText({
+    paste("Srart Time:", start_time)
+  })
+  
+  output$end_time_display <- renderText({
+    paste("End Time:", end_time)
+  })
+  
   
   # Reactive value for the current segment index
   current_segment_index <- reactiveVal()
