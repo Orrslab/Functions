@@ -93,6 +93,11 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
     print("Detections data saved.")
   }
   
+  # Create and insert data into the PROPERTIES table
+  properties_data <- data.frame(KEY = "atlas-system", VALUE = "harod")
+  dbWriteTable(conn, "PROPERTIES", properties_data, overwrite=TRUE)
+  message("PROPERTIES table added.")
+  
   # Close the database connection
   dbDisconnect(conn)
 }
