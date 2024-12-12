@@ -2,39 +2,57 @@
 required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
 sapply(required_packages, library, character.only = TRUE)
 
-source(file.path(getwd(), "config.R"))
-
 #' Save ATLAS Data to SQLite Database
 #'
 #' This function saves localization and detection data to an SQLite database. 
-#' The database file is named based on the provided tag number(s), start time, 
-#' and end time.
+#' The user can specify the file path and whether to overwrite existing files. 
+#' Data is saved into separate tables named `LOCALIZATIONS` and `DETECTIONS`.
 #'
 #' @param localizations_data A data frame containing localization data. 
-#'                           Default is NULL, meaning the data will not be saved if not provided.
+#'   Default is `NULL`. If `NULL`, the localization data table will not be created.
 #' @param detections_data A data frame containing detection data. 
-#'                        Default is NULL, meaning the data will not be saved if not provided.
-#' @param tag_numbers A unique identifier (or identifiers) for the tag(s) 
-#'                    associated with the data. Used to generate the SQLite 
-#'                    file name.
-#' @param start_time A character string representing the start time in the 
-#'                   format 'YYYY-MM-DD HH:MM:SS'. Used to generate the 
-#'                   SQLite file name.
-#' @param end_time A character string representing the end time in the 
-#'                 format 'YYYY-MM-DD HH:MM:SS'. Used to generate the 
-#'                 SQLite file name.
+#'   Default is `NULL`. If `NULL`, the detection data table will not be created.
+#' @param fullpath A character string specifying the full path (including file name) 
+#'   where the SQLite database should be saved. Default is the current working directory (`getwd()`).
 #'
-#' @param fullpath the path in which the sqlite file should be saved
+#' @return This function does not return any value. It writes the provided data 
+#'   frames to the specified SQLite database file.
 #'
-#' @return This function does not return any value. It saves the provided 
-#'         data frames to the specified SQLite database file.
+#' @details 
+#'   - If a file with the same name already exists, the function prompts the user 
+#'     to confirm whether to overwrite it. If the user chooses not to overwrite, 
+#'     the function exits without saving the data.
+#'   - The database tables `LOCALIZATIONS` and `DETECTIONS` are created only if 
+#'     the corresponding data frames (`localizations_data` or `detections_data`) 
+#'     are provided.
+#'   - The database connection is automatically closed after the operation is complete.
 #'
-#' @details The function connects to an SQLite database and writes the 
-#'          localization and detection data to separate tables. If either 
-#'          data frame is not provided, the corresponding table will not be created.
-#'          The database connection is closed after the operation is complete.
+#' @examples
+#' # Example data
+#' localizations_data <- data.frame(
+#'   tag = c("972006000430", "972006000431"),
+#'   time = c("2024-01-01 12:00:00", "2024-01-01 12:05:00"),
+#'   x = c(1.234, 2.345),
+#'   y = c(3.456, 4.567)
+#' )
+#'
+#' detections_data <- data.frame(
+#'   tag = c("972006000430", "972006000431"),
+#'   signal_strength = c(95, 90),
+#'   detection_time = c("2024-01-01 12:00:00", "2024-01-01 12:05:00")
+#' )
+#'
+#' # Save data to SQLite
+#' save_ATLAS_data_to_sqlite(
+#'   localizations_data = localizations_data,
+#'   detections_data = detections_data,
+#'   fullpath = "atlas_data.sqlite"
+#' )
+#'
+#' @seealso \code{\link{dbConnect}} and \code{\link{dbWriteTable}} from the 
+#'   `RSQLite` package for database operations.
 #'          
-save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, fullpath)
+save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, fullpath = getwd())
 {
   # If a file with the same name exists, ask the user whether to overwrite it
   fullpath <- as.character(fullpath)

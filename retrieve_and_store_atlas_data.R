@@ -4,26 +4,66 @@ library("dplyr")
 source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
 
 
-#' Retrieve and store ATLAS data based on specified requests.
+#' Retrieve and store ATLAS data based on specified requests
 #'
-#' This function connects to the ATLAS database, retrieves data for each 
-#' request in the `data_requests`, and optionally saves the data to 
-#' SQLite files. The function collects localization data and returns a 
-#' combined data frame.
+#' This function connects to the ATLAS database, retrieves localization data 
+#' based on the specified `data_requests`, and optionally saves the data to 
+#' SQLite and/or CSV files. The retrieved data is consolidated into a single 
+#' data frame and returned.
 #'
-#' @param data_requests A list of lists (or a dataframe) where each element 
-#'                      contains:
-#'                      - tag: A character string representing the tag number.
-#'                      - start_time: A character string representing the start time.
-#'                      - end_time: A character string representing the end time.
-#'                      
-#' @param folder_path_to_store_sqlite_files the path in which the atlas data should be saved- excluding the file names. 
-#'                                   The file names will be generated here
+#' @param data_requests A list of lists or a dataframe where each element 
+#'   contains:
+#'   - `tag`: A character string representing the tag number.
+#'   - `start_time`: A character string representing the start time in a 
+#'     standard date-time format.
+#'   - `end_time`: A character string representing the end time in a 
+#'     standard date-time format.
+#'
+#' @param save_data_to_sqlite_file Logical. If `TRUE`, saves the retrieved 
+#'   localization data to SQLite files. Defaults to `TRUE`.
+#'
+#' @param full_paths_to_store_sqlite_files A character string specifying the 
+#'   full path for the SQLite files to store the data. If not provided, defaults 
+#'   to `paste0(getwd(), "atlas_data.sqlite")`.
+#'
+#' @param save_data_to_csv_file Logical. If `TRUE`, saves the retrieved 
+#'   localization data to CSV files. Defaults to `FALSE`.
+#'
+#' @param fullpath_to_csv_files A character string specifying the full path for 
+#'   the CSV files to store the data. If not provided, defaults to 
+#'   `paste0(getwd(), "/atlas_data.csv")`.
 #'
 #' @return A data frame containing the combined localization data retrieved 
-#'         from the ATLAS system.
-#'         
-retrieve_and_store_atlas_data <- function(data_requests, folder_path_to_store_sqlite_files=NULL) {
+#'   from the ATLAS system for all specified requests.
+#'
+#' @details The function iterates over the `data_requests`, retrieves 
+#'   localization data for each request, and appends the results to a list. 
+#'   Optionally, the data can be saved to SQLite or CSV files. The retrieved 
+#'   data is consolidated into a single data frame, which is returned.
+#'
+#' @examples
+#' # Example data requests
+#' data_requests <- list(
+#'   list(tag = "972006000430", start_time = "2021-08-23 17:00:00", end_time = "2021-08-24 05:00:00"),
+#'   list(tag = "972006000431", start_time = "2021-08-24 06:00:00", end_time = "2021-08-24 18:00:00")
+#' )
+#' 
+#' # Retrieve data and save to SQLite files
+#' raw_data <- retrieve_and_store_atlas_data(
+#'   data_requests = data_requests,
+#'   save_data_to_sqlite_file = TRUE,
+#'   full_paths_to_store_sqlite_files = "path/to/save/atlas_data.sqlite"
+#' )
+#'
+#' @seealso \code{\link{connect_to_atlas_db}} for database connection, 
+#'   \code{\link{save_ATLAS_data_to_sqlite}} for saving data to SQLite, 
+#'   and \code{\link{Data_from_ATLAS_server}} for retrieving data.
+#'
+retrieve_and_store_atlas_data <- function(data_requests, 
+                                          save_data_to_sqlite_file = TRUE,
+                                          full_paths_to_store_sqlite_files = paste0(getwd(), "atlas_data.sqlite"),
+                                          save_data_to_csv_file = FALSE,
+                                          fullpath_to_csv_files = paste0(getwd(), "/atlas_data.csv")) {
   
   all_data_frames <- list()
   
@@ -51,25 +91,22 @@ retrieve_and_store_atlas_data <- function(data_requests, folder_path_to_store_sq
     
     if (save_data_to_sqlite_file) {
       
-      if (is.null(folder_path_to_store_sqlite_files)) {
+      if (is.null(full_paths_to_store_sqlite_files)) {
+        
         warning("No folder to save the SQLite data was provided. Exiting the script.")
         stop("Run aborted due to missing folder path.")
+        
       } else {
-        # Generate the file name from the tag numbers and dates
-        source(paste0(path_to_atlas_data_analysis_repo, "create_list_of_sqlite_filepaths.R"))
-        fullpath_to_store_sqlite_files <- create_list_of_sqlite_filepaths(data_requests, folder_path_to_store_sqlite_files)
         
         # Save the data as sqlite
         source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
         save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
-                                  fullpath=fullpath_to_store_sqlite_files)
+                                  fullpath=full_paths_to_store_sqlite_files)
       }
     }
     
     if (save_data_to_csv_file) {
-      # source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
-      # filepath <- create_sqlite_filepath(tag_numbers, start_time, end_time)
-      write.csv(RawLoc0, paste0(path_to_csv_files, "BarnOwl"), row.names = FALSE)
+      write.csv(RawLoc0, fullpath_to_csv_files, row.names = FALSE)
     }
   }
   
