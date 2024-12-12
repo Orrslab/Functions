@@ -22,12 +22,12 @@
 #'                 format this by replacing spaces with underscores and 
 #'                 colons with hyphens.
 #'
-#' @param path_to_sqlite_files The path that leads to the sqlite files
+#' @param folder_path_to_sqlite_files The path that leads to the sqlite files
 #'
 #' @return A character string representing the file path for the SQLite 
 #'         database, including the formatted tag numbers and date range.
 #'  
-create_sqlite_filepath <- function(tag_numbers, start_time, end_time, path_to_sqlite_files) {
+create_sqlite_filepath <- function(tag_numbers, start_time, end_time, folder_path_to_sqlite_files) {
   if (length(tag_numbers) == 1) {
     # Take the last four digits of the tag number
     tag_number_str <- substr(as.character(tag_numbers), nchar(tag_numbers)-3, nchar(tag_numbers))
@@ -48,7 +48,7 @@ create_sqlite_filepath <- function(tag_numbers, start_time, end_time, path_to_sq
   filename <- paste(tag_number_str, "_from_", 
                     start_time_replace_colons, "_to_", 
                     end_time_replace_colons, ".sqlite", sep = "")
-  filepath = paste0(path_to_sqlite_files, filename)
+  filepath = paste0(folder_path_to_sqlite_files, filename)
 
   return(filepath)
 }
