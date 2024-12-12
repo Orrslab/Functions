@@ -15,19 +15,27 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "config_visual_filter.R"))
 
-# # Upload the data from a csv file
-# file_name <- "BO_0430_from_2021-08-23_17-00-00_to_2021-08-24_05-00-00_raw.csv"
-# file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
-# full_path <- paste0(file_path, file_name)
-# data_for_filter <- read.csv(full_path)
-
-# Upload data from the ATLAS server or sqlite
-source(paste0(getwd(), "/ATLAS_data_request_for_visual_filter.R"))
-source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
-data_for_filter <- prepare_raw_atlas_data_for_visual_filter(data_requests = data_requests,
-                                                            retrieve_data_from_server = retrieve_data_from_server,
-                                                            save_data_to_sqlite_file = save_data_to_sqlite_file,
-                                                            raw_data_folder_path = raw_data_path)
+if (upload_gps_data_from_csv) {
+  
+  # Upload the data from a csv file
+  file_name <- "gps_data.csv"
+  file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
+  full_path <- paste0(file_path, file_name)
+  data_for_filter <- read.csv(full_path)
+  
+} else {
+  
+  # Upload data from the ATLAS server or sqlite
+  source(paste0(getwd(), "/ATLAS_data_request_for_visual_filter.R"))
+  source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
+  data_for_filter <- prepare_raw_atlas_data_for_visual_filter(tag_number = tag_number,
+                                                              start_time = start_time,
+                                                              end_time = end_time,
+                                                              retrieve_data_from_server = retrieve_data_from_server,
+                                                              save_data_to_sqlite_file = save_data_to_sqlite_file,
+                                                              raw_data_folder_path = raw_data_path)
+  
+}
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0
