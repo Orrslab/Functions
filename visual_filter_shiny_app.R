@@ -12,11 +12,22 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-# Upload the data from a csv file
-file_name <- "BO_0430_from_2021-08-23_17-00-00_to_2021-08-24_05-00-00_raw.csv"
-file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
-full_path <- paste0(file_path, file_name)
-data_for_filter <- read.csv(full_path)
+# Get the required paths from the config file config.R
+source(file.path(getwd(), "config_visual_filter.R"))
+
+# # Upload the data from a csv file
+# file_name <- "BO_0430_from_2021-08-23_17-00-00_to_2021-08-24_05-00-00_raw.csv"
+# file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
+# full_path <- paste0(file_path, file_name)
+# data_for_filter <- read.csv(full_path)
+
+# Upload data from the ATLAS server or sqlite
+source(paste0(getwd(), "/ATLAS_data_request_for_visual_filter.R"))
+source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
+data_for_filter <- prepare_raw_atlas_data_for_visual_filter(data_requests = data_requests,
+                                                            retrieve_data_from_server = retrieve_data_from_server,
+                                                            save_data_to_sqlite_file = save_data_to_sqlite_file,
+                                                            raw_data_folder_path = raw_data_path)
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0
@@ -310,7 +321,7 @@ ui <- fluidPage(
           "num_points", 
           label = "Enter Number of Points:", 
           value = 2000, 
-          min = 1
+          min = 0
         )
       ),
       # Polygon selection
@@ -509,6 +520,17 @@ server <- function(input, output, session) {
       update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
   })
   
+  # # Save the filtered data
+  # observeEvent(input$save_data, {
+  #   # Save the current data segment as sqlite
+  #   source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
+  #   save_ATLAS_data_to_sqlite(localizations_data = segment_data$data,
+  #                             tag_number = data_requests[[1]]$tag,
+  #                             start_time = data_requests[[1]]$start_time,
+  #                             end_time = data_requests[[1]]$end_time)
+  # 
+  # })
+  
   # Navigate to the next segment
   observeEvent(input$next_segment, {
     if (input$data_segment_action == "days") {
@@ -548,22 +570,6 @@ server <- function(input, output, session) {
       current_segment_index(new_start_point)
     }
   })
-  
-  # # Navigate to the next segment
-  # observeEvent(input$next_segment, {
-  #   next_day_number <- current_day_number() + 1
-  #   if (next_day_number <= length(day_numbers_in_data)) {
-  #     current_day_number(next_day_number)
-  #   }
-  # })
-  # 
-  # # Navigate to the previous segment
-  # observeEvent(input$previous_segment, {
-  #   previous_day_number <- current_day_number() - 1
-  #   if (previous_day_number >= 1) {
-  #     current_day_number(previous_day_number)
-  #   }
-  # })
   
 }
 
