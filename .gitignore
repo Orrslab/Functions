@@ -4,6 +4,7 @@
 .Ruserdata
 ATLAS_run_scripts/ATLAS_data_analysis_main_algorithm_scheme.drawio
 config.R
+config_visual_filter.R
 ATLAS_run_scripts/ATLAS_data_requests.R
 ATLAS_run_scripts/ConfidenceFilterDevelopment/convert_rdata_to_csv_files.R
 ATLAS_run_scripts/ConfidenceFilterDevelopment/prepare_atlas_data_for_exmove.R
