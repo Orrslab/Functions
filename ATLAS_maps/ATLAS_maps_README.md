@@ -10,7 +10,7 @@ Screenshots of sample maps created with these functions are included to showcase
 
 ## Overview of Functions
 1. **interactive_map_single_atlas_dataset.R**
-# Code by: Neta Tsur
+**Code by: Neta Tsur**
 Creates an interactive map for a single dataset, including:
 
 * Location points visualized as circles.
@@ -21,7 +21,7 @@ Example:
 ![Alt Text](interactive_map_single_dataset.png)
 
 2. **interactive_map_two_atlas_datasets.R**
-# Code by: Neta Tsur
+**Code by: Neta Tsur**
 Creates an interactive map for two datasets, including:
 
 * Location points for both datasets visualized in distinct colors.
@@ -33,7 +33,7 @@ Example:
 
 ### Hunter, please review this part
 3. **Submodule: t_map**
-# Code by: Hunter Warick
+**Code by: Hunter Warick**
 Provides enhanced mapping capabilities, including:
 
 * Custom legends.
