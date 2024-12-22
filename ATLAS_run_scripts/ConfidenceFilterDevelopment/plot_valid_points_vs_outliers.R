@@ -28,9 +28,9 @@ colnames(raw_data)[colnames(raw_data) == "Tag"] <- "TAG"
 colnames(filtered_data)[colnames(filtered_data) == "Tag"] <- "TAG"
 
 # Generate a map of the raw data vs filtered data with confidence = 2
-map <- atl_mapleaf2(dd1=raw_data,
-             dd2=filtered_data,
-             MapProvider='Esri.WorldImagery',
-             legendLabels=c("Raw Data", "Filtered Data"))
+map <- interactive_map_two_atlas_datasets(dd1=raw_data,
+                                          dd2=filtered_data,
+                                          MapProvider='Esri.WorldImagery',
+                                          legendLabels=c("Raw Data", "Filtered Data"))
 
 print(map)
