@@ -5,6 +5,7 @@
 #'
 #' @param data A `data.frame` containing a POSIXct time column, with timezone set to "UTC" and origin as "1970-01-01".
 #' @param DayStartTime A character string in "HH:MM:SS" format specifying the start of each day in UTC. Defaults to "00:00:00".
+#' @param DayEndTime A character string in "HH:MM:SS" format specifying the end of each day in UTC. Defaults to "00:00:00".
 #' @param TimeColName A character string specifying the name of the time column in the `data` data frame. Defaults to "dateTime".
 #' @param GroupIdentifier A character string specifying the name of the column in `data` that identifies the grouping variable (e.g., tag or individual ID). Defaults to "TAG".
 #' @param Julian A logical value indicating whether to use Julian days (if `TRUE`) or sequential days from the first date in each group (if `FALSE`). Defaults to `FALSE`.
@@ -28,7 +29,7 @@
 #'
 #' @export
 
-AssignDayNumber <- function(data,DayStartTime="00:00:00",TimeColName = "dateTime",GroupIdentifier = "TAG",Julian=FALSE)
+AssignDayNumber <- function(data,DayStartTime="00:00:00", DayEndTime="00:00:00", TimeColName = "dateTime",GroupIdentifier = "TAG",Julian=FALSE)
 {
   library(lubridate)
   # Ensure input data is a data frame
@@ -57,17 +58,52 @@ AssignDayNumber <- function(data,DayStartTime="00:00:00",TimeColName = "dateTime
   # Assign day numbers based on Julian or sequential day calculation
   if (Julian) {
     # Convert DayStartTime to POSIXct in UTC format to create a reference timestamp for the start of the day
-    timeshift <- as.POSIXct(paste("1970-01-01", DayStartTime), format=atlas_time_format, tz=atlas_time_zone)
+    timeshift_start <- as.POSIXct(paste("1970-01-01", DayStartTime), format=atlas_time_format, tz=atlas_time_zone)
+    timeshift_end <- as.POSIXct(paste("1970-01-01", DayEndTime), format = atlas_time_format, tz = atlas_time_zone)
     # Calculate Julian days (starting from 1970-01-01)
     data <- data %>%
-      mutate(DAY = floor(as.numeric(difftime(dateTime, timeshift, units = "days"))) + 1)
-      # mutate(DAY = as.numeric(yday(dateTime - timeshift)))
+      # mutate(DAY = floor(as.numeric(difftime(dateTime, timeshift, units = "days"))) + 1)
+      mutate(DAY = floor(as.numeric(difftime(dateTime, timeshift_start, units = "days"))) + 1) %>%
+      filter(dateTime < timeshift_end)
   } else {
     # Calculate sequential days from the first available date in each group (TAG)
     data <- data %>%
       group_by(TAG) %>%
-      mutate(DAY = floor(as.numeric(difftime(dateTime, as.POSIXct(paste(min(as.Date(dateTime)), DayStartTime), format=atlas_time_format, tz=atlas_time_zone), units = "days")) + 1)) %>%
-      ungroup()
+      
+      mutate(
+        current_date = as.Date(dateTime),  # Extract the date
+        # Determine DayStart and DayEnd with fallback for full-day case
+        DayStart = if (DayStartTime == "00:00:00" & DayEndTime == "00:00:00") {
+          as.POSIXct(paste(current_date, "00:00:00"), format = atlas_time_format, tz = atlas_time_zone)
+        } else {
+          as.POSIXct(paste(current_date, DayStartTime), format = atlas_time_format, tz = atlas_time_zone)
+        },
+        DayEnd = if (DayStartTime == "00:00:00" & DayEndTime == "00:00:00") {
+          DayStart + days(1) - seconds(1)  # End of the day at 23:59:59
+        } else if (DayStartTime > DayEndTime) {
+          as.POSIXct(paste(current_date + 1, DayEndTime), format = atlas_time_format, tz = atlas_time_zone)
+        } else {
+          as.POSIXct(paste(current_date, DayEndTime), format = atlas_time_format, tz = atlas_time_zone)
+        },
+        PrevDayStart = DayStart - days(1),
+        PrevDayEnd = DayEnd - days(1),
+        NextDayStart = DayStart + days(1),
+        NextDayEnd = DayEnd + days(1)
+      ) %>%
+      # Assign DAY based on which period the `dateTime` belongs to
+      mutate(
+        DAY = case_when(
+          dateTime >= DayStart & dateTime < DayEnd ~ as.integer(floor(as.numeric(difftime(DayStart, min(DayStart), units = "days")) + 1)),
+          dateTime >= PrevDayStart & dateTime < PrevDayEnd ~ as.integer(floor(as.numeric(difftime(PrevDayStart, min(DayStart), units = "days")) + 1)),
+          dateTime >= NextDayStart & dateTime < NextDayEnd ~ as.integer(floor(as.numeric(difftime(NextDayStart, min(DayStart), units = "days")) + 1)),
+          TRUE ~ NA_integer_
+        )
+      ) %>%
+      # Clean up
+      filter(!is.na(DAY)) %>%
+      ungroup() %>%
+      select(-DayStart, -DayEnd, -PrevDayStart, -PrevDayEnd, -NextDayStart, -NextDayEnd, -current_date)  # Remove temporary columns
+      
   }
   
   # Convert the column names back to the original ones
