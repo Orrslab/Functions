@@ -1,9 +1,14 @@
 ################################################################################
 ############################# Intro to tmap ####################################
 ################################################################################
+
+# define required paths
+path_to_working_directory <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/ATLAS_maps/t_map"
+path_to_save_the_t_map <- path_to_working_directory
+
 {
 # set working directory
-setwd("C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/ATLAS_maps")
+setwd(path_to_working_directory)
 
 # packages
 library(osmdata) # query vector data 
@@ -13,10 +18,11 @@ library(tmaptools) # tmap extension
 library(rnaturalearth) # download maps of other countries
 library(sf) # manipulate borders
 library(raster) # convert "OpenStreet" object to raster
+library(rnaturalearthhires) # For the country boarders
 #library(dplyr) # manipulate sf objects
-source("disputed_boundaries.R") # get disputed boundaries shape files
-source("../ATLAS_maps/Mapping_Tutorial_FUNCTIONS.R")
-source("../ATLAS_maps/IMS_function.R")
+# source("disputed_boundaries.R") # get disputed boundaries shape files
+source("../ATLAS_maps/t_map/Mapping_Tutorial_FUNCTIONS.R")
+# source("../ATLAS_maps/IMS_function.R")
 }
 ############################ Base Map View Mode ################################
 {
@@ -44,7 +50,7 @@ source("../ATLAS_maps/IMS_function.R")
   par(mfrow = c(3,4), mar = c(.1,.1,.1,.1))
   
   for(i in 1:length(nm)){
-    
+    cat("Uploading", nm[i], "\n")
     # query raster data
     map_tiles <- openmap(upperLeft = c(lon1, lat2),
                          lowerRight = c(lon2, lat1), # lat/long
@@ -60,13 +66,18 @@ source("../ATLAS_maps/IMS_function.R")
 {
   # look up tags at https://www.openstreetmap.org/#map=8/31.438/35.074
   
+  # map tags are key-value pairs used to describe geographic features and their properties in OSM. 
+  # These tags define what each map element (like a point, line, or polygon) represents and provide detailed metadata.
+  # For example:
+  # A tag with key = "boundary" and value = "protected_area" identifies features like national parks, nature reserves, or other protected areas.
+  
   # search tags
   available_features()
   
   # search associated tags
   available_tags("boundary")
   
-  # get bounding box
+  # get bounding box, for example Ein Gedi bounding box
   bb <- getbb("Ein Gedi, Israel")
   
   # query data
@@ -136,7 +147,7 @@ source("../ATLAS_maps/IMS_function.R")
   # import shape file as sf object
   mid_east <- st_read("layers/borders_WGS1984.shp")
   
-  # extract Dead Sea and Sea of Galilee
+  # extract Dead Sea and Sea of Galilee-  NEEDS THE borders_WGS1984.shp FILE
   dead_sea_Galilee <- mid_east[mid_east$NAME_ %in% c("Dead Sea","Sea of Galilee"),]
   
   # combine polygons by NAME_ column
@@ -183,13 +194,13 @@ source("../ATLAS_maps/IMS_function.R")
       tm_shape(palestine) +
       tm_borders(lwd = 2, lty = "dashed", col = "grey40") +
       
-      # add dead/galilee sea 
-      tm_shape(Dead_Galilee_Sea) +
-      tm_polygons(col = "blue",
-                  border.col = "antiquewhite1",
-                  alpha = 0.3,
-                  border.alpha = 0.5) +
-      
+      # # add dead/galilee sea
+      # tm_shape(Dead_Galilee_Sea) +
+      # tm_polygons(col = "blue",
+      #             border.col = "antiquewhite1",
+      #             alpha = 0.3,
+      #             border.alpha = 0.5) +
+
       # disputed boundary: Golan
       tm_shape(Golan) +
       tm_lines(lty = "dashed",lwd = 2, col = "grey40") +
@@ -228,11 +239,11 @@ source("../ATLAS_maps/IMS_function.R")
 ################################################################################
 {
   # set directory of map file
-  setwd("G:/My Drive/Tutorials/Mapping")
+  fullpath_to_save_map <- paste0(path_to_save_the_t_map, "/Israel_map.png")
   
   # save tmap
   tmap_save(Israel_map,
-            filename = "Israel_map.png",
+            filename = fullpath_to_save_map,
             width = 4.5,
             height = 8.75,
             dpi = 1000)
@@ -318,7 +329,7 @@ source("../ATLAS_maps/IMS_function.R")
               legend.text.size = 1.3) + 
       
     # add image of ein gedi sandgrouse
-    tm_logo(file = "pink_warbler.png",
+    tm_logo(file = paste0(path_to_working_directory, "/pink_warbler.png"),
             position = c(0.54,0.7),
             margin = 1,
             height = 12) +
@@ -329,12 +340,10 @@ source("../ATLAS_maps/IMS_function.R")
 }
 ################################ Export Map ####################################
 {
-  # set directory of map file
-  setwd("G:/My Drive/Tutorials/Mapping")
   
   # save tmap
   tmap_save(map,
-            filename = "pink_warbler_map.png",
+            filename = paste0(path_to_save_the_t_map, "/pink_warbler_map.png"),
             dpi = 1000)
 }
 ############################# Multiple Plots ####################################
@@ -379,5 +388,6 @@ source("../ATLAS_maps/IMS_function.R")
               frame.lwd = NA,
               panel.label.bg.color = NA)
 }
+
 ################################################################################
 ################################################################################
