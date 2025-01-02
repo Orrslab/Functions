@@ -9,5 +9,4 @@ ATLAS_run_scripts/ATLAS_data_requests.R
 ATLAS_run_scripts/ConfidenceFilterDevelopment/convert_rdata_to_csv_files.R
 ATLAS_run_scripts/ConfidenceFilterDevelopment/prepare_atlas_data_for_exmove.R
 ATLAS_maps/t_map/Israel_map.png
-ATLAS_maps/t_map/pink_warbler.png
 ATLAS_maps/t_map/pink_warbler_map.png
