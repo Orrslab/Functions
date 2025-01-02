@@ -39,6 +39,11 @@ Query raster data for mapping and convert to a raster object for use.
 9. Multiple Plots
 To create multiple plots on the same map, this code section shows how to use facets.
 
+## Requirements for running the tmap_tutorial.R script
+1. Stable internet connection
+2. The file Mapping_Tutorial_FUNCTIONS.R
+3. A picture of the bird you want to plot, for example pink_warbler.png
+
 ## Usage Instructions
 
 1. Install the necessary R packages (if not already installed):
