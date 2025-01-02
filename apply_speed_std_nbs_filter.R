@@ -20,11 +20,12 @@
 #' Ensure these scripts are available in the \code{path_to_atlas_data_analysis_repo} directory.
 #'
 #' @export
-apply_speed_std_nbs_filter <- function(data_for_filter) {
+apply_speed_std_nbs_filter <- function(data_for_filter,
+                                       speed_threshold_baseline_filter = 20,
+                                       std_threshold_baseline_filter = 15,
+                                       nbs_threshold_baseline_filter = 3) {
   
-  speed_threshold_baseline_filter <- 20
-  std_threshold_baseline_filter <- 30
-  nbs_threshold_baseline_filter <- 3
+  # speed_threshold_baseline_filter is in [m/s]
   
   source(paste0(path_to_atlas_data_analysis_repo, "atlas_metrics.R"))
   source(paste0(path_to_atlas_data_analysis_repo, "baseline_filter.R"))
