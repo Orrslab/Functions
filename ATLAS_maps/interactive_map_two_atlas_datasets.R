@@ -52,6 +52,7 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
     st_cast("LINESTRING")
   
   # Convert Unix timestamp to a UTC humandate in ATLAS format
+  source(paste0(getwd(), "/time_conversions.R"))
   llpd1_sf$dateTimeFormatted <- unix_timestamp_to_human_date(llpd1_sf$TIME)
   llpd2_sf$dateTimeFormatted <- unix_timestamp_to_human_date(llpd2_sf$TIME)
   
@@ -64,7 +65,7 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
     addProviderTiles(MapProvider) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 1, fillOpacity = 1, color = "yellow", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 1, fillOpacity = 1, color = "purple", group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", Z=", as.character(llpd1_sf$Z),
@@ -83,10 +84,10 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
                                           ", TAG=", llpd1_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd1'
-    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "yellow", group = legendLabels[1]) %>%
+    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "purple", group = legendLabels[1]) %>%
     
     # Add circles at the locations of the first dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 1, fillOpacity = 1, color = "purple", group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 1, fillOpacity = 1, color = "yellow", group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", Z=", as.character(llpd2_sf$Z),
@@ -105,7 +106,7 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
                                           ", TAG=", llpd2_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd2'
-    # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "purple", group = legendLabels[2]) %>%
+    # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "yellow", group = legendLabels[2]) %>%
     
     # Add a scale bar to the map
     addScaleBar(position = c("bottomleft"), options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
