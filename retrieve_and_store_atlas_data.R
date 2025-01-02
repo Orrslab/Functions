@@ -1,9 +1,5 @@
 library("dplyr")
 
-# Load the functions that connect to the ATLAS database
-source(paste0(path_to_atlas_data_analysis_repo, "ATLAS_database_connection.R"))
-
-
 #' Retrieve and store ATLAS data based on specified requests
 #'
 #' This function connects to the ATLAS database, retrieves localization data 
@@ -67,8 +63,16 @@ retrieve_and_store_atlas_data <- function(data_requests,
   
   all_data_frames <- list()
   
-  #connect to the database
-  db_conn <- connect_to_atlas_db()
+  # Load the ATLAS Harod database credentials
+  source(file.path(getwd(), "config.R"))
+  
+  # Connect to the database
+  source(paste0(path_to_atlas_data_analysis_repo, "connect_to_atlas_db.R"))
+  db_conn <- connect_to_atlas_db(db_username = db_username_harod,         # username
+                                 db_pass = db_pass_harod,                 # password
+                                 db_host_ip = db_host_ip_harod,           # host ip address
+                                 db_port_number = db_port_number_harod,   # port Number
+                                 db_name = db_name_harod)
   
   for (request in data_requests) {
     
