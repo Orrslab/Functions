@@ -83,20 +83,45 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
   
   # Write localizations data to the database, if provided
   if (!is.null(localizations_data)) {
+    
     dbWriteTable(conn, "LOCALIZATIONS", localizations_data, overwrite=TRUE)
     message("Localizations data saved.")
+    
   }
   
   # Write detections data to the database, if provided
   if (!is.null(detections_data)) {
+    
     dbWriteTable(conn, "DETECTIONS", detections_data, overwrite=TRUE)
     print("Detections data saved.")
+    
+  # } else {
+  #   
+  #   # Create an empty DETECTIONS table with the specified schema- 
+  #   # This is necessary in order to be able to upload the saved sqlite file into Kamadata
+  #
+  #   create_table_query <- "
+  #   CREATE TABLE IF NOT EXISTS DETECTIONS (
+  #     BS INTEGER,
+  #     TAG BIGINT,
+  #     TX BIGINT,
+  #     TIME BIGINT,
+  #     SAMPLES_CLK REAL,
+  #     SNR REAL,
+  #     RSSI REAL,
+  #     HEADROOM REAL,
+  #     GAIN REAL
+  #   );
+  #   "
+  #   
+  #   # Execute the query to create the table
+  #   dbExecute(conn, create_table_query)
+    
   }
   
   # Create and insert data into the PROPERTIES table
   properties_data <- data.frame(KEY = "atlas-system", VALUE = "harod")
   dbWriteTable(conn, "PROPERTIES", properties_data, overwrite=TRUE)
-  message("PROPERTIES table added.")
   
   # Close the database connection
   dbDisconnect(conn)
