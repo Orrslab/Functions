@@ -28,16 +28,16 @@ apply_speed_std_nbs_filter <- function(data_for_filter,
   # speed_threshold_baseline_filter is in [m/s]
   
   source(paste0(path_to_atlas_data_analysis_repo, "atlas_metrics.R"))
-  source(paste0(path_to_atlas_data_analysis_repo, "baseline_filter.R"))
   
   time_diff_s <- calculate_time_diff(data_for_filter$TIME)
   
-  distance_m <- calculate_distance(data_for_filter$X, data_for_filter$Y, data_for_filter$Z)
+  distance_m <- calculate_distance(data_for_filter$X, data_for_filter$Y)
   
   data_for_filter$Speed_m_s <- calculate_speed(distance_m, time_diff_s)
   
   data_for_filter$STD <- calculate_std(data_for_filter$VARX, data_for_filter$VARY, data_for_filter$COVXY)
   
+  source(paste0(path_to_atlas_data_analysis_repo, "baseline_filter.R"))
   data_for_filter <- baseline_filter(data_for_filter,
                                      speed_threshold_baseline_filter,
                                      std_threshold_baseline_filter,
