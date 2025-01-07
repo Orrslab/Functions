@@ -35,9 +35,9 @@ calculate_time_diff <- function(time_column) {
 #' distance <- calculate_distance(x, y, z)
 #'
 #' @export
-calculate_distance <- function(x, y, z) {
+calculate_distance <- function(x, y) {
   # Compute Euclidean distance between consecutive points
-  distance <- c(NA, sqrt(diff(x)^2 + diff(y)^2 + diff(z)^2))
+  distance <- c(NA, sqrt(diff(x)^2 + diff(y)^2))
   return(distance)
 }
 
