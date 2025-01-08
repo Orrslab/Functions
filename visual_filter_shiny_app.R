@@ -38,7 +38,7 @@ if (upload_gps_data_from_csv) {
 data_for_filter$Outliers <- 0
 
 # Apply the baseline filter on the Speed, STD, and number of base stations
-source(paste0(path_to_atlas_data_analysis_repo, "apply_speed_std_nbs_filter.R"))
+source(paste0(path_to_visual_filter_folder, "apply_speed_std_nbs_filter.R"))
 data_for_filter <- apply_speed_std_nbs_filter(data_for_filter,
                                               speed_threshold_baseline_filter,
                                               std_threshold_baseline_filter,
@@ -57,7 +57,7 @@ data_for_filter_sf$lat <- st_coordinates(data_for_filter_sf)[, 2]
 data_for_filter_sf$lon <- st_coordinates(data_for_filter_sf)[, 1]
 
 # Scripts for the leaflet map
-source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
+source(paste0(path_to_visual_filter_folder, "time_conversions.R"))
 
 # Helper function to initialize the base map
 initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity = 0.8) {
@@ -378,7 +378,7 @@ save_filtered_data <- function(tag_number, start_time, end_time, filtered_data_p
   }
   
   # Save the current data segment as sqlite
-  source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
+  source(paste0(path_to_visual_filter_folder, "save_ATLAS_data_to_sqlite.R"))
   save_ATLAS_data_to_sqlite(localizations_data = segment_data,
                             fullpath = full_path_filtered_data)
   
