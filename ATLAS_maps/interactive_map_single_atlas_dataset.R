@@ -1,4 +1,8 @@
 library(dplyr)
+library(sf)
+library(RColorBrewer)
+library(leaflet)
+library(htmltools)
 
 source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
 
@@ -76,13 +80,13 @@ interactive_map_single_atlas_dataset <- function(dd,MapProvider='Esri.WorldImage
     addProviderTiles(MapProvider) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = col[4],
+    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = "pink",
                popup = ~htmlEscape(paste0("Date+Time=", as.character(llpd_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd_sf$TIME),
                                           ", Tag Number=", sprintf("%04d", llpd_sf$TAG %% 10000)))) %>%
     
     # Add lines that connect the point locations included in 'dd'
-    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = col[4]) %>%
+    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = "pink") %>%
     
     # Add a scale bar to the map
     addScaleBar(position = c("bottomleft"), options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
