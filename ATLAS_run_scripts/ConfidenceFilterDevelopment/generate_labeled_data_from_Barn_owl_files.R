@@ -5,15 +5,20 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 source(file.path(getwd(), "config.R"))
 
-filename <- "Valid_points_Tag_691_HandFiltered"
-path_to_shlomo_data <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Shlomo_Cain/"
+filename <- "raw685_fromR"
+path_to_shlomo_data <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Shlomo_Cain/Tag_685_not_filtered/"
 fullpath <- paste0(path_to_shlomo_data, filename, ".csv")
 
 # Load the outliers data from csv
 only_outliers <- read.csv(fullpath)
 
+# # Plot the data on a map
+# source("C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/ATLAS_maps/interactive_map_single_atlas_dataset.R")
+# map <- interactive_map_single_atlas_dataset(dd=only_outliers)
+# print(map)
+
 data_request <- list(
-  list(tag = 972006000691, 
+  list(tag = 972006000685, 
        start_time = '2022-05-01 18:00:00', 
        end_time = '2022-05-02 05:00:00')
 )
