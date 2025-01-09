@@ -78,7 +78,7 @@ initialize_atl_mapleaf <- function(MapProvider = map_provider, tile_opacity = 0.
 
 # Helper function to update the map with data
 update_atl_mapleaf <- function(proxy, dd_sf, 
-                               display_non_filtered_track = TRUE, 
+                               display_non_filtered_track, 
                                zoom_flag = TRUE, 
                                color_outliers = "#E66100") {
 
@@ -183,7 +183,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
         position = "topright",
         colors = c(color1, color2),
         labels = c("Start Time", "End Time"),
-        title = "Point Types",
+        title = "Unfiltered Mode",
         opacity = 1
       ) %>%
       
@@ -237,7 +237,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           position = "topright",
           colors = c(color_valid_points, color_outliers),
           labels = c("Valid Points", "Outliers"),
-          title = "Point Types",
+          title = "Filtered Mode",
           opacity = 1
         ) %>%
         
@@ -279,7 +279,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           position = "topright",
           colors = c(color_valid_points, color_outliers),
           labels = c("Valid Points", "Outliers"),
-          title = "Point Types",
+          title = "Filtered Mode",
           opacity = 1
         ) %>%
         
@@ -344,7 +344,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           position = "topright",
           colors = c(color_valid_points, color_outliers),
           labels = c("Valid Points", "Outliers"),
-          title = "Point Types",
+          title = "Filtered Mode",
           opacity = 1
         ) %>%
         
@@ -455,11 +455,11 @@ ui <- fluidPage(
       ),
       # Display the Filtered track vs. Unfiltered track
       radioButtons(
-        "track_display_mode", 
-        label = "Track Display Mode:", 
+        "track_display_mode",
+        label = "Track Display Mode:",
         choices = c(
-          "Show Filtered Track" = "filtered", 
-          "Show Unfiltered Track" = "unfiltered"
+          "Show Filtered Data" = "filtered",
+          "Show Unfiltered Data" = "unfiltered"
         ),
         selected = "unfiltered"
       ),
@@ -631,7 +631,7 @@ server <- function(input, output, session) {
     
     # Update the map with the new data
     leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data)
+      update_atl_mapleaf(segment_data$data, display_non_filtered_track = TRUE)
   })
   
   # Display the current segment in the UI
@@ -646,32 +646,13 @@ server <- function(input, output, session) {
       paste("Points", start_row, "-", end_row)
     }
   })
-
-  # Toggle a point when clicked
-  observeEvent(input$map_marker_click, {
-    
-    clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
-    
-    # Find the index of the clicked point
-    current_data <- segment_data$data
-    index <- which(current_data$TIME == as.numeric(clicked_timestamp))
-    
-    if (length(index) == 1) { # Ensure only one point matches
-      # Toggle Outliers for the clicked point
-      current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
-      
-      segment_data$data <- current_data
-    
-      leafletProxy("map") %>%
-        update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
-    }
-  })
   
   # Select if to display the unfiltered track or filtered track
   observe({
     if (input$track_display_mode == "filtered") {
       # Use the filtered dataset
       display_unfiltered_track = FALSE
+      
     } else {
       # Use the unfiltered dataset
       display_unfiltered_track = TRUE
@@ -679,71 +660,140 @@ server <- function(input, output, session) {
     
     # Refresh the map
     leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, 
-                         display_non_filtered_track = display_unfiltered_track, 
+      update_atl_mapleaf(segment_data$data,
+                         display_non_filtered_track = display_unfiltered_track,
                          zoom_flag = FALSE)
     
+  })
+
+  # Toggle a point when clicked
+  observeEvent(input$map_marker_click, {
+
+    if (input$track_display_mode == "filtered") {
+      clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
+  
+      # Find the index of the clicked point
+      current_data <- segment_data$data
+      index <- which(current_data$TIME == as.numeric(clicked_timestamp))
+  
+      if (length(index) == 1) { # Ensure only one point matches
+        # Toggle Outliers for the clicked point
+        current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
+  
+        segment_data$data <- current_data
+  
+        leafletProxy("map") %>%
+          update_atl_mapleaf(segment_data$data,
+                             display_non_filtered_track = FALSE,
+                             zoom_flag = FALSE)
+      }
+    } else {
+      showModal(
+        modalDialog(
+          title = "Error",
+          "Points can only be toggled when the filtered data is displayed.",
+          easyClose = TRUE,
+          footer = modalButton("Close")
+        )
+      )
+    }
   })
   
   # Select a polygon
   observeEvent(input$map_draw_new_feature, {
-    # Extract the drawn polygon
-    feature <- input$map_draw_new_feature
     
-    polygon_coords <- feature$geometry$coordinates[[1]]
-    
-    # Convert to sf polygon
-    polygon_sf <- st_polygon(list(matrix(unlist(polygon_coords), ncol = 2, byrow = TRUE)))
-    polygon_sf <- st_sfc(polygon_sf, crs = 4326)
-    
-    # Filter points inside the polygon, and mark them as Outliers = 1
-    updated_data <- segment_data$data
-    points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
-    
-    # Determine action based on selected radio button
-    if (input$polygon_action == "mark_invalid") {
-      updated_data$Outliers[points_inside] <- 1
-    } else if (input$polygon_action == "mark_valid") {
-      updated_data$Outliers[points_inside] <- 0
+    if (input$track_display_mode == "filtered") {
+      # Extract the drawn polygon
+      feature <- input$map_draw_new_feature
+      
+      polygon_coords <- feature$geometry$coordinates[[1]]
+      
+      # Convert to sf polygon
+      polygon_sf <- st_polygon(list(matrix(unlist(polygon_coords), ncol = 2, byrow = TRUE)))
+      polygon_sf <- st_sfc(polygon_sf, crs = 4326)
+      
+      # Filter points inside the polygon, and mark them as Outliers = 1
+      updated_data <- segment_data$data
+      points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
+      
+      # Determine action based on selected radio button
+      if (input$polygon_action == "mark_invalid") {
+        updated_data$Outliers[points_inside] <- 1
+      } else if (input$polygon_action == "mark_valid") {
+        updated_data$Outliers[points_inside] <- 0
+      }
+      # Update the reactive data variable
+      segment_data$data <- updated_data
+      
+      # Refresh the map
+      leafletProxy("map") %>%
+        update_atl_mapleaf(segment_data$data,
+                           display_non_filtered_track = FALSE,
+                           zoom_flag = FALSE)
+    } else {
+      showModal(
+        modalDialog(
+          title = "Error",
+          "Toggling points by a polygon is only enabled when the filtered data is displayed.",
+          easyClose = TRUE,
+          footer = modalButton("Close")
+        )
+      )
     }
-    # Update the reactive data variable
-    segment_data$data <- updated_data
-    
-    # Refresh the map
-    leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE)
   })
   
   # Save the filtered data
   observeEvent(input$save_data, {
-    
-    save_filtered_data(tag_number = tag_number,
-                       start_time = start_time_current_segment(),
-                       end_time = end_time_current_segment(),
-                       filtered_data_path = filtered_data_path,
-                       segment_data = segment_data$data)
-    
-    # Refresh the map
-    leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
+    if (input$track_display_mode == "filtered") {
+      save_filtered_data(tag_number = tag_number,
+                         start_time = start_time_current_segment(),
+                         end_time = end_time_current_segment(),
+                         filtered_data_path = filtered_data_path,
+                         segment_data = segment_data$data)
+      
+      # Refresh the map
+      leafletProxy("map") %>%
+        update_atl_mapleaf(segment_data$data, 
+                           display_non_filtered_track = FALSE,
+                           zoom_flag = FALSE, 
+                           color_outliers = "#D3D3D3")
+    } else {
+      showModal(
+        modalDialog(
+          title = "Error",
+          "Data can only be saved when the filtered data is displayed.",
+          easyClose = TRUE,
+          footer = modalButton("Close")
+        )
+      )
+    }
 
   })
   
   # Navigate to the next segment
   observeEvent(input$next_segment, {
-    
-    showModal(
-      modalDialog(
-        title = "Save Data?",
-        "Do you want to save the current data before moving to the next segment?",
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("confirm_save_next", "Yes, Save and move to next segment"),
-          actionButton("skip_save_next", "No, Don't Save and move to next segment")
+    if (input$track_display_mode == "filtered") {
+      showModal(
+        modalDialog(
+          title = "Save Data?",
+          "Do you want to save the current data before moving to the next segment?",
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("confirm_save_next", "Yes, Save and move to next segment"),
+            actionButton("skip_save_next", "No, Don't Save and move to next segment")
+          )
         )
       )
-    )
-    
+    } else {
+      # Move to the next segment
+      move_to_next_segment(
+        data_segment_action = input$data_segment_action,
+        current_segment_index = current_segment_index,
+        validate_data_for_days = validate_data_for_days,
+        reactive_num_points = reactive_num_points,
+        data_for_filter_sf = data_for_filter_sf
+      )
+    }
   })
   
   # Handle "Yes, Save and move to the next segment"
@@ -757,9 +807,6 @@ server <- function(input, output, session) {
                        filtered_data_path = filtered_data_path,
                        segment_data = segment_data$data)
     
-    # Refresh the map
-    leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
     # Move to the next segment
     move_to_next_segment(
       data_segment_action = input$data_segment_action,
@@ -768,6 +815,7 @@ server <- function(input, output, session) {
       reactive_num_points = reactive_num_points,
       data_for_filter_sf = data_for_filter_sf
     )
+    
   })
   
   # Handle "No, Don't Save and move to the next segment"
@@ -784,18 +832,28 @@ server <- function(input, output, session) {
   
   # Navigate to the previous segment
   observeEvent(input$previous_segment, {
-    
-    showModal(
-      modalDialog(
-        title = "Save Data?",
-        "Do you want to save the current data before moving to the previous segment?",
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("confirm_save_previous", "Yes, Save and move to previous segment"),
-          actionButton("skip_save_previous", "No, Don't Save and move to previous segment")
+    if (input$track_display_mode == "filtered") {
+      showModal(
+        modalDialog(
+          title = "Save Data?",
+          "Do you want to save the current data before moving to the previous segment?",
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("confirm_save_previous", "Yes, Save and move to previous segment"),
+            actionButton("skip_save_previous", "No, Don't Save and move to previous segment")
+          )
         )
       )
-    )
+    } else {
+      # Move to the previous segment
+      move_to_previous_segment(
+        data_segment_action = input$data_segment_action,
+        current_segment_index = current_segment_index,
+        validate_data_for_days = validate_data_for_days,
+        reactive_num_points = reactive_num_points,
+        data_for_filter_sf = data_for_filter_sf
+      )
+    }
   })
   
   # Handle "Yes, Save and move to the previous segment"
@@ -809,9 +867,6 @@ server <- function(input, output, session) {
                        filtered_data_path = filtered_data_path,
                        segment_data = segment_data$data)
     
-    # Refresh the map
-    leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, zoom_flag = FALSE, color_outliers = "grey")
     # Move to the previous segment
     move_to_previous_segment(
       data_segment_action = input$data_segment_action,
