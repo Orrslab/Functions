@@ -60,7 +60,7 @@ data_for_filter_sf$lon <- st_coordinates(data_for_filter_sf)[, 1]
 source(paste0(path_to_visual_filter_folder, "time_conversions.R"))
 
 # Helper function to initialize the base map
-initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity = 0.8) {
+initialize_atl_mapleaf <- function(MapProvider = map_provider, tile_opacity = 0.8) {
   leaflet() %>%
     addProviderTiles(MapProvider, options = providerTileOptions(opacity = tile_opacity)) %>%
     addDrawToolbar(
@@ -80,7 +80,7 @@ initialize_atl_mapleaf <- function(MapProvider='Esri.WorldImagery', tile_opacity
 update_atl_mapleaf <- function(proxy, dd_sf, 
                                display_non_filtered_track = TRUE, 
                                zoom_flag = TRUE, 
-                               color_outliers = "#FEFE62") {
+                               color_outliers = "#E66100") {
 
   # Ensure that the required columns are present in the dataset
   if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
@@ -88,8 +88,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
   }
   
   # # Define the colors for valid points (purple) and outliers (yellow)
-  color_valid_points <- "#D35FB7" 
-  # color_outliers <- "#FEFE62"
+  color_valid_points <- "#5D3A9B"
   
   # Filter out the outliers (non-outliers will be used to create lines)
   dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
