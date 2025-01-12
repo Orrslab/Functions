@@ -27,7 +27,8 @@ if (upload_gps_data_from_csv) {
   
   # Upload data from the ATLAS server or sqlite
   source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
-  data_for_filter <- prepare_raw_atlas_data_for_visual_filter(tag_number = tag_number,
+  data_for_filter <- prepare_raw_atlas_data_for_visual_filter(animal_name_code = animal_name_code,
+                                                              tag_number = tag_number,
                                                               start_time = start_time,
                                                               end_time = end_time,
                                                               raw_data_folder_path = raw_data_path)
@@ -46,15 +47,38 @@ data_for_filter <- apply_speed_std_nbs_filter(data_for_filter,
 
 # # add latitude and longitude columns to the data
 
-# Create an sf object with the projected CRS (EPSG:2039)
+# Keep original X and Y before converting
+data_for_filter$X_original <- data_for_filter$X
+data_for_filter$Y_original <- data_for_filter$Y
+
+# Convert X and Y to an sf object in EPSG:2039
 data_for_filter_sf <- st_as_sf(data_for_filter, coords = c("X", "Y"), crs = 2039)
 
-# Transform the coordinates to EPSG:4326 (WGS84)
+# Transform to WGS84 (lat/lon)
 data_for_filter_sf <- st_transform(data_for_filter_sf, crs = 4326)
 
-# Extract the transformed lat and lon columns
-data_for_filter_sf$lat <- st_coordinates(data_for_filter_sf)[, 2]
-data_for_filter_sf$lon <- st_coordinates(data_for_filter_sf)[, 1]
+# Extract transformed coordinates (lat/lon)
+data_for_filter_sf$lat <- st_coordinates(data_for_filter_sf)[, 2]  # Latitude
+data_for_filter_sf$lon <- st_coordinates(data_for_filter_sf)[, 1]  # Longitude
+
+# Convert back to an sf object using lat/lon as geometry
+data_for_filter_sf <- st_as_sf(data_for_filter_sf, coords = c("lon", "lat"), crs = 4326)
+
+# Add back the original X and Y columns
+st_geometry(data_for_filter_sf) <- "geometry"  # Ensure it remains an sf object
+data_for_filter_sf$X <- data_for_filter$X_original
+data_for_filter_sf$Y <- data_for_filter$Y_original
+
+# Delete the columns X_original and Y_original
+data_for_filter_sf$X_original <- NULL
+data_for_filter_sf$Y_original <- NULL
+
+# Reorder columns
+data_for_filter_sf <- data_for_filter_sf[, c("TAG", "TIME", "X", "Y", "Z", "lat", "lon", "VARX", "VARY", "COVXY", 
+                                             "NBS", "PENALTY", "dateTime", "DAY", "Outliers", "Speed_m_s", "STD", 
+                                             "geometry")]
+
+print(colnames(data_for_filter_sf))
 
 # Scripts for the leaflet map
 source(paste0(path_to_visual_filter_folder, "time_conversions.R"))
@@ -359,10 +383,13 @@ update_atl_mapleaf <- function(proxy, dd_sf,
   }
 }
 
-save_filtered_data <- function(tag_number, start_time, end_time, filtered_data_path, segment_data) {
+save_filtered_data <- function(tag_number, start_time, end_time, 
+                               filtered_data_path, segment_data,
+                               save_as_csv = FALSE) {
   
   # Create the file name and full path to save the filtered data
-  full_path_filtered_data <- create_sqlite_filepath(tag_number, 
+  full_path_filtered_data <- create_sqlite_filepath(animal_name_code,
+                                                    tag_number, 
                                                     start_time, 
                                                     end_time, 
                                                     filtered_data_path)
@@ -380,6 +407,11 @@ save_filtered_data <- function(tag_number, start_time, end_time, filtered_data_p
   source(paste0(path_to_visual_filter_folder, "save_ATLAS_data_to_sqlite.R"))
   save_ATLAS_data_to_sqlite(localizations_data = segment_data,
                             fullpath = full_path_filtered_data)
+  
+  if (save_as_csv) {
+    full_path_filtered_data_csv <- sub("\\.sqlite$", ".csv", full_path_filtered_data)
+    write.csv(segment_data, full_path_filtered_data_csv, row.names = FALSE)
+  }
   
 }
 
@@ -749,7 +781,8 @@ server <- function(input, output, session) {
                          start_time = start_time_current_segment(),
                          end_time = end_time_current_segment(),
                          filtered_data_path = filtered_data_path,
-                         segment_data = segment_data$data)
+                         segment_data = segment_data$data,
+                         save_as_csv = save_filtered_data_as_csv)
       
       # Refresh the map
       leafletProxy("map") %>%
@@ -805,7 +838,8 @@ server <- function(input, output, session) {
                        start_time = start_time_current_segment(),
                        end_time = end_time_current_segment(),
                        filtered_data_path = filtered_data_path,
-                       segment_data = segment_data$data)
+                       segment_data = segment_data$data,
+                       save_as_csv = save_filtered_data_as_csv)
     
     # Move to the next segment
     move_to_next_segment(
@@ -865,7 +899,8 @@ server <- function(input, output, session) {
                        start_time = start_time_current_segment(),
                        end_time = end_time_current_segment(),
                        filtered_data_path = filtered_data_path,
-                       segment_data = segment_data$data)
+                       segment_data = segment_data$data,
+                       save_as_csv = save_filtered_data_as_csv)
     
     # Move to the previous segment
     move_to_previous_segment(

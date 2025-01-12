@@ -1,6 +1,7 @@
 # Get ATLAS data and prepare it for using the visual filter
 
-prepare_raw_atlas_data_for_visual_filter <- function(tag_number,
+prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
+                                                     tag_number,
                                                      start_time,
                                                      end_time,
                                                      raw_data_folder_path)
@@ -17,7 +18,8 @@ prepare_raw_atlas_data_for_visual_filter <- function(tag_number,
   
   # Generate the file names from the tag numbers and dates
   source(paste0(path_to_visual_filter_folder, "create_sqlite_filepath.R"))
-  fullpath_to_sqlite_file <- create_sqlite_filepath(tag_numbers = tag_number,
+  fullpath_to_sqlite_file <- create_sqlite_filepath(animal_name_code = animal_name_code,
+                                                    tag_numbers = tag_number,
                                                     start_time = start_time,
                                                     end_time = end_time,
                                                     folder_path_to_sqlite_files = raw_data_folder_path)

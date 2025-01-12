@@ -8,6 +8,9 @@
 #' The function also formats the date and time by replacing spaces with 
 #' underscores and colons with hyphens.
 #'
+#' @param animal_name_code Animal name shortcut to be used for the file name. 
+#'                         For example, the user can choose "BO" for Barn Owl.
+#' 
 #' @param tag_numbers A unique identifier (or identifiers) for the tag(s) 
 #'                    associated with the data. If a single tag number is 
 #'                    provided, the filename will include the last four digits 
@@ -27,11 +30,10 @@
 #' @return A character string representing the file path for the SQLite 
 #'         database, including the formatted tag numbers and date range.
 #'  
-create_sqlite_filepath <- function(tag_numbers, start_time, end_time, folder_path_to_sqlite_files) {
+create_sqlite_filepath <- function(animal_name_code, tag_numbers, start_time, end_time, folder_path_to_sqlite_files) {
   if (length(tag_numbers) == 1) {
     # Take the last four digits of the tag number
     tag_number_str <- substr(as.character(tag_numbers), nchar(tag_numbers)-3, nchar(tag_numbers))
-    tag_number_str <- paste0("Tag_", tag_number_str)
   } else {
     tag_number_str = "Multiple_tags"
   }
@@ -45,7 +47,8 @@ create_sqlite_filepath <- function(tag_numbers, start_time, end_time, folder_pat
   end_time_replace_colons <- gsub(":", "-", end_time_replace_spaces)
   
   # Create the .sqlite file name
-  filename <- paste(tag_number_str, "_from_", 
+  filename <- paste(animal_name_code, "_",
+                    tag_number_str, "_from_", 
                     start_time_replace_colons, "_to_", 
                     end_time_replace_colons, ".sqlite", sep = "")
   filepath = paste0(folder_path_to_sqlite_files, filename)
