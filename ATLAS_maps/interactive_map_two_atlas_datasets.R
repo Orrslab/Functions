@@ -27,6 +27,10 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
       dd2[,varname] <- NA
   }
   
+  # Remove rows with NA in X or Y columns
+  dd1 <- dd1[!is.na(dd1$X) & !is.na(dd1$Y), ]
+  dd2 <- dd2[!is.na(dd2$X) & !is.na(dd2$Y), ]
+  
   # Define CRS for the datasets
   itm <- 2039  # EPSG code for your local CRS
   wgs84 <- 4326  # EPSG code for WGS84
@@ -65,44 +69,24 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
     addProviderTiles(MapProvider) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 1, fillOpacity = 1, color = "purple", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "purple", group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
-                                          ", Z=", as.character(llpd1_sf$Z),
                                           ", NBS=", as.character(llpd1_sf$NBS),
-                                          ", NCON=", as.character(llpd1_sf$NCONSTRAINTS),
-                                          ", allBS=", llpd1_sf$allBS,
-                                          ", pen=", as.character(round(llpd1_sf$PENALTY)),
-                                          ", spd=", as.character(round(llpd1_sf$spd)),
-                                          ", dist=", as.character(round(llpd1_sf$distance)),
-                                          ", moveAngle=", as.character(round(llpd1_sf$moveAngle)),
-                                          ", std=", as.character(round(llpd1_sf$stdVarXY)),
-                                          ", val1=", as.character(round(llpd1_sf$val1)),
-                                          ", val2=", as.character(round(llpd1_sf$val2)),
-                                          ", ellipsDir=", as.character(round(llpd1_sf$ellipsDir)),
-                                          ", DistMed5=", as.character(round(llpd1_sf$DistMed5)),
+                                          ", Speed_m_s=", as.character(round(llpd1_sf$Speed_m_s)),
+                                          ", STD=", as.character(round(llpd1_sf$STD)),
                                           ", TAG=", llpd1_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd1'
     addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "purple", group = legendLabels[1]) %>%
     
     # Add circles at the locations of the first dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 1, fillOpacity = 1, color = "yellow", group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "yellow", group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
-                                          ", Z=", as.character(llpd2_sf$Z),
                                           ", NBS=", as.character(llpd2_sf$NBS),
-                                          ", NCON=", as.character(llpd2_sf$NCONSTRAINTS),
-                                          ", allBS=", llpd2_sf$allBS,
-                                          ", pen=", as.character(round(llpd2_sf$PENALTY)),
-                                          ", spd=", as.character(round(llpd2_sf$spd)),
-                                          ", dist=", as.character(round(llpd2_sf$distance)),
-                                          ", moveAngle=", as.character(round(llpd2_sf$moveAngle)),
-                                          ", std=", as.character(round(llpd2_sf$stdVarXY)),
-                                          ", val1=", as.character(round(llpd2_sf$val1)),
-                                          ", val2=", as.character(round(llpd2_sf$val2)),
-                                          ", ellipsDir=", as.character(round(llpd2_sf$ellipsDir)),
-                                          ", DistMed5=", as.character(round(llpd2_sf$DistMed5)),
+                                          ", Speed_m_s=", as.character(round(llpd2_sf$Speed_m_s)),
+                                          ", STD=", as.character(round(llpd2_sf$STD)),
                                           ", TAG=", llpd2_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd2'
