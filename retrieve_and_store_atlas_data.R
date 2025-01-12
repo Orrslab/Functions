@@ -85,7 +85,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
                                       end_time,
                                       tag_numbers,
                                       includeLoc = TRUE,
-                                      includeDet=FALSE,
+                                      includeDet=TRUE,
                                       db_conn)
     
     RawLoc0 <- AllData$LOC
@@ -105,6 +105,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
         # Save the data as sqlite
         source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
         save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
+                                  detections_data = RawDet0,
                                   fullpath=full_paths_to_store_sqlite_files)
       }
     }
