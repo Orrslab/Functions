@@ -1,24 +1,43 @@
 
-# Load required packages
-required_packages <- c("RSQLite", "DBI")
-sapply(required_packages, library, character.only = TRUE)
-
-#' Load ATLAS Localizations Data from SQLite Database
+#' Load ATLAS Localizations Data from an SQLite Database
 #'
-#' This function loads the localization data from an SQLite database file
-#' that contains tables for ATLAS tracking data. The data from the 
-#' "LOCALIZATIONS" table is retrieved and returned as a data frame.
+#' This function loads localization data from an SQLite database file that stores ATLAS tracking data.
+#' The function retrieves all records from the "LOCALIZATIONS" table and returns them as a data frame.
 #'
-#' @param sqlite_filepath A character string representing the path to the SQLite database file.
+#' @param sqlite_filepath A character string representing the full path to the SQLite database file.
 #'
-#' @return A data frame containing the data from the "LOCALIZATIONS" table in the SQLite database.
+#' @return A data frame containing the localization data from the "LOCALIZATIONS" table.
+#'         If the file does not exist, the function returns `NULL`.
 #'
-#' @details This function connects to an SQLite database, retrieves all the data
-#' from the "LOCALIZATIONS" table, and then disconnects from the database. The 
-#' function returns the data as a data frame. The "DETECTIONS" table is currently
-#' not retrieved (commented out for potential future use).
-#' 
+#' @details 
+#' This function connects to an SQLite database, queries all available data from the "LOCALIZATIONS" table, 
+#' and then disconnects from the database. The function does **not** retrieve data from the "DETECTIONS" table.
+#'
+#' The expected columns in the returned data frame include (but are not limited to):
+#' - `TAG` (integer): The tag identifier.
+#' - `TIME` (numeric): Timestamp of the localization.
+#' - `X`, `Y`, `Z` (numeric): Spatial coordinates of the localization.
+#' - Additional variables describing localization accuracy and constraints.
+#'
+#' If the specified SQLite file does not exist, a warning is issued, and the function returns `NULL`.
+#'
+#' @examples
+#' # Define the file path
+#' file_name <- "BO_0556_from_2021-07-04_17-00-03_to_2021-07-04_23-59-58_filtered.sqlite"
+#' path <- "C:/data/Filtered_data/"
+#' file_path <- paste0(path, file_name)
+#'
+#' # Load the data
+#' data <- load_atlas_data_from_sqlite(file_path)
+#'
+#' # Check the first few rows
+#' if (!is.null(data)) head(data)
+#'
 load_atlas_data_from_sqlite <- function(sqlite_filepath) {
+  
+  # Load required packages
+  required_packages <- c("RSQLite", "DBI")
+  invisible(lapply(required_packages, library, character.only = TRUE))
   
   # check if the file exists
   if (!file.exists(sqlite_filepath)) {
@@ -36,9 +55,3 @@ load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   # Return the Localizations data
   return(RawLoc0)
 }
-
-# # Usage example
-# file_name <- "BO_0556_from_2021-07-04_17-00-03_to_2021-07-04_23-59-58_filtered.sqlite"
-# path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Filtered_data/"
-# file_path <- paste0(path, file_name)
-# data <- load_atlas_data_from_sqlite(file_path)
