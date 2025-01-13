@@ -1,11 +1,11 @@
 #' Assign Day Number to Data
 #'
-#' This function assigns a day number to each row in the input data frame, based on either Julian days or a sequential count from the first date in each group (defined by `GroupIdentifier`). 
+#' This function assigns a day number to each row in the input data frame, based on either Julian days or a sequential count from the first date in each group (defined by `GroupIdentifier`).
 #' The day count starts at the specified `DayStartTime` (in "HH:MM:SS" format, UTC), and a new column, `DAY`, is added to the input data frame to hold these values.
 #'
-#' @param data A `data.frame` containing a POSIXct time column, with timezone set to "UTC" and origin as "1970-01-01".
+#' @param data A `data.frame` containing a POSIXct time column, with the timezone set to "UTC" and origin as "1970-01-01".
 #' @param DayStartTime A character string in "HH:MM:SS" format specifying the start of each day in UTC. Defaults to "00:00:00".
-#' @param DayEndTime A character string in "HH:MM:SS" format specifying the end of each day in UTC. Defaults to "00:00:00".
+#' @param DayEndTime A character string in "HH:MM:SS" format specifying the end of the day period in UTC. Defaults to "00:00:00". This defines when the day period ends, which may span across dates depending on the `DayStartTime` and `DayEndTime` values.
 #' @param TimeColName A character string specifying the name of the time column in the `data` data frame. Defaults to "dateTime".
 #' @param GroupIdentifier A character string specifying the name of the column in `data` that identifies the grouping variable (e.g., tag or individual ID). Defaults to "TAG".
 #' @param Julian A logical value indicating whether to use Julian days (if `TRUE`) or sequential days from the first date in each group (if `FALSE`). Defaults to `FALSE`.
@@ -16,7 +16,9 @@
 #' - The `DAY` column contains either Julian days or sequential days counted from the first date of each `GroupIdentifier`.
 #' - If `Julian` is `TRUE`, `DAY` is based on Julian day numbering. If `FALSE`, it is calculated as sequential days from the first date in each `GroupIdentifier`.
 #' - The start of each day is defined by `DayStartTime`, provided as a "HH:MM:SS" character in UTC.
-#' - The function checks if the specified `TimeColName` column is in POSIXct format and throws an error if not.
+#' - If `DayStartTime` and `DayEndTime` span across midnight, the function handles that accordingly by adjusting the start and end of each day period.
+#' - The function checks if the specified `TimeColName` column is in POSIXct format and throws an error if not. The error message will specify which column is incorrectly formatted.
+#' - The `atlas_time_format` and `atlas_time_zone` variables are assumed to be defined elsewhere in your script or environment. Make sure these variables are set to appropriate time format and timezone.
 #'
 #' @examples
 #' # Example usage
