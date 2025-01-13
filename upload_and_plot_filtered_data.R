@@ -19,7 +19,7 @@ outliers <- filtered_data_clean[filtered_data$Outliers == 1, ]
 source(paste0(getwd(), "/ATLAS_maps/", "interactive_map_two_atlas_datasets.R"))
 map <- interactive_map_two_atlas_datasets(dd1 = valid_points,
                                           dd2 = outliers,
-                                          MapProvider='Esri.WorldImagery',
+                                          MapProvider='CartoDB.Positron',  # 'Esri.WorldImagery'
                                           legendLabels=c("Valid Points", "Outliers")) 
 print(map)
   
