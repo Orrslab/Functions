@@ -8,6 +8,7 @@
 #' @param start_time A POSIXct timestamp or string specifying the start time of the data request (e.g. "2021-07-04 17:00:00").
 #' @param end_time A POSIXct timestamp or string specifying the end time of the data request.
 #' @param raw_data_folder_path A string specifying the folder path where SQLite files are stored.
+#' @param atlas_db_credentials 
 #'
 #' @return A dataframe containing raw ATLAS location data, including assigned day numbers.
 #'
@@ -40,7 +41,8 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
                                                      tag_number,
                                                      start_time,
                                                      end_time,
-                                                     raw_data_folder_path)
+                                                     raw_data_folder_path,
+                                                     atlas_db_credentials)
 {
   
   # # Install the required R packages- in not yet installed
@@ -83,6 +85,7 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   source(paste0(path_to_visual_filter_folder,"get_ATLAS_data.R"))
   raw_location_data = get_ATLAS_data(data_requests = data_request, 
                                      retrieve_data_from_server = retrieve_data_from_server,
+                                     atlas_db_credentials = atlas_db_credentials,
                                      save_data_to_sqlite_file = save_data_to_sqlite_file,
                                      full_paths_to_sqlite_files = fullpath_to_sqlite_file)
   
