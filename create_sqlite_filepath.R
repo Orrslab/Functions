@@ -1,35 +1,42 @@
 
-#' Create the SQLite file path from tag numbers and date range
+#' Create the SQLite File Path from Tag Numbers and Date Range
 #'
-#' This function generates a file path for the SQLite database based on the 
-#' provided tag numbers and the date range of the data. If there is a single 
-#' tag, the last four digits of the tag number will be used in the filename. 
-#' If there are multiple tags, "Multiple_tags" will be used instead. 
-#' The function also formats the date and time by replacing spaces with 
-#' underscores and colons with hyphens.
+#' This function generates the file path for the SQLite database based on the 
+#' provided tag numbers and date range. If a single tag number is provided, 
+#' the last four digits of the tag number will be included in the filename. 
+#' If multiple tag numbers are provided, the filename will include "Multiple_tags". 
+#' The start and end times are formatted by replacing spaces with underscores 
+#' and colons with hyphens.
 #'
-#' @param animal_name_code Animal name shortcut to be used for the file name. 
-#'                         For example, the user can choose "BO" for Barn Owl.
+#' @param animal_name_code A string representing the animal name code used in 
+#'                         the file name (e.g., "BO" for Barn Owl).
+#' @param tag_numbers A vector of tag numbers (either a single number or multiple). 
+#'                    The last four digits of the tag number will be included 
+#'                    in the filename if a single tag is provided, or "Multiple_tags" 
+#'                    will be used if there are multiple tags.
+#' @param start_time A string representing the start time in 'YYYY-MM-DD HH:MM:SS' format. 
+#'                   The function will replace spaces with underscores and colons with hyphens.
+#' @param end_time A string representing the end time in 'YYYY-MM-DD HH:MM:SS' format. 
+#'                 The function will replace spaces with underscores and colons with hyphens.
+#' @param folder_path_to_sqlite_files A string representing the folder path where the SQLite 
+#'                                    files are located.
+#'
+#' @return A string representing the full file path for the SQLite database, 
+#'         including the animal name code, tag number(s), and formatted date range.
+#'
+#' @examples
+#' \dontrun{
+#' # Example for a single tag
+#' create_sqlite_filepath("BO", 972006000556, "2021-07-01 08:00:00", "2021-07-01 10:00:00", 
+#'                        "C:/data/filtered_data/")
+#'
+#' # Example for multiple tags
+#' create_sqlite_filepath("BO", c(972006000556, 972006000430), "2021-07-01 08:00:00", "2021-07-01 10:00:00", 
+#'                        "C:/data/filtered_data/")
+#' }
+#'
+#' @export
 #' 
-#' @param tag_numbers A unique identifier (or identifiers) for the tag(s) 
-#'                    associated with the data. If a single tag number is 
-#'                    provided, the filename will include the last four digits 
-#'                    of the tag number. If multiple tags are provided, the 
-#'                    filename will include "Multiple_tags".
-#' @param start_time A character string representing the start time in 
-#'                   the format 'YYYY-MM-DD HH:MM:SS'. The function will 
-#'                   format this by replacing spaces with underscores and 
-#'                   colons with hyphens.
-#' @param end_time A character string representing the end time in 
-#'                 the format 'YYYY-MM-DD HH:MM:SS'. The function will 
-#'                 format this by replacing spaces with underscores and 
-#'                 colons with hyphens.
-#'
-#' @param folder_path_to_sqlite_files The path that leads to the sqlite files
-#'
-#' @return A character string representing the file path for the SQLite 
-#'         database, including the formatted tag numbers and date range.
-#'  
 create_sqlite_filepath <- function(animal_name_code, tag_numbers, start_time, end_time, folder_path_to_sqlite_files) {
   if (length(tag_numbers) == 1) {
     # Take the last four digits of the tag number
