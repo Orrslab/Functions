@@ -52,7 +52,7 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   )
   
   # Generate the file names from the tag numbers and dates
-  source(paste0(getwd(), "create_sqlite_filepath.R"))
+  source(paste0(getwd(), "/create_sqlite_filepath.R"))
   fullpath_to_sqlite_file <- create_sqlite_filepath(animal_name_code = animal_name_code,
                                                     tag_numbers = tag_number,
                                                     start_time = start_time,
@@ -79,7 +79,7 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   }
   
   # Get the ATLAS data- either from the server, or from an SQLite file
-  source(paste0(getwd(),"get_ATLAS_data.R"))
+  source(paste0(getwd(),"/get_ATLAS_data.R"))
   raw_location_data = get_ATLAS_data(data_requests = data_request, 
                                      retrieve_data_from_server = retrieve_data_from_server,
                                      atlas_db_credentials = atlas_db_credentials,
@@ -87,10 +87,10 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
                                      full_paths_to_sqlite_files = fullpath_to_sqlite_file)
   
   # Assign day numbers to the data
-  source(paste0(getwd(), "time_conversions.R"))
+  source(paste0(getwd(), "/time_conversions.R"))
   # convert the time column to the POSIXct format- required for using AssignDayNumber.R
   raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
-  source(paste0(getwd(), "AssignDayNumber.R"))
+  source(paste0(getwd(), "/AssignDayNumber.R"))
   raw_location_data <- AssignDayNumber(data=raw_location_data,
                                        DayStartTime = day_start_time,
                                        DayEndTime = day_end_time,

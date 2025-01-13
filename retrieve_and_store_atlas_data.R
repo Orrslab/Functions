@@ -71,7 +71,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
   all_data_frames <- list()
   
   # Connect to the database
-  source(paste0(getwd(), "connect_to_atlas_db.R"))
+  source(paste0(getwd(), "/connect_to_atlas_db.R"))
   db_conn <- connect_to_atlas_db(atlas_db_credentials)
   
   for (request in data_requests) {
@@ -80,7 +80,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
     start_time <- request$start_time
     end_time <- request$end_time
     
-    source(paste0(getwd(), "Data_from_ATLAS_server.R"))
+    source(paste0(getwd(), "/Data_from_ATLAS_server.R"))
     AllData <- Data_from_ATLAS_server(start_time,
                                       end_time,
                                       tag_numbers,
@@ -103,7 +103,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
       } else {
         
         # Save the data as sqlite
-        source(paste0(getwd(), "save_ATLAS_data_to_sqlite.R"))
+        source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
         save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
                                   detections_data = RawDet0,
                                   fullpath=full_paths_to_store_sqlite_files)
