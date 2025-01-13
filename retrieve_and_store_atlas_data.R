@@ -57,7 +57,7 @@
 #'
 #' @seealso \code{\link{connect_to_atlas_db}} for database connection, 
 #'   \code{\link{save_ATLAS_data_to_sqlite}} for saving data to SQLite, 
-#'   and \code{\link{Data_from_ATLAS_server}} for retrieving data.
+#'   and \code{\link{data_from_atlas_server}} for retrieving data.
 #'
 retrieve_and_store_atlas_data <- function(data_requests, 
                                           atlas_db_credentials,
@@ -80,8 +80,8 @@ retrieve_and_store_atlas_data <- function(data_requests,
     start_time <- request$start_time
     end_time <- request$end_time
     
-    source(paste0(getwd(), "/Data_from_ATLAS_server.R"))
-    AllData <- Data_from_ATLAS_server(start_time,
+    source(paste0(getwd(), "/data_from_atlas_server.R"))
+    AllData <- data_from_atlas_server(start_time,
                                       end_time,
                                       tag_numbers,
                                       includeLoc = TRUE,
