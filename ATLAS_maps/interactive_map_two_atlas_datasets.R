@@ -11,7 +11,7 @@
 #' @return An interactive map that displays two different tracks (datasets) with distinct colors and popups.
 #' 
 #' @import leaflet
-#' @import sp
+#' @import sf
 #' @importFrom RColorBrewer brewer.pal  
 #'
 interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldImagery', legendLabels=c("1", "2")) 
