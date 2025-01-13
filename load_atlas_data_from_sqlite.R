@@ -3,8 +3,6 @@
 required_packages <- c("RSQLite", "DBI")
 sapply(required_packages, library, character.only = TRUE)
 
-source(file.path(getwd(), "config.R"))
-
 #' Load ATLAS Localizations Data from SQLite Database
 #'
 #' This function loads the localization data from an SQLite database file
@@ -39,8 +37,8 @@ load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   return(RawLoc0)
 }
 
-# Usage example
-# file_name <- "eminem_night17.sqlite"
-# path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_data/"
+# # Usage example
+# file_name <- "BO_0556_from_2021-07-04_17-00-03_to_2021-07-04_23-59-58_filtered.sqlite"
+# path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Filtered_data/"
 # file_path <- paste0(path, file_name)
 # data <- load_atlas_data_from_sqlite(file_path)
