@@ -1,4 +1,40 @@
-# Get ATLAS data and prepare it for using the visual filter
+#' Prepare Raw ATLAS Data for Visual Filter
+#'
+#' This function retrieves ATLAS tracking data for a given animal and time range, either from an SQLite file or the ATLAS server, 
+#' and processes it to be used in a visual filtering workflow.
+#'
+#' @param animal_name_code A string representing the animal's identifier (e.g., "BO" for Barn Owl).
+#' @param tag_number An integer or string representing the ATLAS tag number (e.g. 972006000556).
+#' @param start_time A POSIXct timestamp or string specifying the start time of the data request (e.g. "2021-07-04 17:00:00").
+#' @param end_time A POSIXct timestamp or string specifying the end time of the data request.
+#' @param raw_data_folder_path A string specifying the folder path where SQLite files are stored.
+#'
+#' @return A dataframe containing raw ATLAS location data, including assigned day numbers.
+#'
+#' @details 
+#' - Constructs the expected SQLite file path using `create_sqlite_filepath()`.
+#' - Checks whether data already exists in an SQLite file or needs to be retrieved from the ATLAS server.
+#' - Loads or retrieves ATLAS data using `get_ATLAS_data()`.
+#' - Converts timestamps to POSIXct format using `convert_to_POSIXct()`.
+#' - Assigns day numbers to the dataset using `AssignDayNumber()`.
+#'
+#' @note 
+#' - Ensure that all required scripts (e.g., `create_sqlite_filepath.R`, `get_ATLAS_data.R`, `time_conversions.R`, `AssignDayNumber.R`) 
+#'   are available in the specified paths before running this function.
+#' - The function automatically adds `"_raw"` to the SQLite filename to differentiate it from processed files.
+#'
+#' @examples
+#' \dontrun{
+#' raw_data <- prepare_raw_atlas_data_for_visual_filter(
+#'   animal_name_code = "BO_0556",
+#'   tag_number = 972006000556,
+#'   start_time = "2021-07-04 17:00:00",
+#'   end_time = "2021-07-04 23:59:59",
+#'   raw_data_folder_path = "C:/Users/manual_tagging_database/Raw_data/"
+#' )
+#' }
+#'
+#' @export
 
 prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
                                                      tag_number,
@@ -62,6 +98,3 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   
   return(raw_location_data)
 }
-
-# Activate the shiny Visual Filter
-# source(paste0(path_to_visual_filter_folder, "visual_filter_shiny_app.R"))
