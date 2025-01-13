@@ -12,9 +12,9 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-# USER INPUT REQUIRED
+### USER INPUT REQUIRED
 path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
-# END OF USER INPUT
+### END OF USER INPUT
 
 # Set the working directory
 setwd(path_to_visual_filter_folder)
