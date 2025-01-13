@@ -14,8 +14,14 @@
 #' @import sp
 #' @importFrom RColorBrewer brewer.pal  
 #'
-interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldImagery',legendLabels=c("1", "2")) 
+interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldImagery', legendLabels=c("1", "2")) 
 {
+  
+  library(leaflet)
+  library(sf)
+  library(RColorBrewer)
+  library(dplyr)
+  library(htmltools)
   
   # Check if the required columns exist in both 'dd1' and 'dd2'. 
   # If a column is missing, add it with NA values.
@@ -69,7 +75,7 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
     addProviderTiles(MapProvider) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "purple", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", NBS=", as.character(llpd1_sf$NBS),
@@ -78,10 +84,10 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
                                           ", TAG=", llpd1_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd1'
-    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "purple", group = legendLabels[1]) %>%
+    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[1]) %>%
     
     # Add circles at the locations of the first dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "yellow", group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "#E66100", group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", NBS=", as.character(llpd2_sf$NBS),
