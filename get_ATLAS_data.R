@@ -12,6 +12,7 @@
 #'   - `end_time`: A character string representing the end time in 'YYYY-MM-DD HH:MM:SS' format.
 #' @param retrieve_data_from_server Logical. If `TRUE`, data will be downloaded 
 #'   from the TAU server. If `FALSE`, data will be loaded from local SQLite files.
+#' @param atlas_db_credentials Required credentials for connecting to the atlas database.
 #' @param save_data_to_sqlite_file Logical. If `TRUE`, downloaded data will be saved 
 #'   to SQLite files. Ignored if `retrieve_data_from_server = FALSE`.
 #' @param full_paths_to_sqlite_files A character string or vector of character strings 
@@ -49,6 +50,7 @@
 #' @export 
 get_ATLAS_data <- function(data_requests, 
                            retrieve_data_from_server = TRUE,
+                           atlas_db_credentials,
                            save_data_to_sqlite_file = TRUE,
                            full_paths_to_sqlite_files = paste0(getwd(), "atlas_data.sqlite")) {
   
@@ -58,6 +60,7 @@ get_ATLAS_data <- function(data_requests,
     
     source(paste0(path_to_atlas_data_analysis_repo, "retrieve_and_store_atlas_data.R"))
     raw_location_data <- retrieve_and_store_atlas_data(data_requests = data_requests, 
+                                                       atlas_db_credentials = atlas_db_credentials,
                                                        save_data_to_sqlite_file = save_data_to_sqlite_file,
                                                        full_paths_to_store_sqlite_files= full_paths_to_sqlite_files)
     

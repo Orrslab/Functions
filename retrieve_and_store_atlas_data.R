@@ -1,5 +1,3 @@
-library("dplyr")
-
 #' Retrieve and store ATLAS data based on specified requests
 #'
 #' This function connects to the ATLAS database, retrieves localization data 
@@ -15,27 +13,33 @@ library("dplyr")
 #'   - `end_time`: A character string representing the end time in a 
 #'     standard date-time format.
 #'
+#' @param atlas_db_credentials Required credentials to connect to the ATLAS database.
+#' 
 #' @param save_data_to_sqlite_file Logical. If `TRUE`, saves the retrieved 
 #'   localization data to SQLite files. Defaults to `TRUE`.
 #'
 #' @param full_paths_to_store_sqlite_files A character string specifying the 
-#'   full path for the SQLite files to store the data. If not provided, defaults 
-#'   to `paste0(getwd(), "atlas_data.sqlite")`.
+#'   full path for the SQLite files to store the data, including a file name 
+#'   (e.g., `paste0(getwd(), "/atlas_data.sqlite")`). Defaults to 
+#'   `paste0(getwd(), "atlas_data.sqlite")`.
 #'
 #' @param save_data_to_csv_file Logical. If `TRUE`, saves the retrieved 
 #'   localization data to CSV files. Defaults to `FALSE`.
 #'
 #' @param fullpath_to_csv_files A character string specifying the full path for 
-#'   the CSV files to store the data. If not provided, defaults to 
+#'   the CSV files to store the data, including a file name (e.g., 
+#'   `paste0(getwd(), "/atlas_data.csv")`). Defaults to 
 #'   `paste0(getwd(), "/atlas_data.csv")`.
 #'
 #' @return A data frame containing the combined localization data retrieved 
-#'   from the ATLAS system for all specified requests.
+#'   from the ATLAS system for all specified requests. The data frame includes 
+#'   localization data for all specified tags and time periods.
 #'
 #' @details The function iterates over the `data_requests`, retrieves 
 #'   localization data for each request, and appends the results to a list. 
 #'   Optionally, the data can be saved to SQLite or CSV files. The retrieved 
-#'   data is consolidated into a single data frame, which is returned.
+#'   data is consolidated into a single data frame, which is returned. Note that 
+#'   the function will overwrite existing files at the specified locations.
 #'
 #' @examples
 #' # Example data requests
@@ -56,23 +60,19 @@ library("dplyr")
 #'   and \code{\link{Data_from_ATLAS_server}} for retrieving data.
 #'
 retrieve_and_store_atlas_data <- function(data_requests, 
+                                          atlas_db_credentials,
                                           save_data_to_sqlite_file = TRUE,
                                           full_paths_to_store_sqlite_files = paste0(getwd(), "atlas_data.sqlite"),
                                           save_data_to_csv_file = FALSE,
                                           fullpath_to_csv_files = paste0(getwd(), "/atlas_data.csv")) {
   
-  all_data_frames <- list()
+  library("dplyr")
   
-  # Load the ATLAS Harod database credentials
-  source(file.path(getwd(), "config.R"))
+  all_data_frames <- list()
   
   # Connect to the database
   source(paste0(path_to_atlas_data_analysis_repo, "connect_to_atlas_db.R"))
-  db_conn <- connect_to_atlas_db(db_username = db_username_harod,         # username
-                                 db_pass = db_pass_harod,                 # password
-                                 db_host_ip = db_host_ip_harod,           # host ip address
-                                 db_port_number = db_port_number_harod,   # port Number
-                                 db_name = db_name_harod)
+  db_conn <- connect_to_atlas_db(atlas_db_credentials)
   
   for (request in data_requests) {
     

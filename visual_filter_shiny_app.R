@@ -19,11 +19,21 @@ if (upload_gps_data_from_csv) {
   
   # Upload the data from a csv file
   file_name <- "gps_data.csv"
-  file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Raw_tracks/"
+  file_path <- "PATH/TO/CSV/FILE/"
   full_path <- paste0(file_path, file_name)
   data_for_filter <- read.csv(full_path)
   
 } else {
+  
+  # Get the ATLAS database credentials from the config file
+  harod_db_credentials <- list(
+    system_name = system_name_harod,         # System name
+    db_username = db_username_harod,         # username
+    db_pass = db_pass_harod,                 # password
+    db_host_ip = db_host_ip_harod,           # host IP address
+    db_port_number = db_port_number_harod,   # port number
+    db_name = db_name_harod                  # database name
+  )
   
   # Upload data from the ATLAS server or sqlite
   source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
@@ -31,7 +41,8 @@ if (upload_gps_data_from_csv) {
                                                               tag_number = tag_number,
                                                               start_time = start_time,
                                                               end_time = end_time,
-                                                              raw_data_folder_path = raw_data_path)
+                                                              raw_data_folder_path = raw_data_path,
+                                                              atlas_db_credentials = harod_db_credentials)
   
 }
 
@@ -77,8 +88,6 @@ data_for_filter_sf$Y_original <- NULL
 data_for_filter_sf <- data_for_filter_sf[, c("TAG", "TIME", "X", "Y", "Z", "lat", "lon", "VARX", "VARY", "COVXY", 
                                              "NBS", "PENALTY", "dateTime", "DAY", "Outliers", "Speed_m_s", "STD", 
                                              "geometry")]
-
-print(colnames(data_for_filter_sf))
 
 # Scripts for the leaflet map
 source(paste0(path_to_visual_filter_folder, "time_conversions.R"))

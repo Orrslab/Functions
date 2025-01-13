@@ -15,26 +15,21 @@ sapply(required_packages, library, character.only = TRUE)
 #'
 #' @return A database connection object (\code{dbc}) if the connection is successful.
 
-connect_to_atlas_db <- function(SYS=system_name_harod, 
-                                db_username,
-                                db_pass,
-                                db_host_ip,
-                                db_port_number,
-                                db_name) {
+connect_to_atlas_db <- function(atlas_db_credentials) {
   
   # Get the credentials of the ATLAS database you need to connect to
   
-  if (SYS!=system_name_harod) {
-    stop(glue("Warning: system {SYS} is not defined"))
+  if (atlas_db_credentials$system_name != "Harod") {
+    warning(paste("Warning: system", atlas_db_credentials$system_name, "is not defined"))
   }
   
   # Establish a connection to the specified ATLAS database
   dbc <- dbConnect(RMySQL::MySQL(),
-                   user = db_username,
-                   password = db_pass,
-                   host = db_host_ip,
-                   port = db_port_number,
-                   dbname = db_name)
+                   user = atlas_db_credentials$db_username,
+                   password = atlas_db_credentials$db_pass,
+                   host = atlas_db_credentials$db_host_ip,
+                   port = atlas_db_credentials$db_port_number,
+                   dbname = atlas_db_credentials$db_name)
   
   return(dbc)
 }
