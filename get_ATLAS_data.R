@@ -58,7 +58,7 @@ get_ATLAS_data <- function(data_requests,
     # Download ATLAS data directly from the server
     # This requires a VPN connection to the TAU server
     
-    source(paste0(path_to_atlas_data_analysis_repo, "retrieve_and_store_atlas_data.R"))
+    source(paste0(getwd(), "retrieve_and_store_atlas_data.R"))
     raw_location_data <- retrieve_and_store_atlas_data(data_requests = data_requests, 
                                                        atlas_db_credentials = atlas_db_credentials,
                                                        save_data_to_sqlite_file = save_data_to_sqlite_file,
@@ -73,7 +73,7 @@ get_ATLAS_data <- function(data_requests,
       
     } else {
       
-      source(paste0(path_to_atlas_data_analysis_repo, "load_atlas_data_from_multiple_sqlite_files.R"))
+      source(paste0(getwd(), "load_atlas_data_from_multiple_sqlite_files.R"))
       raw_location_data <- load_atlas_data_from_multiple_sqlite_files(full_paths_to_sqlite_files)
       
     }
