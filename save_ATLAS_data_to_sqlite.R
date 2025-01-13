@@ -1,7 +1,3 @@
-# Load required packages
-required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
-sapply(required_packages, library, character.only = TRUE)
-
 #' Save ATLAS Data to SQLite Database
 #'
 #' This function saves localization and detection data to an SQLite database. 
@@ -54,6 +50,9 @@ sapply(required_packages, library, character.only = TRUE)
 #'          
 save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, fullpath = getwd())
 {
+  # Load required packages
+  required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
+  invisible(lapply(required_packages, library, character.only = TRUE))
   
   fullpath <- as.character(fullpath)
   
