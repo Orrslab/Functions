@@ -26,9 +26,20 @@ source(paste0(path_to_atlas_data_analysis_repo, "create_list_of_sqlite_filepaths
 fullpaths_to_sqlite_files <- create_list_of_sqlite_filepaths(data_requests, 
                                                              folder_path_to_sqlite_files)
 
+# Get the ATLAS database credentials from the config file
+harod_db_credentials <- list(
+  system_name = system_name_harod,         # System name
+  db_username = db_username_harod,         # username
+  db_pass = db_pass_harod,                 # password
+  db_host_ip = db_host_ip_harod,           # host IP address
+  db_port_number = db_port_number_harod,   # port number
+  db_name = db_name_harod                  # database name
+)
+
 # Get the ATLAS data- either from the server, or from an SQLite file
 source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
 raw_location_data = get_ATLAS_data(data_requests = data_requests, 
+                                   atlas_db_credentials = harod_db_credentials,
                                    retrieve_data_from_server = retrieve_data_from_server,
                                    save_data_to_sqlite_file = save_data_to_sqlite_file,
                                    full_paths_to_sqlite_files = fullpaths_to_sqlite_files)
@@ -54,12 +65,19 @@ raw_location_data = get_ATLAS_data(data_requests = data_requests,
 #                           start_time = '2023-12-24 00:00:01',
 #                           end_time = '2023-12-25 00:00:01')
 
-# Assign day numbers to the data
-source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
-# convert the time column to the POSIXct format- required for using AssignDayNumber.R
-raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
-source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
-raw_location_data <- AssignDayNumber(data=raw_location_data, TimeColName = "dateTime")
+# # Assign day numbers to the data
+# source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
+# # convert the time column to the POSIXct format- required for using AssignDayNumber.R
+# raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
+# source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
+# raw_location_data <- AssignDayNumber(data=raw_location_data,
+#                                      DayStartTime = "23:00:00",
+#                                      DayEndTime = "18:00:00",
+#                                      TimeColName = "dateTime")
+
+# raw_location_data <- AssignDayNumber(data=raw_location_data, 
+#                                      DayEndTime = "10:00:00",
+#                                      TimeColName = "dateTime")
 
 # # Save the raw data as CSV
 # write.csv(raw_location_data, paste0(path_to_csv_files, "BO.csv"), row.names = FALSE)
