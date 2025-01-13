@@ -38,7 +38,7 @@
 #' End_Time_Str   <- "2023-12-24 00:09:00" # End time in UTC
 #'
 #' # Retrieve data from ATLAS server
-#' AllData <- Data_from_ATLAS_server(Start_Time_Str, End_Time_Str, tag_numbers, dbc = dbc)
+#' AllData <- data_from_atlas_server(Start_Time_Str, End_Time_Str, tag_numbers, dbc = dbc)
 #'
 #' # View detections and localizations data
 #' head(AllData$DET)
@@ -46,7 +46,7 @@
 #' }
 #'
 #' @export
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
+data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
 {
   
   # Load the required packages
