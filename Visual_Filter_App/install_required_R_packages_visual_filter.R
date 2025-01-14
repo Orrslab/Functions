@@ -6,7 +6,8 @@ required_packages <- c("roxygen2", "crayon", "lubridate",
                        "DBI", "RMySQL", "RSQLite", 
                        "Rcpp", "dplyr", 
                        "leaflet", "sf", "RColorBrewer", "htmltools", 
-                       "leaflet.extras")
+                       "leaflet.extras",
+                       "shiny")
 
 # Function that installs the packages that have not been installed before
 install_if_missing <- function(packages) {
