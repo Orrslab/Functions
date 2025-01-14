@@ -39,7 +39,7 @@ valid_points <- filtered_data_clean[filtered_data$Outliers == 0, ]
 outliers <- filtered_data_clean[filtered_data$Outliers == 1, ]
 
 # Plot the valid points versus outliers on a leaflet map
-source(paste0(getwd(), "/ATLAS_maps/", "interactive_map_two_atlas_datasets.R"))
+source(paste0(getwd(), "/interactive_map_two_atlas_datasets.R"))
 map <- interactive_map_two_atlas_datasets(dd1 = valid_points,
                                           dd2 = outliers,
                                           MapProvider='CartoDB.Positron',  # 'Esri.WorldImagery'
