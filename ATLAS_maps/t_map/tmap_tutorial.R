@@ -21,7 +21,7 @@ library(raster) # convert "OpenStreet" object to raster
 library(rnaturalearthhires) # For the country boarders
 #library(dplyr) # manipulate sf objects
 # source("disputed_boundaries.R") # get disputed boundaries shape files
-source("../ATLAS_maps/t_map/Mapping_Tutorial_FUNCTIONS.R")
+source("Mapping_Tutorial_FUNCTIONS.R")
 # source("../ATLAS_maps/IMS_function.R")
 }
 ############################ Base Map View Mode ################################
@@ -147,7 +147,7 @@ source("../ATLAS_maps/t_map/Mapping_Tutorial_FUNCTIONS.R")
   # import shape file as sf object
   mid_east <- st_read("layers/borders_WGS1984.shp")
   
-  # extract Dead Sea and Sea of Galilee-  NEEDS THE borders_WGS1984.shp FILE
+  # extract Dead Sea and Sea of Galilee
   dead_sea_Galilee <- mid_east[mid_east$NAME_ %in% c("Dead Sea","Sea of Galilee"),]
   
   # combine polygons by NAME_ column
@@ -194,12 +194,12 @@ source("../ATLAS_maps/t_map/Mapping_Tutorial_FUNCTIONS.R")
       tm_shape(palestine) +
       tm_borders(lwd = 2, lty = "dashed", col = "grey40") +
       
-      # # add dead/galilee sea
-      # tm_shape(Dead_Galilee_Sea) +
-      # tm_polygons(col = "blue",
-      #             border.col = "antiquewhite1",
-      #             alpha = 0.3,
-      #             border.alpha = 0.5) +
+      # add dead/galilee sea
+      tm_shape(Dead_Galilee_Sea) +
+      tm_polygons(col = "blue",
+                  border.col = "antiquewhite1",
+                  alpha = 0.3,
+                  border.alpha = 0.5) +
 
       # disputed boundary: Golan
       tm_shape(Golan) +
