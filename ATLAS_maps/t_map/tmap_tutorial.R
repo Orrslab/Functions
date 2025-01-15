@@ -326,9 +326,10 @@ source("Mapping_Tutorial_FUNCTIONS.R")
               legend.frame = TRUE,
               legend.outside = FALSE,
               legend.title.size = 1.85,
-              legend.text.size = 1.3) + 
+              legend.text.size = 1.2) + 
       
     # add image of ein gedi sandgrouse
+    # If you don't see the bird's picture on the map, try to adjust the height
     tm_logo(file = paste0(path_to_working_directory, "/pink_warbler.png"),
             position = c(0.54,0.7),
             margin = 1,
