@@ -31,7 +31,6 @@ Creates an interactive map for two datasets, including:
 Example:
 ![Alt Text](interactive_map_two_atlas_datasets.png)
 
-### Hunter, please review this part
 3. **Submodule: t_map**
 **Code by: Hunter Warick**
 Provides enhanced mapping capabilities, including:
@@ -41,9 +40,9 @@ Provides enhanced mapping capabilities, including:
 
 A detailed README file and additional features are inside the t_map folder.
 
-Example:
-# Hunter, please add the link to your map's screenshot here:
-![Alt Text](t_map_screenshot.png)
+Examples:
+![Alt Text](tmap_Israel_map_screenshot.png)
+![Alt Text](tmap_pink_warbler_map_screenshot.png)
 
 ## Getting Started
 1. Prerequisites
