@@ -762,6 +762,7 @@ ui <- fluidPage(
         ),
         selected = "mark_invalid"
       ),
+      actionButton("undo_button", label = "Undo Last Action", icon = icon("undo")),
       actionButton("save_data", "Save Data"),
       actionButton("next_segment", "Next Segment"),
       actionButton("previous_segment", "Previous Segment")
@@ -954,6 +955,9 @@ server <- function(input, output, session) {
                          zoom_flag = FALSE)
     
   })
+  
+  # Reactive value to store the previous state for undo
+  segment_data$previous_data <- NULL
 
   # Toggle a point between Valid and Outlier when left-clicked
   observeEvent(input$map_marker_click, {
@@ -966,6 +970,9 @@ server <- function(input, output, session) {
       index <- which(current_data$TIME == as.numeric(clicked_timestamp))
   
       if (length(index) == 1) { # Ensure only one point matches
+        
+        # Save current state before modifying for undo functionality
+        segment_data$previous_data <- current_data
         
         # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
         current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
@@ -1011,6 +1018,9 @@ server <- function(input, output, session) {
       updated_data <- segment_data$data
       points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
       
+      # Save current state before modifying for undo functionality
+      segment_data$previous_data <- updated_data
+      
       # Determine action based on selected radio button
       if (input$polygon_action == "mark_invalid") {
         updated_data$Outliers[points_inside] <- 1
@@ -1033,6 +1043,30 @@ server <- function(input, output, session) {
         modalDialog(
           title = "Error",
           "Toggling points by a polygon is only enabled in the Annotation Mode.",
+          easyClose = TRUE,
+          footer = modalButton("Close")
+        )
+      )
+    }
+  })
+  
+  # Undo the last action
+  observeEvent(input$undo_button, {
+    if (!is.null(segment_data$previous_data)) {
+      # Restore the previous state
+      segment_data$data <- segment_data$previous_data
+      segment_data$previous_data <- NULL # Clear the undo history
+      
+      # Refresh the map
+      leafletProxy("map") %>%
+        update_atl_mapleaf(segment_data$data,
+                           display_non_filtered_track = FALSE,
+                           zoom_flag = FALSE)
+    } else {
+      showModal(
+        modalDialog(
+          title = "Undo Not Possible",
+          "No actions to undo.",
           easyClose = TRUE,
           footer = modalButton("Close")
         )
