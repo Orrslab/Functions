@@ -746,10 +746,10 @@ ui <- fluidPage(
         "track_display_mode",
         label = "Track Display Mode:",
         choices = c(
-          "Show Filtered Data" = "filtered",
-          "Show Unfiltered Data" = "unfiltered"
+          "Annotation Mode" = "annotation",
+          "Exploratory Mode" = "exploratory"
         ),
-        selected = "unfiltered"
+        selected = "exploratory"
       ),
       # Polygon selection
       radioButtons(
@@ -936,9 +936,9 @@ server <- function(input, output, session) {
     }
   })
   
-  # Select if to display the unfiltered track or filtered track
+  # Select if to display the raw (exploratory) track or annotated track
   observe({
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       # Use the filtered dataset
       display_unfiltered_track = FALSE
       
@@ -958,7 +958,7 @@ server <- function(input, output, session) {
   # Toggle a point between Valid and Outlier when left-clicked
   observeEvent(input$map_marker_click, {
 
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
   
       # Find the index of the clicked point
@@ -986,7 +986,7 @@ server <- function(input, output, session) {
       showModal(
         modalDialog(
           title = "Error",
-          "Points can only be toggled when the filtered data is displayed.",
+          "Points can only be toggled in the Annotation Mode.",
           easyClose = TRUE,
           footer = modalButton("Close")
         )
@@ -997,7 +997,7 @@ server <- function(input, output, session) {
   # Select a polygon
   observeEvent(input$map_draw_new_feature, {
     
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       # Extract the drawn polygon
       feature <- input$map_draw_new_feature
       
@@ -1032,7 +1032,7 @@ server <- function(input, output, session) {
       showModal(
         modalDialog(
           title = "Error",
-          "Toggling points by a polygon is only enabled when the filtered data is displayed.",
+          "Toggling points by a polygon is only enabled in the Annotation Mode.",
           easyClose = TRUE,
           footer = modalButton("Close")
         )
@@ -1042,7 +1042,7 @@ server <- function(input, output, session) {
   
   # Save the filtered data
   observeEvent(input$save_data, {
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       save_filtered_data(tag_number = tag_number,
                          start_time = start_time_current_segment(),
                          end_time = end_time_current_segment(),
@@ -1060,7 +1060,7 @@ server <- function(input, output, session) {
       showModal(
         modalDialog(
           title = "Error",
-          "Data can only be saved when the filtered data is displayed.",
+          "Data can only be saved when the app is in Annotation Mode.",
           easyClose = TRUE,
           footer = modalButton("Close")
         )
@@ -1071,7 +1071,7 @@ server <- function(input, output, session) {
   
   # Navigate to the next segment
   observeEvent(input$next_segment, {
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       showModal(
         modalDialog(
           title = "Save Data?",
@@ -1132,7 +1132,7 @@ server <- function(input, output, session) {
   
   # Navigate to the previous segment
   observeEvent(input$previous_segment, {
-    if (input$track_display_mode == "filtered") {
+    if (input$track_display_mode == "annotation") {
       showModal(
         modalDialog(
           title = "Save Data?",
