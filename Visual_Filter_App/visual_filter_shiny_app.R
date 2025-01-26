@@ -1051,28 +1051,28 @@ server <- function(input, output, session) {
   })
   
   # Undo the last action
-  observeEvent(input$undo_button, {
-    if (!is.null(segment_data$previous_data)) {
-      # Restore the previous state
-      segment_data$data <- segment_data$previous_data
-      segment_data$previous_data <- NULL # Clear the undo history
-      
-      # Refresh the map
-      leafletProxy("map") %>%
-        update_atl_mapleaf(segment_data$data,
-                           display_non_filtered_track = FALSE,
-                           zoom_flag = FALSE)
-    } else {
-      showModal(
-        modalDialog(
-          title = "Undo Not Possible",
-          "No actions to undo.",
-          easyClose = TRUE,
-          footer = modalButton("Close")
-        )
+observeEvent(input$undo_button, {
+  if (!is.null(segment_data$previous_data)) {
+    # Restore the previous state
+    segment_data$data <- segment_data$previous_data
+    segment_data$previous_data <- NULL # Clear the undo history
+
+    # Refresh the map
+    leafletProxy("map") %>%
+      update_atl_mapleaf(segment_data$data,
+                         display_non_filtered_track = FALSE,
+                         zoom_flag = FALSE)
+  } else {
+    showModal(
+      modalDialog(
+        title = "Undo Not Possible",
+        "No actions to undo.",
+        easyClose = TRUE,
+        footer = modalButton("Close")
       )
-    }
-  })
+    )
+  }
+})
   
   # Save the filtered data
   observeEvent(input$save_data, {
