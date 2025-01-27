@@ -12,9 +12,11 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-### USER INPUT REQUIRED
-path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
-### END OF USER INPUT
+path_to_visual_filter_folder <- getwd()
+
+# ### USER INPUT REQUIRED
+# path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
+# ### END OF USER INPUT
 
 # Set the working directory
 setwd(path_to_visual_filter_folder)
@@ -656,7 +658,7 @@ save_filtered_data <- function(tag_number, start_time, end_time,
   
   # If a dot followed by 'sqlite' is found, insert '_raw' before it
   if (pos > 0) {
-    full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_filtered", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
+    full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_annotated", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
   }
   
   # Save the current data segment as sqlite
