@@ -1,3 +1,7 @@
+# This script combines data from all SQLite files in a specified folder into a single dataframe,
+# determines the date range of the data, and saves the combined data as a CSV file with a dynamically
+# generated name based on the start and end timestamps.
+
 # clean the data and set some preferences
 rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
