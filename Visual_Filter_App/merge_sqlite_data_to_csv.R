@@ -9,7 +9,7 @@ library(dplyr)
 
 ### USER'S INPUT REQUIRED ###
 # Define folder containing SQLite files:
-sqlite_folder <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/tagging_database/Annotated_data"  
+sqlite_folder <- "DEFINE/HERE/THE/PATH/TO/SQLITE/Annotated_data"  
 ### END OF USER'S INPUT ###
 
 # Function to load data from a SQLite file
