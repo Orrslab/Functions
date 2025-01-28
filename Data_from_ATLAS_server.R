@@ -1,37 +1,60 @@
-# Load the required packages
-required_packages <- c("DBI", "RMySQL", "RSQLite")
-sapply(required_packages, library, character.only = TRUE)
-
-# Load the config file
-source(file.path(getwd(), "config.R"))
-
-# Load the functions that convert time formats
-source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
-
 
 #' Retrieve Data from the ATLAS Server
 #'
-#' This function reads data directly from the ATLAS server, given a specific time range and vector of tags.
-#' A VPN connection to the Tel Aviv University (TAU) servers or any other relevant server is required.
-#' The function currently only supports the "Harod" system.
+#' This function reads animal tracking data directly from the ATLAS database for a given time range and set of tag IDs.
+#' It queries the database for **detections** and/or **localizations** and returns them as data frames.
 #'
-#' @param Start_Time_Str A character string representing the start time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
-#' @param End_Time_Str A character string representing the end time in the format \code{'YYYY-MM-DD HH:MM:SS'} in UTC.
-#' @param FullTag A vector of tags (as integers) in the format \code{972006000223}.
-#' @param includeDet Logical. If \code{TRUE}, detections data is included in the return value. Default is \code{TRUE}.
-#' @param includeLoc Logical. If \code{TRUE}, localizations data is included in the return value. Default is \code{TRUE}.
+#' @param Start_Time_Str A character string representing the **start time** in UTC, formatted as \code{"YYYY-MM-DD HH:MM:SS"}.
+#' @param End_Time_Str A character string representing the **end time** in UTC, formatted as \code{"YYYY-MM-DD HH:MM:SS"}.
+#' @param FullTag A numeric vector of tag IDs, where each ID is an integer (e.g., \code{972006000223}).
+#' @param includeDet Logical. If \code{TRUE} (default), detections data is retrieved.
+#' @param includeLoc Logical. If \code{TRUE} (default), localizations data is retrieved.
+#' @param dbc A **database connection object** (from \code{DBI::dbConnect()}), representing an active connection to the ATLAS database.
 #'
-#' @return A list of two data frames:
-#' \item{DET}{A data frame containing detections, including columns: \code{TAG}, \code{TIME}, \code{BS}, \code{RSSI}, \code{GAIN}, \code{SNR}, \code{SAMPLES_CLK}.}
-#' \item{LOC}{A data frame containing localizations, including columns: \code{TAG}, \code{TIME}, \code{X}, \code{Y}, \code{Z}, \code{VARX}, \code{VARY}, \code{COVXY}, \code{NBS}, \code{PENALTY}.}
+#' @return A named **list** with two elements:
+#' \itemize{
+#'   \item{\code{DET}:} {A **data frame** containing detections data, with columns: \code{TAG}, \code{TIME}, \code{BS}, \code{RSSI}, \code{GAIN}, \code{SNR}, \code{SAMPLES_CLK}.}
+#'   \item{\code{LOC}:} {A **data frame** containing localizations data, with columns: \code{TAG}, \code{TIME}, \code{X}, \code{Y}, \code{Z}, \code{VARX}, \code{VARY}, \code{COVXY}, \code{NBS}, \code{PENALTY}.}
+#' }
+#'
+#' If no data is found for a tag, the corresponding data frame will be empty.
 #'
 #' @details
-#' The function converts the start and end time strings into ATLAS time (in milliseconds) 
-#' and queries the ATLAS server for detections and/or localizations within the specified time range. 
-#' The data for each tag in \code{FullTag} is fetched separately.
-
-Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
+#' - This function **requires a VPN connection** to the **Tel Aviv University (TAU) network** or another relevant ATLAS database server.
+#' - It **only supports the "Harod" system** at the moment.
+#' - The function converts the start and end times into **ATLAS time format** (milliseconds since epoch).
+#' - Queries are executed **individually for each tag** in `FullTag`, and the results are combined.
+#'
+#' @import DBI
+#' @import RMySQL
+#' @import RSQLite
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Define tag numbers and time range
+#' tag_numbers <- c(972006000837)
+#' Start_Time_Str <- "2023-12-24 00:08:00" # Start time in UTC
+#' End_Time_Str   <- "2023-12-24 00:09:00" # End time in UTC
+#'
+#' # Retrieve data from ATLAS server
+#' AllData <- data_from_atlas_server(Start_Time_Str, End_Time_Str, tag_numbers, dbc = dbc)
+#'
+#' # View detections and localizations data
+#' head(AllData$DET)
+#' head(AllData$LOC)
+#' }
+#'
+#' @export
+data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
 {
+  
+  # Load the required packages
+  required_packages <- c("DBI", "RMySQL", "RSQLite")
+  invisible(lapply(required_packages, library, character.only = TRUE))
+  
+  # Load the functions that convert time formats
+  source(paste0(getwd(), "/time_conversions.R"))
   
   # Convert the start and end times to the ATLAS time format
   ATLAS_Start_Time <- time_str_to_utc_timestamp(Start_Time_Str)
@@ -71,11 +94,3 @@ Data_from_ATLAS_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDe
   
   return(list("DET"=RawDet0,"LOC"=RawLoc0))
 }
-
-# # Example of using the function 'Data_from_ATLAS_server'
-# 
-# tag_numbers = c(972006000837)
-# Start_Time_Str ='2023-12-24 00:08:00' # start time in UTC
-# End_Time_Str   ='2023-12-24 00:09:00' # end time in UTC
-# 
-# AllData <- Data_from_ATLAS_server(Start_Time_Str,End_Time_Str,tag_numbers)

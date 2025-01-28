@@ -49,6 +49,9 @@ Data retrieval from the ATLAS database
 *	RMySQL
 *	RSQLite
 
+Date and Time conversions
+* lubridate
+
 Applying the confidence filter
 *	Rcpp
 *	dplyr
