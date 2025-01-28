@@ -93,3 +93,50 @@ calculate_std <- function(var_x, var_y, cov_xy) {
   
   return(std)
 }
+
+#' Calculate Cosine of Turning Angles
+#'
+#' This function calculates the cosine of turning angles for a given sequence of (X, Y) coordinates. 
+#' The turning angle is computed for each triplet of consecutive points, with the result being a vector 
+#' of cosine values. For the first and last points, the result will be `NA` as turning angles cannot 
+#' be computed at these positions.
+#'
+#' @param X_column A numeric vector representing the X coordinates of the trajectory.
+#' @param Y_column A numeric vector representing the Y coordinates of the trajectory.
+#'
+#' @return A numeric vector of the same length as the input columns, containing the cosine of turning angles. 
+#' The first and last elements will be `NA` since turning angles cannot be computed for these points.
+#'
+#' @examples
+#' # Example usage
+#' X <- c(1, 2, 3, 4)
+#' Y <- c(1, 2, 1, 0)
+#' calculate_cosine_turning_angle(X, Y)
+#'
+#' @export
+calculate_cosine_turning_angle
+calculate_cosine_turning_angle <- function(X_column, Y_column) {
+  
+  # Initialize a vector to store the cosine of turning angles
+  cos_angles <- rep(NA, length(X_column))
+  
+  # Loop through the rows to calculate turning angles
+  for (i in 2:(length(Y_column) - 1)) {
+    # Vectors
+    v1 <- c(X_column[i] - X_column[i - 1], Y_column[i] - Y_column[i - 1])  # Previous to current point
+    v2 <- c(X_column[i + 1] - X_column[i], Y_column[i + 1] - Y_column[i])  # Current to next point
+    
+    # Calculate norms
+    norm_v1 <- sqrt(sum(v1^2))
+    norm_v2 <- sqrt(sum(v2^2))
+    
+    # Calculate dot product
+    dot_product <- sum(v1 * v2)
+    
+    # Calculate cosine of the turning angle
+    cos_angles[i] <- dot_product / (norm_v1 * norm_v2)
+  }
+  
+  # Return the data frame with cosine values added as a new column
+  return(cos_angles)
+}
