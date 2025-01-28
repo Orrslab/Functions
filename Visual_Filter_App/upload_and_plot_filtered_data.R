@@ -20,7 +20,7 @@
 
 # USER INPUT REQUIRED
 # Set the file name and path
-file_name <- "BO_0556_from_2021-07-04_17-00-03_to_2021-07-04_23-59-58_filtered.sqlite"
+file_name <- "BO_0556_from_2021-07-06_00-01-13_to_2021-07-06_04-59-56_filtered.sqlite"
 file_path <- filtered_data_path  # Get the path from the config file
 # END OF USER INPUT
 
