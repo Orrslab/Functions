@@ -1,3 +1,8 @@
+# clean the data and set some preferences
+rm(list=ls()) # clean history
+options(digits = 14) # Makes sure long numbers are not abbreviated.
+rm(list = setdiff(ls(), lsf.str())) # removes data, not
+
 ### Set paths
 data_folder <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Shlomo_Cain"
 path_to_functions <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/"
@@ -29,6 +34,10 @@ location_data_labeled$STD <- calculate_std(location_data_labeled$VARX,
                                            location_data_labeled$VARY, 
                                            location_data_labeled$COVXY)
 
+# Cosine of the turning angle
+location_data_labeled$cos_turning_angle <- calculate_cosine_turning_angle(X_column = location_data_labeled$X,
+                                                                          Y_column = location_data_labeled$Y)
+
 ### Save into sqlite the labeled data with all the added features
 source(paste0(path_to_functions, "save_ATLAS_data_to_sqlite.R"))
 fullpath <- paste0(data_folder, "/labeled_data_with_features.sqlite")
@@ -37,9 +46,9 @@ save_ATLAS_data_to_sqlite(localizations_data=location_data_labeled,
 
 
 ### Data Statistics and Visualization
-column_name <- "NBS"
+column_name <- "cos_turning_angle"
 feature_data = location_data_labeled[[column_name]]
-feature_name <- "Number of Base Stations"
+feature_name <- "cos(turning_angle)"
 feature_units <- ""
 
 # 1. Outliers proportion
