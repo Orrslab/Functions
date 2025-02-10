@@ -12,10 +12,10 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-path_to_visual_filter_folder <- getwd()
+# path_to_visual_filter_folder <- getwd()
 
 # ### USER INPUT REQUIRED
-# path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
+path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
 # ### END OF USER INPUT
 
 # Set the working directory
@@ -122,8 +122,8 @@ initialize_atl_mapleaf <- function(MapProvider = map_provider, tile_opacity = 0.
 update_atl_mapleaf <- function(proxy, dd_sf, 
                                display_non_filtered_track, 
                                zoom_flag = TRUE, 
-                               color_outliers = "#E66100",
-                               color_uncertain = "#FFB000") {
+                               color_outliers = color_outliers_config,
+                               color_uncertain = color_uncertain_config) {
 
   # Ensure that the required columns are present in the dataset
   if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
@@ -131,7 +131,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
   }
   
   # # Define the colors for valid points (purple) and outliers (yellow)
-  color_valid_points <- "#5D3A9B"
+  color_valid_points <- color_valid_points_config
   
   # Filter out the outliers (non-outliers will be used to create lines)
   dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
@@ -182,9 +182,9 @@ update_atl_mapleaf <- function(proxy, dd_sf,
     }
     
     # Define a custom color gradient from color1 to color2- color-blind friendly
-    color1 <- "#FFC20A"
-    color2 <- "#0C7BDC"
-    line_color <- "#0C7BDC"
+    color1 <- color_track_start_config
+    color2 <- color_track_end_config
+    line_color <- color_connecting_line_config
     
     # Create a color function from color1 to color2
     color_gradient <- colorRampPalette(c(color1, color2))
@@ -892,7 +892,6 @@ server <- function(input, output, session) {
     end_time_current_segment(end_time_human_readable)
     
   })
-
   
   # Display the tag number and dates of the raw data
   output$tag_display <- renderText({
@@ -924,6 +923,7 @@ server <- function(input, output, session) {
     # Update the map with the new data
     leafletProxy("map") %>%
       update_atl_mapleaf(segment_data$data, display_non_filtered_track = TRUE)
+    
   })
   
   # Display the current segment in the UI
