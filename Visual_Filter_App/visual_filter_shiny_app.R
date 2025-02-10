@@ -130,7 +130,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
     stop("Data must contain lon, lat, TIME, TAG, and Outliers columns")
   }
   
-  # # Define the colors for valid points (purple) and outliers (yellow)
+  # Define the color for valid points
   color_valid_points <- color_valid_points_config
   
   # Filter out the outliers (non-outliers will be used to create lines)
@@ -883,8 +883,8 @@ ui <- fluidPage(
       ),
       # Polygon selection
       radioButtons(
-        "polygon_action", 
-        label = "Polygon Action:", 
+        "annotation_action", 
+        label = "Annotate Data Points:", 
         choices = c(
           "Mark as Valid Points" = "mark_valid",
           "Mark as Uncertain" = "mark_uncertain",
@@ -1089,7 +1089,7 @@ server <- function(input, output, session) {
   # Reactive value to store the previous state for undo
   segment_data$previous_data <- NULL
 
-  # Toggle a point between Valid and Outlier when left-clicked
+  # Toggle a point between Valid, Outlier and Uncertain when left-clicked
   observeEvent(input$map_marker_click, {
 
     if (input$track_display_mode == "annotation") {
@@ -1104,11 +1104,17 @@ server <- function(input, output, session) {
         # Save current state before modifying for undo functionality
         segment_data$previous_data <- current_data
         
-        # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
-        current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
-          
-        # # Toggle Outliers for the clicked point
-        # current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
+        # Toggle the point according to the chosed Annotation radio button
+        if (input$annotation_action == "mark_invalid") {
+          current_data$Outliers[index] <- 1
+        } else if (input$annotation_action == "mark_uncertain") {
+          current_data$Outliers[index] <- 2
+        } else if (input$annotation_action == "mark_valid") {
+          current_data$Outliers[index] <- 0
+        }
+        
+        # # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
+        # current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
         
         segment_data$data <- current_data
         
@@ -1152,11 +1158,11 @@ server <- function(input, output, session) {
       segment_data$previous_data <- updated_data
       
       # Determine action based on selected radio button
-      if (input$polygon_action == "mark_invalid") {
+      if (input$annotation_action == "mark_invalid") {
         updated_data$Outliers[points_inside] <- 1
-      } else if (input$polygon_action == "mark_uncertain") {
+      } else if (input$annotation_action == "mark_uncertain") {
         updated_data$Outliers[points_inside] <- 2
-      } else if (input$polygon_action == "mark_valid") {
+      } else if (input$annotation_action == "mark_valid") {
         updated_data$Outliers[points_inside] <- 0
       }
       
