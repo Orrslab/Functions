@@ -246,6 +246,26 @@ update_atl_mapleaf <- function(proxy, dd_sf,
     
   } else {
     
+    #####
+    
+    ## Get the start and end points of the entire time series to mark them on the map
+    
+    # Ensure the timestamp column is numeric
+    dd_sf_timestamp <- as.numeric(dd_sf$TIME)
+    
+    # Find min and max timestamps
+    min_time <- min(dd_sf_timestamp, na.rm = TRUE)
+    max_time <- max(dd_sf_timestamp, na.rm = TRUE)
+    
+    # Extract rows with min and max timestamps
+    first_point <- dd_sf[dd_sf_timestamp == min_time, ]
+    last_point <- dd_sf[dd_sf_timestamp == max_time, ]
+    
+    # Combine them into one dataframe
+    first_last_points <- rbind(first_point, last_point)
+    
+    #####
+    
     # # Create LINESTRING for connecting non-outliers points by tag
     llpd_lines <- dd_non_outliers_sf %>%
       group_by(TAG) %>%
@@ -263,6 +283,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearMarkers() %>%
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
+          
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>%  
           
           # Add non-outliers
           addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
@@ -289,8 +327,8 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
@@ -310,6 +348,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearMarkers() %>%
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
+          
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>%  
           
           # Add Uncertain points
           addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
@@ -355,8 +411,8 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
@@ -383,6 +439,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
           
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>%  
+          
           # Add outliers markers
           addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
@@ -405,8 +479,8 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain_Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain_Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
@@ -426,6 +500,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearMarkers() %>%
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
+          
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>%  
           
           # Add Uncertain points
           addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
@@ -464,12 +556,12 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
-        
+          
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain_Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain_Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
@@ -493,6 +585,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearMarkers() %>%
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
+          
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>% 
           
           # Add outliers markers
           addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
@@ -538,8 +648,8 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
@@ -559,6 +669,24 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           clearMarkers() %>%
           clearShapes() %>%
           clearControls() %>%  # Clear existing controls (including the legend)
+          
+          # Add the start and end points
+          addCircleMarkers(data = first_last_points, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_start_end_points, radius = srart_end_points_radius,
+                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
+                                                      " ; STD = ", round(STD, 1),
+                                                      " ; NBS = ", NBS)),
+                           labelOptions = labelOptions(
+                             direction = "auto",
+                             opacity = 0.9,
+                             offset = c(10, 10),
+                             style = list(
+                               "background-color" = "white",
+                               "border" = "1px solid black",
+                               "padding" = "3px",
+                               "border-radius" = "3px"
+                             )
+                           )
+          ) %>% 
           
           # Add Uncertain points
           addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
@@ -623,8 +751,8 @@ update_atl_mapleaf <- function(proxy, dd_sf,
           # Add a legend to the map
           addLegend(
             position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
+            colors = c(color_valid_points, color_uncertain, color_outliers, color_start_end_points),
+            labels = c("Valid Points", "Uncertain Points", "Outliers", "Start or End Point"),
             title = "Filtered Mode",
             opacity = 1
           ) %>%
