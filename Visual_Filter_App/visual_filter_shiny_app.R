@@ -124,7 +124,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                                zoom_flag = TRUE, 
                                color_outliers = color_outliers_config,
                                color_uncertain = color_uncertain_config) {
-
+  
   # Ensure that the required columns are present in the dataset
   if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
     stop("Data must contain lon, lat, TIME, TAG, and Outliers columns")
@@ -988,7 +988,8 @@ server <- function(input, output, session) {
   # Reactive calculation for segment_data
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+      day_numbers <- validate_data_for_days()
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       start <- current_segment_index()
@@ -1037,8 +1038,9 @@ server <- function(input, output, session) {
   # Update the map and segment_data when the current segment changes
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
+      day_numbers <- validate_data_for_days()
       # Filter data for the current day
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       # Calculate the start and end rows for the current segment
@@ -1057,7 +1059,8 @@ server <- function(input, output, session) {
   # Display the current segment in the UI
   output$segment_display <- renderText({
     if (input$data_segment_action == "days") {
-      paste("Day", current_segment_index())
+      day_numbers <- validate_data_for_days()
+      paste("Day", day_numbers[current_segment_index()])
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       # Calculate the start and end points for the current segment
