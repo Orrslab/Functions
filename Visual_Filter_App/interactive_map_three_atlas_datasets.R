@@ -66,7 +66,7 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
     summarize(do_union = FALSE) %>%
     st_cast("LINESTRING")
   
-  llpd3_lines <- llpd2_sf %>%
+  llpd3_lines <- llpd3_sf %>%
     group_by(TAG) %>%
     summarize(do_union = FALSE) %>%
     st_cast("LINESTRING")
@@ -85,8 +85,11 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
     # Add the base map
     addProviderTiles(MapProvider, options = providerTileOptions(opacity = 0.8)) %>%
     
+    # # Add lines that connect the point locations included in 'dd1'
+    # addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#FFB000", group = legendLabels[1]) %>%
+    
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#FFB000", group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", NBS=", as.character(llpd1_sf$NBS),
@@ -94,8 +97,8 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
                                           ", STD=", as.character(round(llpd1_sf$STD)),
                                           ", TAG=", llpd1_sf$TAG))) %>%
     
-    # Add lines that connect the point locations included in 'dd1'
-    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[1]) %>%
+    # Add lines that connect the point locations included in 'dd2'
+    # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "#E66100", group = legendLabels[2]) %>%
     
     # Add circles at the locations of the second dataset 'dd2'
     addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "#E66100", group = legendLabels[2],
@@ -106,11 +109,11 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
                                           ", STD=", as.character(round(llpd2_sf$STD)),
                                           ", TAG=", llpd2_sf$TAG))) %>%
     
-    # Add lines that connect the point locations included in 'dd2'
-    # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "yellow", group = legendLabels[2]) %>%
+    # Add lines that connect the point locations included in 'dd3'
+    addPolylines(data = llpd3_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[3]) %>%
     
     # Add circles at the locations of the third dataset 'dd3'
-    addCircles(data = llpd3_sf, weight = 3, fillOpacity = 1, color = "#FFB000", group = legendLabels[3],
+    addCircles(data = llpd3_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[3],
                popup = ~htmlEscape(paste0("3:time=", as.character(llpd3_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd3_sf$TIME),
                                           ", NBS=", as.character(llpd3_sf$NBS),
