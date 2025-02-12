@@ -72,7 +72,7 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
   ll <- leaflet() %>%
     
     # Add the base map
-    addProviderTiles(MapProvider) %>%
+    addProviderTiles(MapProvider, options = providerTileOptions(opacity = 0.8)) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
     addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
