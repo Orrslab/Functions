@@ -74,8 +74,11 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
     # Add the base map
     addProviderTiles(MapProvider, options = providerTileOptions(opacity = 0.8)) %>%
     
+    # # Add lines that connect the point locations included in 'dd1'
+    # addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#E66100", group = legendLabels[1]) %>%
+    
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#E66100", group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", NBS=", as.character(llpd1_sf$NBS),
@@ -83,20 +86,17 @@ interactive_map_two_atlas_datasets <- function(dd1,dd2,MapProvider='Esri.WorldIm
                                           ", STD=", as.character(round(llpd1_sf$STD)),
                                           ", TAG=", llpd1_sf$TAG))) %>%
     
-    # Add lines that connect the point locations included in 'dd1'
-    addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[1]) %>%
+    # Add lines that connect the point locations included in 'dd2'
+    addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[2]) %>%
     
     # Add circles at the locations of the first dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "#E66100", group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", NBS=", as.character(llpd2_sf$NBS),
                                           ", Speed_m_s=", as.character(round(llpd2_sf$Speed_m_s)),
                                           ", STD=", as.character(round(llpd2_sf$STD)),
                                           ", TAG=", llpd2_sf$TAG))) %>%
-    
-    # Add lines that connect the point locations included in 'dd2'
-    # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "yellow", group = legendLabels[2]) %>%
     
     # Add a scale bar to the map
     addScaleBar(position = c("bottomleft"), options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
