@@ -133,7 +133,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
   # Define the color for valid points
   color_valid_points <- color_valid_points_config
   
-  # Filter out the outliers (non-outliers will be used to create lines)
+  # Filter out the Valid Points, Outliers and Uncertain Points
   dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
   dd_outliers_sf <- dd_sf %>% filter(Outliers == 1)
   dd_uncertain_sf <- dd_sf %>% filter(Outliers == 2)
@@ -266,7 +266,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
     
     #####
     
-    # # Create LINESTRING for connecting non-outliers points by tag
+    # # Create LINESTRING for connecting the valid points by tag
     llpd_lines <- dd_non_outliers_sf %>%
       group_by(TAG) %>%
       summarize(do_union = FALSE) %>%
@@ -302,7 +302,10 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                            )
           ) %>%  
           
-          # Add non-outliers
+          # Add lines connecting the valid points
+          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_connecting_line_valid_points_config) %>%
+          
+          # Add the valid points
           addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
                            label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
@@ -320,9 +323,6 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
           
           # Add a legend to the map
           addLegend(
@@ -386,7 +386,10 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                            )
           ) %>%
           
-          # Add non-outliers
+          # Add lines connecting non-outliers
+          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_connecting_line_valid_points_config) %>%
+          
+          # Add valid points
           addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
                            label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
@@ -404,10 +407,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
+        
           # Add a legend to the map
           addLegend(
             position = "topright",
@@ -538,7 +538,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                            )
           ) %>%
           
-          # Add outliers with yellow color
+          # Add outliers
           addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
                            label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
@@ -623,7 +623,10 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                            )
           ) %>%
           
-          # Add non-outliers markers
+          # Add lines connecting the valid points
+          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_connecting_line_valid_points_config) %>%
+          
+          # Add the valid points markers
           addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
                            label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
@@ -641,10 +644,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
+        
           # Add a legend to the map
           addLegend(
             position = "topright",
@@ -725,8 +725,11 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
+          
+          # Add lines connecting non-outliers
+          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_connecting_line_valid_points_config) %>%
         
-          # Add non-outliers markers
+          # Add the valid points markers
           addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
                            # label = ~htmlEscape(paste0(dateTimeFormatted)),
                            label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
@@ -744,10 +747,7 @@ update_atl_mapleaf <- function(proxy, dd_sf,
                              )
                            )
           ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
+      
           # Add a legend to the map
           addLegend(
             position = "topright",
