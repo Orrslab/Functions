@@ -77,21 +77,25 @@ interactive_map_single_atlas_dataset <- function(dd,MapProvider='Esri.WorldImage
   ll <- leaflet() %>%
     
     # Add the base map
-    addProviderTiles(MapProvider) %>%
+    addProviderTiles(MapProvider, options = providerTileOptions(opacity = 0.8)) %>%
+    
+    # Add lines that connect the point locations included in 'dd'
+    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = "#5D3A9B") %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = "pink", group = legendLabels[1],
+    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
                popup = ~htmlEscape(paste0("Date+Time=", as.character(llpd_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd_sf$TIME),
                                           ", Tag Number=", sprintf("%04d", llpd_sf$TAG %% 10000)))) %>%
     
-    # Add lines that connect the point locations included in 'dd'
-    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = "pink") %>%
-    
     # Add a scale bar to the map
     addScaleBar(position = c("bottomleft"), 
-                overlayGroups = legendLabels,
                 options = scaleBarOptions(imperial = FALSE, maxWidth = 200)) %>%
+    
+    # Add a layer control to the map to allow users to toggle the visibility of the different tracks.
+    addLayersControl(
+      overlayGroups = legendLabels,
+      options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
   
   return(ll)
   # print(ll) # To display the map without returning it.
