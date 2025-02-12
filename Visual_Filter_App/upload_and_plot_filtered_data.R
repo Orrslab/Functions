@@ -18,11 +18,25 @@
 #' source("this_script.R")
 #' }
 
+library(dplyr)
+
+# clean the data and set some preferences
+rm(list=ls()) # clean history
+options(digits = 14) # Makes sure long numbers are not abbreviated.
+rm(list = setdiff(ls(), lsf.str())) # removes data, not
+
 # USER INPUT REQUIRED
 # Set the file name and path
-file_name <- "BO_0556_from_2021-07-06_00-01-13_to_2021-07-06_04-59-56_filtered.sqlite"
-file_path <- filtered_data_path  # Get the path from the config file
+file_name <- "WB_0547_from_2021-06-05_04-54-33_to_2021-06-05_18-35-50_annotated.sqlite"
+file_path <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/Annotated_data_12-02-25/"
+
+# Define the path for sourcing files from the Visual Filter App's folder
+# path_for_sourcing <- getwd()
+path_for_sourcing <- paste0(getwd(), "/Visual_Filter_App/")
+
 # END OF USER INPUT
+
+source(paste0(path_for_sourcing, "config_visual_filter.R"))
 
 # Generate the full path
 full_path <- paste0(file_path, file_name)
@@ -31,18 +45,70 @@ full_path <- paste0(file_path, file_name)
 source(paste0(getwd(), "/load_atlas_data_from_sqlite.R"))
 filtered_data <- load_atlas_data_from_sqlite(full_path)
 
-# Remove rows with any NA values
-filtered_data_clean <- na.omit(filtered_data)
+# Extract the valid points, outliers and uncertain points
+valid_points <- filtered_data %>% filter(Outliers == 0)
+outliers <- filtered_data %>% filter(Outliers == 1)
+uncertain_points <- filtered_data %>% filter(Outliers == 2)
 
-# Extract the valid points and outliers
-valid_points <- filtered_data_clean[filtered_data$Outliers == 0, ]
-outliers <- filtered_data_clean[filtered_data$Outliers == 1, ]
+# Source the plotting functions
+source(paste0(path_for_sourcing, "/interactive_map_single_atlas_dataset.R"))
+source(paste0(path_for_sourcing, "/interactive_map_two_atlas_datasets.R"))
+source(paste0(path_for_sourcing, "/interactive_map_three_atlas_datasets.R"))
 
 # Plot the valid points versus outliers on a leaflet map
-source(paste0(getwd(), "/interactive_map_two_atlas_datasets.R"))
-map <- interactive_map_two_atlas_datasets(dd1 = valid_points,
-                                          dd2 = outliers,
-                                          MapProvider='CartoDB.Positron',  # 'Esri.WorldImagery'
-                                          legendLabels=c("Valid Points", "Outliers")) 
+if (nrow(uncertain_points) > 0) {
+  if (nrow(outliers) > 0) {
+    if (nrow(valid_points) > 0) {
+      # Plot the Valid Points, Outliers and Uncertain Points
+      map <- interactive_map_three_atlas_datasets(dd1 = valid_points,
+                                                  dd2 = outliers,
+                                                  dd3 = uncertain_points,
+                                                  legendLabels = c("Valid Points",
+                                                                   "Outliers",
+                                                                   "Uncertain Points"))
+    } else {
+      # Plot the Outliers and Uncertain Points
+      map <- interactive_map_two_atlas_datasets(dd1 = outliers,
+                                                dd2 = uncertain_points,
+                                                legendLabels = c("Outliers",
+                                                                 "Uncertain Points"))
+    }
+  } else {
+    if (nrow(valid_points) > 0) {
+      # Plot Valid Points and Uncertain Points
+      map <- interactive_map_two_atlas_datasets(dd1 = valid_points,
+                                                dd2 = uncertain_points,
+                                                legendLabels = c("Valid Points",
+                                                                 "Uncertain Points"))
+    } else {
+      # Plot only Uncertain Points
+      map <- interactive_map_single_atlas_dataset(dd = uncertain_points,
+                                                  legendLabels = c("Uncertain Points"))
+    }
+  }
+} else {
+  if (nrow(outliers) > 0) {
+    if (nrow(valid_points) > 0) {
+      # Plot Valid Points and Outliers
+      map <- interactive_map_two_atlas_datasets(dd1 = valid_points,
+                                                dd2 = outliers,
+                                                legendLabels = c("Valid Points",
+                                                                 "Outliers"))
+    } else {
+      # Plot Only Outliers
+      map <- interactive_map_single_atlas_dataset(dd = outliers,
+                                                  legendLabels = c("Outliers"))
+    }
+  } else {
+    if (nrow(valid_points) > 0) {
+      # Plot only Valid Points
+      map <- interactive_map_single_atlas_dataset(dd = valid_points,
+                                                  legendLabels = c("Valid Points"))
+    } else {
+      stop("No data to plot.")
+    }
+  }
+}
+  
 print(map)
   
