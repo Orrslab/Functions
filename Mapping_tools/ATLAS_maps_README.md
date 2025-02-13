@@ -31,7 +31,17 @@ Creates an interactive map for two datasets, including:
 Example:
 ![Alt Text](interactive_map_two_atlas_datasets.png)
 
-3. **Submodule: t_map**
+3. **interactive_map_three_atlas_datasets.R**
+Creates an interactive map for three datasets, including:
+
+* Location points for all datasets visualized in distinct colors.
+* Popups with detailed information for each dataset.
+* Separate trajectories for each dataset.
+
+Example:
+![Alt Text](interactive_map_three_atlas_datasets.png)
+
+4. **Submodule: t_map**
 **Code by: Hunter Warick**
 Provides enhanced mapping capabilities, including:
 
