@@ -39,7 +39,7 @@ Creates an interactive map for three datasets, including:
 * Separate trajectories for each dataset.
 
 Example:
-![Alt Text](interactive_map_three_atlas_datasets.png)
+![Alt Text](interactive_map_three_datasets.png)
 
 4. **Submodule: t_map**
 **Code by: Hunter Warick**
