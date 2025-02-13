@@ -12,10 +12,8 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-path_to_visual_filter_folder <- getwd()
-
 # ### USER INPUT REQUIRED
-# path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
+path_to_visual_filter_folder <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Visual_Filter_App/"
 # ### END OF USER INPUT
 
 # Set the working directory
@@ -23,6 +21,14 @@ setwd(path_to_visual_filter_folder)
 
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "/config_visual_filter.R"))
+
+# Source helper functions for the app
+source(paste0(getwd(), "/time_conversions.R"))
+source(paste0(getwd(), "/initialize_atl_mapleaf.R"))
+source(paste0(getwd(), "/update_atl_mapleaf.R"))
+source(paste0(getwd(), "/save_filtered_data.R"))
+source(paste0(getwd(), "/move_to_next_segment.R"))
+source(paste0(getwd(), "/move_to_previous_segment.R"))
 
 if (upload_gps_data_from_csv) {
   
@@ -98,618 +104,6 @@ data_for_filter_sf <- data_for_filter_sf[, c("TAG", "TIME", "X", "Y", "Z", "lat"
                                              "NBS", "PENALTY", "dateTime", "DAY", "Outliers", "Speed_m_s", "STD", 
                                              "geometry")]
 
-# Scripts for the leaflet map
-source(paste0(getwd(), "/time_conversions.R"))
-
-# Helper function to initialize the base map
-initialize_atl_mapleaf <- function(MapProvider = map_provider, tile_opacity = 0.8) {
-  leaflet() %>%
-    addProviderTiles(MapProvider, options = providerTileOptions(opacity = tile_opacity)) %>%
-    addDrawToolbar(
-      targetGroup = "drawn_polygon",
-      polygonOptions = drawPolygonOptions(shapeOptions = drawShapeOptions(fillOpacity = 0.2)),
-      circleOptions = FALSE, # Disable circle drawing
-      rectangleOptions = FALSE, # Disable rectangle drawing
-      markerOptions = FALSE, # Disable marker drawing
-      circleMarkerOptions = FALSE, # Disable circle marker drawing
-      polylineOptions = FALSE, # Disable polyline drawing
-      editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())
-    ) %>%
-    addScaleBar(position = "bottomleft", options = scaleBarOptions(imperial = FALSE, maxWidth = 200))
-}
-
-# Helper function to update the map with data
-update_atl_mapleaf <- function(proxy, dd_sf, 
-                               display_non_filtered_track, 
-                               zoom_flag = TRUE, 
-                               color_outliers = "#E66100",
-                               color_uncertain = "#FFB000") {
-
-  # Ensure that the required columns are present in the dataset
-  if (!all(c("lon", "lat", "TIME", "TAG", "Outliers") %in% colnames(dd_sf))) {
-    stop("Data must contain lon, lat, TIME, TAG, and Outliers columns")
-  }
-  
-  # # Define the colors for valid points (purple) and outliers (yellow)
-  color_valid_points <- "#5D3A9B"
-  
-  # Filter out the outliers (non-outliers will be used to create lines)
-  dd_non_outliers_sf <- dd_sf %>% filter(Outliers == 0)
-  dd_outliers_sf <- dd_sf %>% filter(Outliers == 1)
-  dd_uncertain_sf <- dd_sf %>% filter(Outliers == 2)
-
-  # Create dateTimeFormatted from TIME column if not already present
-  if (!"dateTimeFormatted" %in% colnames(dd_sf)) {
-    dd_sf <- dd_sf %>%
-      mutate(dateTimeFormatted = unix_timestamp_to_human_date(TIME))  # Ensure conversion happens
-  }
-  
-  if (!"dateTimeFormatted" %in% colnames(dd_uncertain_sf)) {
-    dd_uncertain_sf <- dd_uncertain_sf %>%
-      mutate(dateTimeFormatted = unix_timestamp_to_human_date(TIME))  # Ensure conversion happens
-  }
-  
-  if (!"dateTimeFormatted" %in% colnames(dd_non_outliers_sf)) {
-    dd_non_outliers_sf <- dd_non_outliers_sf %>%
-      mutate(dateTimeFormatted = unix_timestamp_to_human_date(TIME))  # Ensure conversion happens
-  }
-  
-  if (!"dateTimeFormatted" %in% colnames(dd_outliers_sf)) {
-    dd_outliers_sf <- dd_outliers_sf %>%
-      mutate(dateTimeFormatted = unix_timestamp_to_human_date(TIME))  # Ensure conversion happens
-  }
-  
-  # Ensure that dd_sf has data and calculate the bounding box safely
-  if (nrow(dd_sf) > 0) {
-    bbox <- st_bbox(dd_sf)
-    bbox_values <- as.numeric(c(bbox["xmin"], bbox["ymin"], bbox["xmax"], bbox["ymax"]))
-  } else {
-    # If data is empty, set a default bounding box
-    bbox_values <- c(-180, -90, 180, 90)  # World bounding box as a fallback
-  }
-  
-  if (display_non_filtered_track) {
-    
-    # Normalize the TIME column of the complete dataset
-    time_min <- min(dd_sf$TIME, na.rm = TRUE)
-    time_max <- max(dd_sf$TIME, na.rm = TRUE)
-    
-    # Avoid division by zero if all times are the same
-    if (time_min == time_max) {
-      time_normalized <- rep(0.5, nrow(dd_sf))  # All points have the same time
-    } else {
-      time_normalized <- (dd_sf$TIME - time_min) / (time_max - time_min)
-    }
-    
-    # Define a custom color gradient from color1 to color2- color-blind friendly
-    color1 <- "#FFC20A"
-    color2 <- "#0C7BDC"
-    line_color <- "#0C7BDC"
-    
-    # Create a color function from color1 to color2
-    color_gradient <- colorRampPalette(c(color1, color2))
-    
-    # Assign colors to each row based on the normalized time
-    dd_sf <- dd_sf %>%
-      mutate(color = color_gradient(100)[as.numeric(cut(time_normalized, breaks = 100))])
-    
-    # Create line segments between consecutive points
-    llpd_lines <- dd_sf %>%
-      group_by(TAG) %>%
-      summarize(do_union = FALSE) %>%
-      st_cast("LINESTRING")
-    
-    # Generate the map
-    proxy %>%
-      clearMarkers() %>%
-      clearShapes() %>%
-      clearControls() %>%  # Clear existing controls (including the legend)
-    
-      # Add the location points with gradient colors
-      addCircleMarkers(data = dd_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = ~color, radius = 4,
-                       # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                       label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                  " ; STD = ", round(STD, 1),
-                                                  " ; NBS = ", NBS)),
-                       labelOptions = labelOptions(
-                         direction = "auto",
-                         opacity = 0.9,
-                         offset = c(10, 10),
-                         style = list(
-                           "background-color" = "white",
-                           "border" = "1px solid black",
-                           "padding" = "3px",
-                           "border-radius" = "3px"
-                         )
-                       )
-      ) %>%
-      
-      # Add lines connecting the locations
-      addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = line_color) %>%
-      
-      # Add a legend to the map
-      addLegend(
-        position = "topright",
-        colors = c(color1, color2),
-        labels = c("Start Time", "End Time"),
-        title = "Unfiltered Mode",
-        opacity = 1
-      ) %>%
-      
-      # Set the map's view to fit the bounds of the data only if necessary
-      {
-        if (zoom_flag) {
-          # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-          proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-        }
-      }
-    
-  } else {
-    
-    # # Create LINESTRING for connecting non-outliers points by tag
-    llpd_lines <- dd_non_outliers_sf %>%
-      group_by(TAG) %>%
-      summarize(do_union = FALSE) %>%
-      st_cast("LINESTRING")
-    
-    # If there are no outliers in the data set:
-    if (!nrow(dd_outliers_sf) > 0) {
-      
-      # If there are no Uncertain points in the data set
-      if (!nrow(dd_uncertain_sf) > 0) {
-        
-        # Plot only the valid points
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add non-outliers
-          addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-        
-      } else {
-        
-        # Plot the Valid and Uncertain points
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add Uncertain points
-          addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add non-outliers
-          addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-        
-      }
-
-    } else if (!nrow(dd_non_outliers_sf) > 0) {
-      # If there are no valid points in the data set:
-      
-      # If there are no Uncertain points in the data set:
-      if (!nrow(dd_uncertain_sf) > 0) {
-        
-        # Plot only the Outliers
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add outliers markers
-          addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain_Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-        
-      } else {
-        
-        # Plot the Uncertain Points and Outliers
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add Uncertain points
-          addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add outliers with yellow color
-          addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-        
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain_Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-      }
-      
-    } else {
-      
-      # If there are no Uncertain Points in the data set:
-      if (!nrow(dd_non_outliers_sf) > 0) {
-        
-        # Plot the outliers and valid points to the map
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add outliers markers
-          addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add non-outliers markers
-          addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-        
-      } else {
-        
-        # Plot the Valid Points, Uncertain Points and Outliers
-        proxy %>%
-          clearMarkers() %>%
-          clearShapes() %>%
-          clearControls() %>%  # Clear existing controls (including the legend)
-          
-          # Add Uncertain points
-          addCircleMarkers(data = dd_uncertain_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_uncertain, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add outliers markers
-          addCircleMarkers(data = dd_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_outliers, radius=4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-        
-          # Add non-outliers markers
-          addCircleMarkers(data = dd_non_outliers_sf, weight = 1, fillOpacity = 1, layerId = ~TIME, color = color_valid_points, radius = 4,
-                           # label = ~htmlEscape(paste0(dateTimeFormatted)),
-                           label = ~htmlEscape(paste0("DateTime = ", dateTimeFormatted,
-                                                      " ; STD = ", round(STD, 1),
-                                                      " ; NBS = ", NBS)),
-                           labelOptions = labelOptions(
-                             direction = "auto",
-                             opacity = 0.9,
-                             offset = c(10, 10),
-                             style = list(
-                               "background-color" = "white",
-                               "border" = "1px solid black",
-                               "padding" = "3px",
-                               "border-radius" = "3px"
-                             )
-                           )
-          ) %>%
-          
-          # Add lines connecting non-outliers
-          addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_valid_points) %>%
-          
-          # Add a legend to the map
-          addLegend(
-            position = "topright",
-            colors = c(color_valid_points, color_uncertain, color_outliers),
-            labels = c("Valid Points", "Uncertain Points", "Outliers"),
-            title = "Filtered Mode",
-            opacity = 1
-          ) %>%
-          
-          # Set the map's view to fit the bounds of the data only if necessary
-          {
-            if (zoom_flag) {
-              # Pass both corners (lat1, lng1) and (lat2, lng2) to fitBounds
-              proxy %>% fitBounds(bbox_values[1], bbox_values[2], bbox_values[3], bbox_values[4])
-            }
-          }
-      }
-    }
-  }
-}
-
-save_filtered_data <- function(tag_number, start_time, end_time, 
-                               filtered_data_path, segment_data,
-                               save_as_csv = FALSE) {
-  
-  # Create the file name and full path to save the filtered data
-  full_path_filtered_data <- create_sqlite_filepath(animal_name_code,
-                                                    tag_number, 
-                                                    start_time, 
-                                                    end_time, 
-                                                    filtered_data_path)
-  
-  # Add _filtered to the file name
-  # Find the position of the last dot (before the extension)
-  pos <- regexpr("\\.sqlite$", full_path_filtered_data)
-  
-  # If a dot followed by 'sqlite' is found, insert '_raw' before it
-  if (pos > 0) {
-    full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_annotated", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
-  }
-  
-  # Save the current data segment as sqlite
-  source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
-  save_ATLAS_data_to_sqlite(localizations_data = segment_data,
-                            fullpath = full_path_filtered_data)
-  
-  if (save_as_csv) {
-    full_path_filtered_data_csv <- sub("\\.sqlite$", ".csv", full_path_filtered_data)
-    write.csv(segment_data, full_path_filtered_data_csv, row.names = FALSE)
-  }
-  
-}
-
-move_to_next_segment <- function(data_segment_action, current_segment_index, validate_data_for_days, reactive_num_points, data_for_filter_sf) {
-  if (data_segment_action == "days") {
-    # Increment the current day number
-    next_day_number <- current_segment_index() + 1
-    day_numbers <- validate_data_for_days()  # Retrieve day numbers from the reactive
-    if (next_day_number <= length(day_numbers)) {
-      current_segment_index(next_day_number)
-    }
-  } else if (data_segment_action == "number_of_points") {
-    num_points <- reactive_num_points()  # Number of points for the next segment
-    start_point <- current_segment_index()  # Get the current start point
-    # Calculate the new start point for the next segment
-    new_start_point <- start_point + num_points
-    # Ensure that we don't exceed the total number of points
-    if (new_start_point <= nrow(data_for_filter_sf)) {
-      current_segment_index(new_start_point)
-    }
-  }
-}
-
-move_to_previous_segment <- function(data_segment_action, current_segment_index, validate_data_for_days, reactive_num_points, data_for_filter_sf) {
-  if (data_segment_action == "days") {
-    # Decrement the current day number
-    previous_day_number <- current_segment_index() - 1
-    if (previous_day_number >= 1) {
-      current_segment_index(previous_day_number)
-    }
-  } else if (data_segment_action == "number_of_points") {
-    num_points <- reactive_num_points()
-    # Get the current start point for the previous segment
-    start_point <- current_segment_index()
-    # Calculate the new start point for the previous segment
-    new_start_point <- max(1, start_point - num_points)  # Prevent going below 1
-    current_segment_index(new_start_point)
-  }
-}
-
 # Define User Interface for the application
 ui <- fluidPage(
   
@@ -755,8 +149,8 @@ ui <- fluidPage(
       ),
       # Polygon selection
       radioButtons(
-        "polygon_action", 
-        label = "Polygon Action:", 
+        "annotation_action", 
+        label = "Annotate Data Points:", 
         choices = c(
           "Mark as Valid Points" = "mark_valid",
           "Mark as Uncertain" = "mark_uncertain",
@@ -860,7 +254,8 @@ server <- function(input, output, session) {
   # Reactive calculation for segment_data
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+      day_numbers <- validate_data_for_days()
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       start <- current_segment_index()
@@ -892,7 +287,6 @@ server <- function(input, output, session) {
     end_time_current_segment(end_time_human_readable)
     
   })
-
   
   # Display the tag number and dates of the raw data
   output$tag_display <- renderText({
@@ -910,8 +304,9 @@ server <- function(input, output, session) {
   # Update the map and segment_data when the current segment changes
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
+      day_numbers <- validate_data_for_days()
       # Filter data for the current day
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == current_segment_index(), ]
+      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       # Calculate the start and end rows for the current segment
@@ -924,12 +319,14 @@ server <- function(input, output, session) {
     # Update the map with the new data
     leafletProxy("map") %>%
       update_atl_mapleaf(segment_data$data, display_non_filtered_track = TRUE)
+    
   })
   
   # Display the current segment in the UI
   output$segment_display <- renderText({
     if (input$data_segment_action == "days") {
-      paste("Day", current_segment_index())
+      day_numbers <- validate_data_for_days()
+      paste("Day", day_numbers[current_segment_index()])
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       # Calculate the start and end points for the current segment
@@ -961,7 +358,7 @@ server <- function(input, output, session) {
   # Reactive value to store the previous state for undo
   segment_data$previous_data <- NULL
 
-  # Toggle a point between Valid and Outlier when left-clicked
+  # Toggle a point between Valid, Outlier and Uncertain when left-clicked
   observeEvent(input$map_marker_click, {
 
     if (input$track_display_mode == "annotation") {
@@ -976,11 +373,17 @@ server <- function(input, output, session) {
         # Save current state before modifying for undo functionality
         segment_data$previous_data <- current_data
         
-        # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
-        current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
-          
-        # # Toggle Outliers for the clicked point
-        # current_data$Outliers[index] <- ifelse(current_data$Outliers[index] == 0, 1, 0)
+        # Toggle the point according to the chosed Annotation radio button
+        if (input$annotation_action == "mark_invalid") {
+          current_data$Outliers[index] <- 1
+        } else if (input$annotation_action == "mark_uncertain") {
+          current_data$Outliers[index] <- 2
+        } else if (input$annotation_action == "mark_valid") {
+          current_data$Outliers[index] <- 0
+        }
+        
+        # # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
+        # current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
         
         segment_data$data <- current_data
         
@@ -1024,11 +427,11 @@ server <- function(input, output, session) {
       segment_data$previous_data <- updated_data
       
       # Determine action based on selected radio button
-      if (input$polygon_action == "mark_invalid") {
+      if (input$annotation_action == "mark_invalid") {
         updated_data$Outliers[points_inside] <- 1
-      } else if (input$polygon_action == "mark_uncertain") {
+      } else if (input$annotation_action == "mark_uncertain") {
         updated_data$Outliers[points_inside] <- 2
-      } else if (input$polygon_action == "mark_valid") {
+      } else if (input$annotation_action == "mark_valid") {
         updated_data$Outliers[points_inside] <- 0
       }
       

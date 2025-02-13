@@ -30,7 +30,7 @@ apply_speed_std_nbs_filter <- function(data_for_filter,
   source(paste0(getwd(), "/atlas_metrics.R"))
   
   time_diff_s <- calculate_time_diff(data_for_filter$TIME)
-  
+
   distance_m <- calculate_distance(data_for_filter$X, data_for_filter$Y)
   
   data_for_filter$Speed_m_s <- calculate_speed(distance_m, time_diff_s)
