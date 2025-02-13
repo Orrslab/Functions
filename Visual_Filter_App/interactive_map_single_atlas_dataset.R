@@ -25,7 +25,7 @@ source(paste0(getwd(), "/time_conversions.R"))
 #' @import sp
 #' @importFrom RColorBrewer brewer.pal
 #'
-interactive_map_single_atlas_dataset <- function(dd,MapProvider='Esri.WorldImagery', legendLabels=c("1")) # 'OpenStreetMap.BZH'
+interactive_map_single_atlas_dataset <- function(dd, color_dd="#5D3A9B", MapProvider='Esri.WorldImagery', legendLabels=c("1")) # 'OpenStreetMap.BZH'
 {
   
   # A list of variables to check or add to the data frame if they don't exist
@@ -80,10 +80,10 @@ interactive_map_single_atlas_dataset <- function(dd,MapProvider='Esri.WorldImage
     addProviderTiles(MapProvider, options = providerTileOptions(opacity = 0.8)) %>%
     
     # Add lines that connect the point locations included in 'dd'
-    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = "#5D3A9B") %>%
+    addPolylines(data = llpd_lines, weight = 1, opacity = 1, color = color_dd) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[1],
+    addCircles(data = llpd_sf, weight = 1, fillOpacity = 1, color = color_dd, group = legendLabels[1],
                popup = ~htmlEscape(paste0("Date+Time=", as.character(llpd_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd_sf$TIME),
                                           ", Tag Number=", sprintf("%04d", llpd_sf$TAG %% 10000)))) %>%
