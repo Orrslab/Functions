@@ -7,7 +7,7 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 ### Set paths
 fullpath_to_data <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Shlomo_Cain/labeled_data_with_features.sqlite"
 path_to_functions <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/"
-path_to_roc_analysis <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/ATLAS_run_scripts/ConfidenceFilterDevelopment/"
+path_to_roc_analysis <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/ROC_analysis/"
 
 ### Load the data
 source(paste0(path_to_functions, "load_atlas_data_from_sqlite.R"))

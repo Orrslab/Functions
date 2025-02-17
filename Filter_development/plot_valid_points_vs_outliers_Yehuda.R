@@ -1,9 +1,6 @@
 
-# Get the required paths from the config file config.R
-source(file.path(getwd(), "config.R"))
-
-# source(paste0(path_to_scripts,"ATLAS_data_analysis_main.R"))
-source(paste0(path_to_atlas_maps,"interactive_maps.R"))
+# source(paste0(getwd(),"/ATLAS_data_retrieval/retrieve_and_prepare_ATLAS_data.R"))
+source(paste0(getwd(),"/Mapping_tools/interactive_map_two_atlas_datasets.R"))
 
 library(leaflet)
 library(sf)
@@ -20,8 +17,8 @@ path_yehuda <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/huma
 raw_data_path <- paste0(path_yehuda, "eminem_night20.csv") 
 filtered_data_path <- paste0(path_yehuda, "eminem_wrong_locs_night20.csv")
 
-raw_data <- read.csv(raw_data_path)
-filtered_data <- read.csv(filtered_data_path)
+raw_data <- read.csv(raw_data_path)  # TODO Insert the full path
+filtered_data <- read.csv(filtered_data_path)  # TODO Insert the full path
 
 # Change column names to fit to the data format required for the mapping function
 colnames(raw_data)[colnames(raw_data) == "Tag"] <- "TAG"

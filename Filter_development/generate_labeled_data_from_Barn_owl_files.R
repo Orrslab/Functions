@@ -13,7 +13,7 @@ fullpath <- paste0(path_to_shlomo_data, filename, ".csv")
 only_outliers <- read.csv(fullpath)
 
 # # Plot the data on a map
-# source("C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/ATLAS_maps/interactive_map_single_atlas_dataset.R")
+# source("C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Mapping_tools/interactive_map_single_atlas_dataset.R")
 # map <- interactive_map_single_atlas_dataset(dd=only_outliers)
 # print(map)
 
