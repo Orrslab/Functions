@@ -2,7 +2,7 @@
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "config.R"))
 
-# source(paste0(path_to_scripts,"ATLAS_data_analysis_main.R"))
+# source(paste0(path_to_scripts,"retrieve_and_prepare_ATLAS_data.R"))
 source(paste0(path_to_atlas_maps,"interactive_maps.R"))
 
 library(leaflet)
