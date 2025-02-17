@@ -2,6 +2,8 @@ library(pROC)
 
 evaluate_roc_parameters <- function(feature_data, outliers_data){
   
+  path_to_roc_analysis <- paste0(getwd(), "Filter_development/ROC_analysis/")
+  
   # Remove NA values from feature_data and Outliers before calculating quantiles
   feature_data_clean <- na.omit(feature_data)
   
@@ -26,14 +28,14 @@ evaluate_roc_parameters <- function(feature_data, outliers_data){
   thresholds <- roc_curve$thresholds
 
   # Find the best threshold for classification with each feature
-  source("ATLAS_run_scripts/ConfidenceFilterDevelopment/roc_find_best_threshold.R")
+  source(paste0(path_to_roc_analysis, "roc_find_best_threshold.R"))
   best_thresholds <- roc_find_best_threshold(tpr, fpr, thresholds)
   
   # # Create a vector of Percentile-based thresholds
   # thresholds <- quantile(feature_data_clean, probs = seq(0, 1, length.out = 20))
   # 
   # # Compute the true positive rates (TPR) and FPR (False Positive Rate)
-  # source("ATLAS_run_scripts/ConfidenceFilterDevelopment/roc_analysis_calculate_tpr_and_fpr.R")
+  # source(paste0(path_to_roc_analysis, "roc_analysis_calculate_tpr_and_fpr.R"))
   # feature_parameters <- roc_analysis_calculate_tpr_and_fpr(feature_data_clean, outliers_data_clean, thresholds)
   # 
   # # Calculate AUC
@@ -42,7 +44,7 @@ evaluate_roc_parameters <- function(feature_data, outliers_data){
   #                  auc = TRUE)
   # 
   # # Find the best threshold for classification with each feature
-  # source("ATLAS_run_scripts/ConfidenceFilterDevelopment/roc_find_best_threshold.R")
+  # source(paste0(path_to_roc_analysis, "roc_find_best_threshold.R"))
   # best_thresholds <- roc_find_best_threshold(feature_data = feature_data_clean, 
   #                                            outliers = outliers_data_clean)
   # 

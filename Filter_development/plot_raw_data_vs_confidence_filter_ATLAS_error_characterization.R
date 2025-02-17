@@ -1,10 +1,7 @@
 
-# Get the required paths from the config file config.R
-source(file.path(getwd(), "config.R"))
-
-source(paste0(path_to_scripts,"retrieve_and_prepare_ATLAS_data.R"))
-source(paste0(path_to_atlas_maps,"interactive_map_single_atlas_dataset.R"))
-source(paste0(path_to_atlas_maps,"interactive_map_two_atlas_datasets.R"))
+source(paste0(getwd(),"/ATLAS_data_retrieval/retrieve_and_prepare_ATLAS_data.R"))
+source(paste0(getwd(),"/Mapping_tools/interactive_map_single_atlas_dataset.R"))
+source(paste0(getwd(),"/Mapping_tools/interactive_map_two_atlas_datasets.R"))
 
 library(leaflet)
 library(sf)
