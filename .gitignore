@@ -2,11 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-ATLAS_run_scripts/ATLAS_data_analysis_main_algorithm_scheme.drawio
-config.R
-config_visual_filter.R
-ATLAS_run_scripts/ATLAS_data_requests.R
-ATLAS_run_scripts/ConfidenceFilterDevelopment/convert_rdata_to_csv_files.R
-ATLAS_run_scripts/ConfidenceFilterDevelopment/prepare_atlas_data_for_exmove.R
-ATLAS_maps/t_map/Israel_map.png
-ATLAS_maps/t_map/pink_warbler_map.png
+ATLAS_data_retrieval/retrieve_ATLAS_data_algorithm_scheme.drawio
+ATLAS_data_retrieval/config.R
+Visual_Filter_App/config_visual_filter.R
+ATLAS_data_retrieval/ATLAS_data_requests.R
+Mapping_tools/t_map/Israel_map.png
+Mapping_tools/t_map/pink_warbler_map.png
