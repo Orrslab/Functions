@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36" version="24.7.12">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="3176" dy="1832" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="1k2znFEv3tXfA8etYKnE-29" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="129" y="83" width="560" height="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-2" target="1k2znFEv3tXfA8etYKnE-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-2" value="Set:&amp;nbsp;&lt;div&gt;Tag numbers and date ranges&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="309" y="102" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-3" target="1k2znFEv3tXfA8etYKnE-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-3" value="Install required R packages" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="349" y="242" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-5" target="1k2znFEv3tXfA8etYKnE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-5" target="1k2znFEv3tXfA8etYKnE-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-5" value="Retrieve data&amp;nbsp;&lt;div&gt;from server?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="354" y="372" width="110" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-7" target="1k2znFEv3tXfA8etYKnE-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-7" value="Retrieve data from the ATLAS server" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="159" y="397" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-9" target="1k2znFEv3tXfA8etYKnE-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-9" target="1k2znFEv3tXfA8etYKnE-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="319" y="567" />
+              <mxPoint x="319" y="727" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-9" value="Save into SQLite?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="179" y="527" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-11" value="Yes" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="294" y="401" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-12" target="1k2znFEv3tXfA8etYKnE-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-12" value="Save data into an SQLite file" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="159" y="697" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-14" value="Yes" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="174" y="632" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-15" target="1k2znFEv3tXfA8etYKnE-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-15" value="Return the&amp;nbsp;&lt;div&gt;retrieved&amp;nbsp;&lt;/div&gt;&lt;div&gt;ATLAS data&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="349" y="697" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-17" value="No" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="259" y="542" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-20" target="1k2znFEv3tXfA8etYKnE-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="599" y="727" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-20" value="Load ATLAS data from an SQLite file" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="539" y="397" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-22" value="No" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="469" y="401" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-25" target="1k2znFEv3tXfA8etYKnE-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-25" value="Calculate the confidence level of each ATLAS location" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="349" y="837" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-27" value="Return:&lt;div&gt;Data frame of&amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;ATLAS locations,&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;with confidence levels&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="309" y="1080" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-32" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="1k2znFEv3tXfA8etYKnE-30" target="1k2znFEv3tXfA8etYKnE-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1k2znFEv3tXfA8etYKnE-30" value="Filter out data with confidence &amp;lt; 2" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="349" y="959" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
