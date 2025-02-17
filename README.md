@@ -66,7 +66,7 @@ Plotting ATLAS data on an interactive map
 
 ### Algorithm of the script
 
-![Algorithm Chart of the script ATLAS_data_analysis_main.R](ATLAS_data_retrieval/retrieve_and_prepare_ATLAS_data_algorithm_scheme.png)
+![Algorithm Chart of the script retrieve_and_prepare_ATLAS_data.R](ATLAS_data_retrieval/retrieve_and_prepare_ATLAS_data_algorithm_scheme.png)
 
 ### Running instructions of the script: step-by-step
 
