@@ -9,9 +9,6 @@ library(sf)
 library(RColorBrewer)
 library(htmltools)
 
-# Get the required paths from the config file config.R
-source(file.path(getwd(), "config.R"))
-
 # # Generate a map of a single data set
 # map <- atl_mapleaf(dd=raw_location_data)
 # print(map)
@@ -22,14 +19,14 @@ path_to_shlomo_data <- "C:/Users/netat/Documents/Movement_Ecology/Confidence_Fil
 sqlite_fullpath <- paste0(path_to_shlomo_data, filename, ".sqlite")
 
 # Upload data from sqlite
-source(paste0(path_to_atlas_data_analysis_repo, "load_atlas_data_from_sqlite.R"))
+source(paste0(getwd(), "load_atlas_data_from_sqlite.R"))
 filtered_data <- load_atlas_data_from_sqlite(sqlite_filepath = sqlite_fullpath)
 
 # Split the dataset into valid points and outliers
 valid_points <- filtered_data[filtered_data$Outliers == 0, ]
 outliers <- filtered_data[filtered_data$Outliers == 1, ]
 
-source(paste0(path_to_atlas_maps,"interactive_map_two_atlas_datasets.R"))
+source(paste0(getwd(),"/Mapping_tools/interactive_map_two_atlas_datasets.R"))
 # Generate a map of the valid points vs outliers
 map <- interactive_map_two_atlas_datasets(dd1=valid_points,
                                           dd2=outliers,
