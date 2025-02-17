@@ -7,13 +7,15 @@
 After identifying the need of users for a code that retrieves data from the ATLAS system and filters outliers, I decided to create unified functions and scripts to streamline the process. This way, we can all focus more on the fun part - understanding animals’ behaviour!
 
 ## Repository structure
-The Functions repo has three main folders:
+The Functions repo has five main folders:
 1. **Root directory:** functions that process and filter the ATLAS data 
-2. **ATLAS_run_scripts:** scripts that process and filter the ATLAS data
+2. **ATLAS_data_retrieval:** scripts that process and filter the ATLAS data
 3. **Legacy_functions:** older functions that are not being currently maintained
+4. **Mapping_tools:** tools and functions for processing and visualizing ATLAS data
+5. **Visual_Filter_App:** a shiny app for visualizing and annotating outliers in the ATLAS data or GPS data from other sources
 
 There is a script which does everything you might need for using the ATLAS data to analyze the animals’ movement.  
-The script is found in: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
+The script is found in: _ATLAS_data_retrieval\\retrieve_and_prepare_ATLAS_data.R_
 Below you will find detailed instructions on how to run it.
 The script uses many of the functions in the root directory. To understand what they do, there is a detailed documentation inside of each function file.
 
@@ -22,13 +24,13 @@ The script uses many of the functions in the root directory. To understand what 
 2. Make sure you have a VPN connection to the TAU server
 3. Clone this repo to your PC
 4. Make sure you have the configuration file _config.R_. This file includes some necessary full paths, data retrieval settings, the ATLAS database credentials, and time format of the ATLAS data.
-5. Save the configuration file in your root directory of the repository: path\\to\\repository\\Functions\\config.R
+5. Save the configuration file in your root directory of the repository: path\\to\\repository\\Functions\\ATLAS_data_retrieval\\config.R
 
-## Using the script of the ATLAS data analysis pipeline
+## Using the script of the ATLAS data retrieval and preparation pipeline
 
 ### Overview
 
-The purpose of the _ATLAS_data_analysis_main.R_ script is to automate everything you might need for using the ATLAS data to analyze animals’ movement.  
+The purpose of the _retrieve_and_prepare_ATLAS_data.R_ script is to automate everything you might need for retrieving the ATLAS data and preparing it to analyze animals’ movement.  
 
 This includes:
 1.	Retrieving multiple data batches from the ATLAS database
@@ -64,7 +66,7 @@ Plotting ATLAS data on an interactive map
 
 ### Algorithm of the script
 
-![Algorithm Chart of the script ATLAS_data_analysis_main.R](ATLAS_run_scripts/ATLAS_data_analysis_main_algorithm_scheme.png)
+![Algorithm Chart of the script ATLAS_data_analysis_main.R](ATLAS_data_retrieval/retrieve_and_prepare_ATLAS_data_algorithm_scheme.png)
 
 ### Running instructions of the script: step-by-step
 
@@ -91,7 +93,7 @@ Plotting ATLAS data on an interactive map
 
 3. Set the desired tag numbers and date ranges:
    
-   3.1. Open the file _ATLAS_run_scripts\\ATLAS_data_requests.R_
+   3.1. Open the file _ATLAS_data_retrieval\\ATLAS_data_requests.R_
    
    3.2. Update the desired tag numbers and date ranges for which you want to get the ATLAS data:
         
@@ -106,7 +108,7 @@ Plotting ATLAS data on an interactive map
    
    3.3. For convenience, you can create different files for different data retrievals, to better organize which data batches to load or retrieve. If you give these files different names, make sure to update the file name in _config.R_.
 
-4. Run the script: _ATLAS_run_scripts\\ATLAS_data_analysis_main.R_
+4. Run the script: _ATLAS_data_retrieval\\retrieve_and_prepare_ATLAS_data.R_
 
 5. At the end of the run you will get the following outputs:
 
