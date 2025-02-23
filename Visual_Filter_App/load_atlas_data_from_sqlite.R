@@ -54,5 +54,5 @@ load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   dbDisconnect(conn)
 
   # Return the Localizations and Detections data
-  return(list("DETECTIONS"=RawDet0,"LOCALIZATIONS"=RawLoc0))
+  return(list(DETECTIONS = RawDet0, LOCALIZATIONS = RawLoc0))
 }

@@ -68,7 +68,7 @@ load_atlas_data_from_multiple_sqlite_files <- function(fullpaths_to_sqlite_files
     
     # Append the data from the current file to the list
     all_data_frames_loc[[length(all_data_frames_loc) + 1]] <- raw_atlas_data$LOCALIZATIONS
-    if (!is.null(raw_atlas_data$DET)) {
+    if (!is.null(raw_atlas_data$DETECTIONS) && nrow(raw_atlas_data$DETECTIONS) > 0) {
       all_data_frames_det[[length(all_data_frames_det) + 1]] <- raw_atlas_data$DETECTIONS
     }
   }
@@ -83,7 +83,7 @@ load_atlas_data_from_multiple_sqlite_files <- function(fullpaths_to_sqlite_files
   
   # Return the consolidated data
   return(list(
-    locations = raw_location_data,
-    detections = raw_detection_data
+    LOCALIZATIONS = raw_location_data,
+    DETECTIONS = raw_detection_data
   ))
 }
