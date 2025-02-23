@@ -95,7 +95,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
     # Add the locations data segment to the locations data frame
     all_data_frames_loc[[length(all_data_frames_loc) + 1]] <- RawLoc0
     # Add the detections data segment to the detections data frame
-    if (!is.null(RawDet0)) {
+    if (!is.null(RawDet0) && nrow(RawDet0) > 0) {
       all_data_frames_det[[length(all_data_frames_det) + 1]] <- RawDet0
     }
     
