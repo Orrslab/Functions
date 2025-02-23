@@ -99,6 +99,6 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   
   return(list(
     LOCALIZATIONS = raw_location_data,
-    DETECTIONS = raw_atlas_data$detections
+    DETECTIONS = raw_atlas_data$DETECTIONS
   ))
 }
