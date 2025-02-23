@@ -28,7 +28,6 @@ save_filtered_data <- function(tag_number,
     segment_location_data <- st_drop_geometry(segment_location_data)
   }
   
-  
   # Save the current data segment as sqlite
   source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
   save_ATLAS_data_to_sqlite(localizations_data = segment_location_data,
