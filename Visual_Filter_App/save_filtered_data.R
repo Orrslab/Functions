@@ -23,6 +23,12 @@ save_filtered_data <- function(tag_number,
     full_path_filtered_data <- paste0(substr(full_path_filtered_data, 1, pos - 1), "_annotated", substr(full_path_filtered_data, pos, nchar(full_path_filtered_data)))
   }
   
+  # Remove geometry if the location data is an sf object
+  if (!is.null(segment_location_data) && inherits(segment_location_data, "sf")) {
+    segment_location_data <- st_drop_geometry(segment_location_data)
+  }
+  
+  
   # Save the current data segment as sqlite
   source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
   save_ATLAS_data_to_sqlite(localizations_data = segment_location_data,
