@@ -68,7 +68,8 @@ retrieve_and_store_atlas_data <- function(data_requests,
   
   library("dplyr")
   
-  all_data_frames <- list()
+  all_data_frames_loc <- list()
+  all_data_frames_det <- list()
   
   # Connect to the database
   source(paste0(getwd(), "/connect_to_atlas_db.R"))
@@ -88,10 +89,15 @@ retrieve_and_store_atlas_data <- function(data_requests,
                                       includeDet=TRUE,
                                       db_conn)
     
-    RawLoc0 <- AllData$LOC
-    RawDet0 <- AllData$DET
+    RawLoc0 <- AllData$LOCALIZATIONS
+    RawDet0 <- AllData$DETECTIONS
     
-    all_data_frames[[length(all_data_frames) + 1]] <- RawLoc0
+    # Add the locations data segment to the locations data frame
+    all_data_frames_loc[[length(all_data_frames_loc) + 1]] <- RawLoc0
+    # Add the detections data segment to the detections data frame
+    if (!is.null(RawDet0)) {
+      all_data_frames_det[[length(all_data_frames_det) + 1]] <- RawDet0
+    }
     
     if (save_data_to_sqlite_file) {
       
@@ -118,8 +124,16 @@ retrieve_and_store_atlas_data <- function(data_requests,
   # Disconnect from the database
   dbDisconnect(db_conn)
   
-  raw_location_data <- bind_rows(all_data_frames)
+  raw_location_data <- bind_rows(all_data_frames_loc)
+  raw_detection_data <- if (length(all_data_frames_det) > 0) {
+    bind_rows(all_data_frames_det)
+  } else {
+    NULL  # No detection data retrieved
+  }
   
-  # Return the last retrieved localizations table
-  return(raw_location_data)
+  # Return the last retrieved localizations and detections tables
+  return(list(
+    LOCALIZATIONS = raw_location_data,
+    DETECTIONS = raw_detection_data
+  ))
 }
