@@ -49,9 +49,10 @@ load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   conn <- dbConnect(RSQLite::SQLite(), dbname=sqlite_filepath)
   
   RawLoc0 <- dbGetQuery(conn, "SELECT * FROM LOCALIZATIONS")
+  RawDet0 <- dbGetQuery(conn, "SELECT * FROM DETECTIONS")
   
   dbDisconnect(conn)
 
-  # Return the Localizations data
-  return(RawLoc0)
+  # Return the Localizations and Detections data
+  return(list("DETECTIONS"=RawDet0,"LOCALIZATIONS"=RawLoc0))
 }
