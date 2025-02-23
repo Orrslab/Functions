@@ -62,8 +62,8 @@ if (upload_gps_data_from_csv) {
 }
 
 # Extract the locations and detections data from the ATLAS data
-data_for_filter <- atlas_data$location_data
-detections_data <- atlas_data$detection_data
+data_for_filter <- atlas_data$LOCALIZATIONS
+detections_data <- atlas_data$DETECTIONS
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0

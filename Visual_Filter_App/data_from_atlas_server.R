@@ -92,5 +92,5 @@ data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDe
   RawDet0 <- do.call(rbind.data.frame, AllTagsDet)
   RawLoc0 <- do.call(rbind.data.frame, AllTagsLoc)
   
-  return(list("DETECTIONS"=RawDet0,"LOCALIZATIONS"=RawLoc0))
+  return(list(DETECTIONS = RawDet0, LOCALIZATIONS = RawLoc0))
 }

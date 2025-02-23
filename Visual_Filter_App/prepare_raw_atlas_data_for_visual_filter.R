@@ -81,15 +81,15 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
   # Get the ATLAS data- either from the server, or from an SQLite file
   source(paste0(getwd(),"/get_ATLAS_data.R"))
   raw_atlas_data = get_ATLAS_data(data_requests = data_request, 
-                                     retrieve_data_from_server = retrieve_data_from_server,
-                                     atlas_db_credentials = atlas_db_credentials,
-                                     save_data_to_sqlite_file = save_data_to_sqlite_file,
-                                     full_paths_to_sqlite_files = fullpath_to_sqlite_file)
+                                  retrieve_data_from_server = retrieve_data_from_server,
+                                  atlas_db_credentials = atlas_db_credentials,
+                                  save_data_to_sqlite_file = save_data_to_sqlite_file,
+                                  full_paths_to_sqlite_files = fullpath_to_sqlite_file)
   
   # Assign day numbers to the locations data
   source(paste0(getwd(), "/time_conversions.R"))
   # convert the time column to the POSIXct format- required for using AssignDayNumber.R
-  raw_location_data <- raw_atlas_data$locations
+  raw_location_data <- raw_atlas_data$LOCALIZATIONS
   raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
   source(paste0(getwd(), "/AssignDayNumber.R"))
   raw_location_data <- AssignDayNumber(data=raw_location_data,
@@ -98,7 +98,7 @@ prepare_raw_atlas_data_for_visual_filter <- function(animal_name_code,
                                        TimeColName = "dateTime")
   
   return(list(
-    location_data = raw_location_data,
-    detection_data = raw_atlas_data$detections
+    LOCALIZATIONS = raw_location_data,
+    DETECTIONS = raw_atlas_data$detections
   ))
 }
