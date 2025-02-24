@@ -1,7 +1,7 @@
 library(DBI)
 
 # Function to load data from a SQLite file
-load_data_from_sqlite <- function(sqlite_file) {
+load_data_from_sqlite_file <- function(sqlite_file) {
   # Try to connect to the SQLite database
   conn <- tryCatch({
     dbConnect(RSQLite::SQLite(), sqlite_file)
@@ -19,7 +19,7 @@ load_data_from_sqlite <- function(sqlite_file) {
   data <- tryCatch({
     tables <- dbListTables(conn)
     if (length(tables) > 0) {
-      dbReadTable(conn, tables[1])  # Assuming the first table contains the data
+      dbReadTable(conn, name = "LOCALIZATIONS")  # Assuming the first table contains the data
     } else {
       cat("No tables found in:", sqlite_file, "\n")
       NULL
