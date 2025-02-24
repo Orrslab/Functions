@@ -52,14 +52,18 @@ if (upload_gps_data_from_csv) {
   
   # Upload data from the ATLAS server or sqlite
   source(paste0(getwd(), "/prepare_raw_atlas_data_for_visual_filter.R"))
-  data_for_filter <- prepare_raw_atlas_data_for_visual_filter(animal_name_code = animal_name_code,
-                                                              tag_number = tag_number,
-                                                              start_time = start_time,
-                                                              end_time = end_time,
-                                                              raw_data_folder_path = raw_data_path,
-                                                              atlas_db_credentials = harod_db_credentials)
+  atlas_data <- prepare_raw_atlas_data_for_visual_filter(animal_name_code = animal_name_code,
+                                                         tag_number = tag_number,
+                                                         start_time = start_time,
+                                                         end_time = end_time,
+                                                         raw_data_folder_path = raw_data_path,
+                                                         atlas_db_credentials = harod_db_credentials)
   
 }
+
+# Extract the locations and detections data from the ATLAS data
+data_for_filter <- atlas_data$LOCALIZATIONS
+detections_data <- atlas_data$DETECTIONS
 
 # Add a 'Outliers' column with the values 0 for good points, and 1 for outliers
 data_for_filter$Outliers <- 0
@@ -248,21 +252,29 @@ server <- function(input, output, session) {
     }
   })
   
-  # Declare segment_data as a global reactive value
-  segment_data <- reactiveValues(data = NULL)
+  # Declare segment_location_data as a global reactive value
+  segment_location_data <- reactiveValues(data = NULL)
+  segment_detection_data <- reactiveValues(data = NULL)
   
-  # Reactive calculation for segment_data
+  # Reactive calculation for segment_location_data
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
       day_numbers <- validate_data_for_days()
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
+      segment_location_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       start <- current_segment_index()
       end <- min(start + num_points - 1, nrow(data_for_filter_sf))
       segment_range <- list(start = start, end = end)
-      segment_data$data <- data_for_filter_sf[segment_range$start:segment_range$end, ]
+      segment_location_data$data <- data_for_filter_sf[segment_range$start:segment_range$end, ]
     }
+    # Find the start and end times of segment_location_data
+    start_time <- min(segment_location_data$data$TIME, na.rm = TRUE)
+    end_time <- max(segment_location_data$data$TIME, na.rm = TRUE)
+    
+    # Filter detections based on the start and end times of segment_location_data
+    segment_detection_data$data <- detections_data %>%
+      filter(TIME %in% segment_location_data$data$TIME)
   })
   
   # Get the start and end times of the current segment
@@ -273,7 +285,7 @@ server <- function(input, output, session) {
   
   observe({
     
-    data <- segment_data$data
+    data <- segment_location_data$data
     
     # Convert Unix timestamps to POSIXct
     segment_posixct_time <- as.POSIXct(data$TIME / 1000, origin = "1970-01-01", tz = atlas_time_zone)
@@ -301,24 +313,28 @@ server <- function(input, output, session) {
     paste("End Time:", end_time_current_segment())
   })
   
-  # Update the map and segment_data when the current segment changes
+  # Update the map and segment_location_data when the current segment changes
   observeEvent(list(current_segment_index(), input$num_points), {
     if (input$data_segment_action == "days") {
       day_numbers <- validate_data_for_days()
       # Filter data for the current day
-      segment_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
+      segment_location_data$data <- data_for_filter_sf[data_for_filter_sf$DAY == day_numbers[current_segment_index()], ]
     } else if (input$data_segment_action == "number_of_points") {
       num_points <- reactive_num_points()
       # Calculate the start and end rows for the current segment
       start_row <- current_segment_index() 
       end_row <- min(start_row + num_points - 1, nrow(data_for_filter_sf))
       # Filter data for the current range of points
-      segment_data$data <- data_for_filter_sf[start_row:end_row, ]
+      segment_location_data$data <- data_for_filter_sf[start_row:end_row, ]
     }
+    
+    # Filter detections based on matching TIME values in segment_location_data
+    segment_detection_data$data <- detections_data %>%
+      filter(TIME %in% segment_location_data$data$TIME)
     
     # Update the map with the new data
     leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data, display_non_filtered_track = TRUE)
+      update_atl_mapleaf(segment_location_data$data, display_non_filtered_track = TRUE)
     
   })
   
@@ -349,14 +365,14 @@ server <- function(input, output, session) {
     
     # Refresh the map
     leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data,
+      update_atl_mapleaf(segment_location_data$data,
                          display_non_filtered_track = display_unfiltered_track,
                          zoom_flag = FALSE)
     
   })
   
   # Reactive value to store the previous state for undo
-  segment_data$previous_data <- NULL
+  segment_location_data$previous_data <- NULL
 
   # Toggle a point between Valid, Outlier and Uncertain when left-clicked
   observeEvent(input$map_marker_click, {
@@ -365,13 +381,13 @@ server <- function(input, output, session) {
       clicked_timestamp <- input$map_marker_click$id # This is now the timestamp of the clicked marker
   
       # Find the index of the clicked point
-      current_data <- segment_data$data
+      current_data <- segment_location_data$data
       index <- which(current_data$TIME == as.numeric(clicked_timestamp))
   
       if (length(index) == 1) { # Ensure only one point matches
         
         # Save current state before modifying for undo functionality
-        segment_data$previous_data <- current_data
+        segment_location_data$previous_data <- current_data
         
         # Toggle the point according to the chosed Annotation radio button
         if (input$annotation_action == "mark_invalid") {
@@ -385,10 +401,10 @@ server <- function(input, output, session) {
         # # Toggle Outliers column in cyclic order: 0 → 1 → 2 → 0
         # current_data$Outliers[index] <- (current_data$Outliers[index] + 1) %% 3
         
-        segment_data$data <- current_data
+        segment_location_data$data <- current_data
         
         leafletProxy("map") %>%
-          update_atl_mapleaf(segment_data$data,
+          update_atl_mapleaf(segment_location_data$data,
                              display_non_filtered_track = FALSE,
                              zoom_flag = FALSE)
           
@@ -420,11 +436,11 @@ server <- function(input, output, session) {
       polygon_sf <- st_sfc(polygon_sf, crs = 4326)
       
       # Extract the points that are inside the marked polygon
-      updated_data <- segment_data$data
+      updated_data <- segment_location_data$data
       points_inside <- st_within(updated_data, polygon_sf, sparse = FALSE)
       
       # Save current state before modifying for undo functionality
-      segment_data$previous_data <- updated_data
+      segment_location_data$previous_data <- updated_data
       
       # Determine action based on selected radio button
       if (input$annotation_action == "mark_invalid") {
@@ -436,11 +452,11 @@ server <- function(input, output, session) {
       }
       
       # Update the reactive data variable
-      segment_data$data <- updated_data
+      segment_location_data$data <- updated_data
       
       # Refresh the map
       leafletProxy("map") %>%
-        update_atl_mapleaf(segment_data$data,
+        update_atl_mapleaf(segment_location_data$data,
                            display_non_filtered_track = FALSE,
                            zoom_flag = FALSE)
     } else {
@@ -457,14 +473,14 @@ server <- function(input, output, session) {
   
   # Undo the last action
 observeEvent(input$undo_button, {
-  if (!is.null(segment_data$previous_data)) {
+  if (!is.null(segment_location_data$previous_data)) {
     # Restore the previous state
-    segment_data$data <- segment_data$previous_data
-    segment_data$previous_data <- NULL # Clear the undo history
+    segment_location_data$data <- segment_location_data$previous_data
+    segment_location_data$previous_data <- NULL # Clear the undo history
 
     # Refresh the map
     leafletProxy("map") %>%
-      update_atl_mapleaf(segment_data$data,
+      update_atl_mapleaf(segment_location_data$data,
                          display_non_filtered_track = FALSE,
                          zoom_flag = FALSE)
   } else {
@@ -486,12 +502,13 @@ observeEvent(input$undo_button, {
                          start_time = start_time_current_segment(),
                          end_time = end_time_current_segment(),
                          filtered_data_path = filtered_data_path,
-                         segment_data = segment_data$data,
+                         segment_location_data = segment_location_data$data,
+                         segment_detection_data = segment_detection_data$data,
                          save_as_csv = save_filtered_data_as_csv)
       
       # Refresh the map
       leafletProxy("map") %>%
-        update_atl_mapleaf(segment_data$data, 
+        update_atl_mapleaf(segment_location_data$data, 
                            display_non_filtered_track = FALSE,
                            zoom_flag = FALSE, 
                            color_outliers = "#D3D3D3")
@@ -543,7 +560,8 @@ observeEvent(input$undo_button, {
                        start_time = start_time_current_segment(),
                        end_time = end_time_current_segment(),
                        filtered_data_path = filtered_data_path,
-                       segment_data = segment_data$data,
+                       segment_location_data = segment_location_data$data,
+                       segment_detection_data = segment_detection_data$data,
                        save_as_csv = save_filtered_data_as_csv)
     
     # Move to the next segment
@@ -604,7 +622,8 @@ observeEvent(input$undo_button, {
                        start_time = start_time_current_segment(),
                        end_time = end_time_current_segment(),
                        filtered_data_path = filtered_data_path,
-                       segment_data = segment_data$data,
+                       segment_location_data = segment_location_data$data,
+                       segment_detection_data = segment_detection_data$data,
                        save_as_csv = save_filtered_data_as_csv)
     
     # Move to the previous segment

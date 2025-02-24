@@ -38,11 +38,14 @@ harod_db_credentials <- list(
 
 # Get the ATLAS data- either from the server, or from an SQLite file
 source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
-raw_location_data = get_ATLAS_data(data_requests = data_requests, 
-                                   atlas_db_credentials = harod_db_credentials,
-                                   retrieve_data_from_server = retrieve_data_from_server,
-                                   save_data_to_sqlite_file = save_data_to_sqlite_file,
-                                   full_paths_to_sqlite_files = fullpaths_to_sqlite_files)
+raw_atlas_data = get_ATLAS_data(data_requests = data_requests, 
+                                atlas_db_credentials = harod_db_credentials,
+                                retrieve_data_from_server = retrieve_data_from_server,
+                                save_data_to_sqlite_file = save_data_to_sqlite_file,
+                                full_paths_to_sqlite_files = fullpaths_to_sqlite_files)
+
+raw_location_data <- raw_atlas_data$LOCALIZATIONS
+raw_detection_data <- raw_atlas_data$DETECTIONS
 
 # # Calculate the confidence of each location point
 # source(paste0(path_to_atlas_data_analysis_repo,"Track_cpp.R"))

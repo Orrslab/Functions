@@ -45,7 +45,8 @@ load_atlas_data_from_multiple_sqlite_files <- function(fullpaths_to_sqlite_files
   sapply(required_packages, library, character.only = TRUE)
   
   # Initialize a list to store data from each file
-  all_data_frames <- list()  
+  all_data_frames_loc <- list()  
+  all_data_frames_det <- list()  
   
   for (sqlite_filepath in fullpaths_to_sqlite_files) {
     
@@ -55,7 +56,7 @@ load_atlas_data_from_multiple_sqlite_files <- function(fullpaths_to_sqlite_files
     }
     
     source(paste0(getwd(), "/load_atlas_data_from_sqlite.R"))
-    RawLoc0 <- tryCatch(
+    raw_atlas_data <- tryCatch(
       {
         load_atlas_data_from_sqlite(sqlite_filepath)
       },
@@ -66,12 +67,23 @@ load_atlas_data_from_multiple_sqlite_files <- function(fullpaths_to_sqlite_files
     )
     
     # Append the data from the current file to the list
-    all_data_frames[[length(all_data_frames) + 1]] <- RawLoc0
+    all_data_frames_loc[[length(all_data_frames_loc) + 1]] <- raw_atlas_data$LOCALIZATIONS
+    if (!is.null(raw_atlas_data$DETECTIONS) && nrow(raw_atlas_data$DETECTIONS) > 0) {
+      all_data_frames_det[[length(all_data_frames_det) + 1]] <- raw_atlas_data$DETECTIONS
+    }
   }
   
   # Combine all data frames into one
-  raw_location_data <- bind_rows(all_data_frames)
+  raw_location_data <- bind_rows(all_data_frames_loc)
+  raw_detection_data <- if (length(all_data_frames_det) > 0) {
+    bind_rows(all_data_frames_det)
+  } else {
+    NULL  # No detection data retrieved
+  }
   
   # Return the consolidated data
-  return(raw_location_data)
+  return(list(
+    LOCALIZATIONS = raw_location_data,
+    DETECTIONS = raw_detection_data
+  ))
 }
