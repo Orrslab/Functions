@@ -1,21 +1,5 @@
 # Convert RData files to .csv
 
-# bulbul_1145_2023_03_10 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/bulbul_tag_1145_date_2023-03-10.RData")
-# 
-# laughingDove_1062_2024_08_18 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/laughingDove_tag_1062_date_2024-08-18.RData")
-# 
-# laughingDove_1062_2024_08_20 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/laughingDove_tag_1062_date_2024-08-20.RData")
-# 
-# whiteThroatedKingfisher_664_2024_08_19 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/whiteThroatedKingfisher_tag_664_date_2024-08-19.RData")
-# 
-# whiteThroatedKingfisher_664_2024_08_27 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/whiteThroatedKingfisher_tag_664_date_2024-08-27.RData")
-# 
-# woodpecker_145_2021_03_24 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/woodpecker_tag_145_date_2021-03-24.RData")
-# 
-# woodpecker_309_2021_05_21 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/woodpecker_tag_309_date_2021-05-21.RData")
-# 
-# woodpecker_309_2021_05_26 <- load("C:/Users/netat/Documents/Movement_Ecology/Confidence_Filter/human_tagging_database/Michal_Handel/woodpecker_tag_309_date_2021-05-26.RData")
-
 # Define a function to load and save objects from each .RData file
 save_all_rdata_to_csv <- function(input_folder, output_folder) {
   # Get a list of all .RData files in the input folder
