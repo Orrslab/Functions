@@ -20,6 +20,7 @@ species_id <- "WB"
 reviewer_name <- "Michal Handel"
 # reviewer_name <- "Jehuda Samuel"
 
+# Time Ranges bar plot resolution
 # plot_resolution <- "1 hour"
 plot_resolution <- "1 week"
 # plot_resolution <- "1 month"
@@ -56,7 +57,7 @@ files_metadata <- files_metadata %>%
 # Save the files' metadata to CSV
 csv_path <- file.path(path_to_species, paste0(species_id, "_files_metadata.csv"))
 write.csv(files_metadata, csv_path, row.names = FALSE)
-message(paste0("Metadata saved to:", csv_path, "\n"))
+message(paste0("Metadata of the ", species_id, " files saved to:", csv_path, "\n"))
 
 
 ### Bar Plot of the time ranges ###
@@ -112,13 +113,13 @@ if (nrow(duplicates) == 0) {
   # Save duplicates as a CSV file
   write.csv(duplicates, paste0(path_to_species, "/duplicates.csv"), row.names = FALSE)
   
-  print("Duplicates saved as duplicates.csv")
+  print(paste("Duplicates in the", species_id, "saved as duplicates.csv"))
 }
 
 ### Add the metadata of the combined species file to the metatada of the other files
 
 # Create a dataframe with the metadata of the file
-new_species_metadata <- combined_data %>%
+metadata_per_tag <- combined_data %>%
   group_by(TAG) %>%
   arrange(dateTime) %>%
   summarise(
@@ -129,7 +130,7 @@ new_species_metadata <- combined_data %>%
   ungroup()
 
 # Add the Species ID, Reviewer and data source
-new_species_metadata <- new_species_metadata %>%
+metadata_per_tag <- metadata_per_tag %>%
   mutate(
     Species_ID = species_id,    # Assuming species_id is a single value for all rows
     Reviewer = reviewer_name,         # Assuming Reviewer is a single value for all rows
@@ -138,31 +139,31 @@ new_species_metadata <- new_species_metadata %>%
   )
 
 # Re-order the column names
-new_species_metadata <- new_species_metadata %>%
+metadata_per_tag <- metadata_per_tag %>%
   select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
 
 # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
-metadata_file_path <- paste0(path_to_db, "/Annotated_data/species_files_metadata.csv")
+metadata_file_path <- paste0(path_to_db, "/Annotated_data/metadata_per_tag.csv")
 if (file.exists(metadata_file_path)) {
-  existing_metadata <- read.csv(metadata_file_path)
+  existing_metadata_per_tag <- read.csv(metadata_file_path)
   
   # Ensure datetime columns have the same format as new_species_metadata (POSIXct)
-  existing_metadata <- existing_metadata %>%
+  existing_metadata_per_tag <- existing_metadata_per_tag %>%
     mutate(
       Start_time = as.POSIXct(Start_time, tz = "UTC"),
       End_time = as.POSIXct(End_time, tz = "UTC")
     )
 
   # Remove existing records of the same Species_ID before adding new ones
-  updated_metadata <- existing_metadata %>%
+  updated_metadata_per_tag <- existing_metadata_per_tag %>%
     filter(Species_ID != species_id) %>%  # Keep all except the species being updated
-    bind_rows(new_species_metadata)  # Add the new data
+    bind_rows(metadata_per_tag)  # Add the new data
 
 } else {
-  # Create new metadata file
-  updated_metadata <- new_species_metadata
+  # Create new metadata file and insert the current metadata
+  updated_metadata_per_tag <- metadata_per_tag
 }
 
 # Save updated metadata
-write.csv(updated_metadata, metadata_file_path, row.names = FALSE)
-message("Metadata file updated successfully!")
+write.csv(updated_metadata_per_tag, metadata_file_path, row.names = FALSE)
+message("Metadata per Tag file updated successfully!")
