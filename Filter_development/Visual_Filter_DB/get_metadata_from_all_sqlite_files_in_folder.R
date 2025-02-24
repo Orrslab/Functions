@@ -14,7 +14,7 @@ get_metadata_from_all_sqlite_files_in_folder <- function(sqlite_folder) {
   
   # Iterate over SQLite files and load data
   for (file in sqlite_files) {
-    cat("Loading data from:", file, "\n")
+    # cat("Loading data from:", file, "\n")
     data <- load_data_from_sqlite_file(file)
     
     # Convert `TIME` from milliseconds to human-readable datetime
