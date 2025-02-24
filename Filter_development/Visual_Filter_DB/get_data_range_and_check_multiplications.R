@@ -13,12 +13,16 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 #######################################################################
 # USER INPUT- set the species name
-species_id <- "BO"
+species_id <- "WB"
 
 # USER INPUT- insert the name of the person who annotated the data
-reviewer_name <- "Shlomo Cain"
+# reviewer_name <- "Shlomo Cain"
+reviewer_name <- "Michal Handel"
+# reviewer_name <- "Jehuda Samuel"
 
-plot_resolution <- "1 month"
+# plot_resolution <- "1 hour"
+plot_resolution <- "1 week"
+# plot_resolution <- "1 month"
 
 #######################################################################
 
