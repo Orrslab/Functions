@@ -38,7 +38,7 @@ path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Anno
 path_to_species <- paste0(path_to_db, species_id)
 
 ### Get the metadata from the sqlite files ###
-source(paste0(getwd(), "/Filter_development/Visual_Filter_DB/get_metadata_from_all_sqlite_files_in_folder.R"))
+source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
 files_metadata <- get_metadata_from_all_sqlite_files_in_folder(path_to_species)
 
 # Add the Species ID, Reviewer and data source

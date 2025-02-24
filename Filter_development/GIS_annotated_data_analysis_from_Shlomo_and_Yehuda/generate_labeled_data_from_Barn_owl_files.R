@@ -1,3 +1,8 @@
+# This script uploads labeleld outliers from a file, 
+# retrieves the raw data of the corresponding time range from the ATLAS, 
+# combines the Outliers and Valid Points to one dataframe with an Outliers column,
+# and saves the combined dataframe as sqlite. 
+
 # clean the data and set some preferences
 rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
