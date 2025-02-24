@@ -11,11 +11,16 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
+#######################################################################
 # USER INPUT- set the species name
-species_id <- "SW"
+species_id <- "BO"
 
 # USER INPUT- insert the name of the person who annotated the data
-reviewer_name <- "Michal Handel"
+reviewer_name <- "Shlomo Cain"
+
+plot_resolution <- "1 month"
+
+#######################################################################
 
 data_source <- "ATLAS system Harod"
 
@@ -54,7 +59,7 @@ message(paste0("Metadata saved to:", csv_path, "\n"))
 # Create the horizontal bar plot of the time range in each sqlite file
 p <- ggplot(files_metadata, aes(x = Start_time, xend = End_time, y = as.factor(TAG), yend = as.factor(TAG), color = substr(TAG, nchar(TAG) - 3, nchar(TAG)))) +
   geom_segment(size = 5) +  # Use geom_segment to create bars
-  scale_x_datetime(labels = date_format("%Y-%m-%d"), breaks = date_breaks("1 week")) +  # Customize X-axis to show date breaks
+  scale_x_datetime(labels = date_format("%Y-%m-%d"), breaks = date_breaks(plot_resolution)) +  # Customize X-axis to show date breaks
   labs(x = "Time", y = "Tag Number", title = paste(species_id, "data:", "Time Ranges by Tag Number")) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -109,7 +114,7 @@ if (nrow(duplicates) == 0) {
 ### Add the metadata of the combined species file to the metatada of the other files
 
 # Create a dataframe with the metadata of the file
-species_metadata <- combined_data %>%
+new_species_metadata <- combined_data %>%
   group_by(TAG) %>%
   arrange(dateTime) %>%
   summarise(
@@ -120,7 +125,7 @@ species_metadata <- combined_data %>%
   ungroup()
 
 # Add the Species ID, Reviewer and data source
-species_metadata <- species_metadata %>%
+new_species_metadata <- new_species_metadata %>%
   mutate(
     Species_ID = species_id,    # Assuming species_id is a single value for all rows
     Reviewer = reviewer_name,         # Assuming Reviewer is a single value for all rows
@@ -129,22 +134,29 @@ species_metadata <- species_metadata %>%
   )
 
 # Re-order the column names
-species_metadata <- species_metadata %>%
+new_species_metadata <- new_species_metadata %>%
   select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
 
 # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
 metadata_file_path <- paste0(path_to_db, "/Annotated_data/species_files_metadata.csv")
 if (file.exists(metadata_file_path)) {
   existing_metadata <- read.csv(metadata_file_path)
+  
+  # Ensure datetime columns have the same format as new_species_metadata (POSIXct)
+  existing_metadata <- existing_metadata %>%
+    mutate(
+      Start_time = as.POSIXct(Start_time, tz = "UTC"),
+      End_time = as.POSIXct(End_time, tz = "UTC")
+    )
 
   # Remove existing records of the same Species_ID before adding new ones
   updated_metadata <- existing_metadata %>%
     filter(Species_ID != species_id) %>%  # Keep all except the species being updated
-    bind_rows(species_metadata)  # Add the new data
+    bind_rows(new_species_metadata)  # Add the new data
 
 } else {
   # Create new metadata file
-  updated_metadata <- species_metadata
+  updated_metadata <- new_species_metadata
 }
 
 # Save updated metadata
