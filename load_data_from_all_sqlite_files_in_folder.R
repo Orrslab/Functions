@@ -15,7 +15,7 @@ load_data_from_all_sqlite_files_in_folder <- function(sqlite_folder) {
   # Iterate over SQLite files and load data
   for (file in sqlite_files) {
     cat("Loading data from:", file, "\n")
-    data <- load_data_from_sqlite(file)
+    data <- load_data_from_sqlite_file(file)
     
     # Append to the list if data is not NULL
     if (!is.null(data)) {
