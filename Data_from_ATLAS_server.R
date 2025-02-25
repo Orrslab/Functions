@@ -6,10 +6,10 @@
 #'
 #' @param Start_Time_Str A character string representing the **start time** in UTC, formatted as \code{"YYYY-MM-DD HH:MM:SS"}.
 #' @param End_Time_Str A character string representing the **end time** in UTC, formatted as \code{"YYYY-MM-DD HH:MM:SS"}.
-#' @param FullTag A numeric vector of tag IDs, where each ID is an integer (e.g., \code{972006000223}).
+#' @param Tag_numbers A numeric vector of tag IDs, where each ID is an integer (e.g., \code{972006000223}).
 #' @param includeDet Logical. If \code{TRUE} (default), detections data is retrieved.
 #' @param includeLoc Logical. If \code{TRUE} (default), localizations data is retrieved.
-#' @param dbc A **database connection object** (from \code{DBI::dbConnect()}), representing an active connection to the ATLAS database.
+#' @param dbc A **database connection object** (from \code{DBI::dbConnect()} and function 'connect_to_atlas_db.R'), representing an active connection to the ATLAS database.
 #'
 #' @return A named **list** with two elements:
 #' \itemize{
@@ -23,7 +23,7 @@
 #' - This function **requires a VPN connection** to the **Tel Aviv University (TAU) network** or another relevant ATLAS database server.
 #' - It **only supports the "Harod" system** at the moment.
 #' - The function converts the start and end times into **ATLAS time format** (milliseconds since epoch).
-#' - Queries are executed **individually for each tag** in `FullTag`, and the results are combined.
+#' - Queries are executed **individually for each tag** in `Tag_numbers`, and the results are combined.
 #'
 #' @import DBI
 #' @import RMySQL
@@ -46,7 +46,7 @@
 #' }
 #'
 #' @export
-data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDet=TRUE,includeLoc=TRUE, dbc)
+data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,Tag_numbers,includeDet=TRUE,includeLoc=TRUE, dbc)
 {
   
   # Load the required packages
@@ -66,10 +66,12 @@ data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDe
 
   # If 'includeDet' is TRUE, retrieve the detections data from the database
   if(includeDet) {  
-    for (i in 1:length(FullTag)) { 
+    for (i in 1:length(Tag_numbers)) { 
       # build a  DETECTIONS query for the system, the results include the variables listed below
-      query = paste('select TAG,TIME,BS,RSSI,GAIN,SNR,SAMPLES_CLK from DETECTIONS WHERE TAG=',FullTag[i],
+      query = paste('select * from DETECTIONS WHERE TAG=',Tag_numbers[i],
                     'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
+      # query = paste('select TAG,TIME,BS,RSSI,GAIN,SNR,SAMPLES_CLK from DETECTIONS WHERE TAG=',Tag_numbers[i],
+      #               'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
       All_Data <- dbGetQuery(dbc,query)
       AllTagsDet[[i]] <- All_Data
     }
@@ -77,10 +79,10 @@ data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,FullTag,includeDe
   
   # If 'includeLoc' is TRUE, retrieve the locations data from the database
   if(includeLoc) {
-    for (i in 1:length(FullTag)) { 
+    for (i in 1:length(Tag_numbers)) { 
       # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
       query = paste('SELECT TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY', 
-                    'FROM LOCALIZATIONS WHERE TAG=', FullTag[i], 
+                    'FROM LOCALIZATIONS WHERE TAG=', Tag_numbers[i], 
                     'AND TIME >=', ATLAS_Start_Time, 
                     'AND TIME <=', ATLAS_End_Time)
       All_Data <- dbGetQuery(dbc,query)
