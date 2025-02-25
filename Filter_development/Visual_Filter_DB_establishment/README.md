@@ -1,4 +1,4 @@
-# Visual Filter Database Instructions- How to Establish the Database
+# Outliers Annotation Database Instructions- How to Establish the Database
 
 ## 1. Prepare the Annotated Data
 - You will receive SQLite files containing annotated data from researchers.
