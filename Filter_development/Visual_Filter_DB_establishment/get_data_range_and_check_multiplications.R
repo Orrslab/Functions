@@ -20,13 +20,6 @@ species_id <- "WB"
 reviewer_name <- "Michal Handel"
 # reviewer_name <- "Jehuda Samuel"
 
-# Time Ranges bar plot resolution
-# plot_resolution <- "1 hour"
-plot_resolution <- "1 week"
-# plot_resolution <- "1 month"
-
-#######################################################################
-
 data_source <- "ATLAS system Harod"
 
 filter_applied <- "Visual Filter"
@@ -34,8 +27,17 @@ filter_applied <- "Visual Filter"
 # USER INPUT- adjust the database path if necessary
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB/"
 
+# Time Ranges bar plot resolution
+# plot_resolution <- "1 hour"
+plot_resolution <- "1 week"
+# plot_resolution <- "1 month"
+
+# END OF USER INPUT
+
 # Full path to the species data
 path_to_species <- paste0(path_to_db, species_id)
+
+#######################################################################
 
 ### Get the metadata from the sqlite files ###
 source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
