@@ -14,17 +14,16 @@ library(lubridate)
 
 source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
 source(paste0(getwd(), "/load_localizations_data_from_all_sqlite_files_in_folder.R"))
-# source(paste0(getwd(), "/load_atlas_data_from_multiple_sqlite_files.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 
 #######################################################################
 # USER INPUT- set the species name
-species_id <- "BS"
+species_id <- "GJ"
 
 # USER INPUT- insert the name of the person who annotated the data
 # reviewer_name <- "Shlomo Cain"
-reviewer_name <- "Michal Handel"
-# reviewer_name <- "Jehuda Samuel"
+# reviewer_name <- "Michal Handel"
+reviewer_name <- "Jehuda Samuel"
 
 data_source <- "ATLAS system Harod"
 
@@ -35,8 +34,8 @@ path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Anno
 
 # Time Ranges bar plot resolution
 # plot_resolution <- "1 hour"
-plot_resolution <- "1 week"
-# plot_resolution <- "1 month"
+# plot_resolution <- "1 week"
+plot_resolution <- "1 month"
 
 # END OF USER INPUT
 
@@ -88,8 +87,6 @@ sqlite_files_in_species_folder <- list.files(path_to_species, pattern = "\\.sqli
 
 # Open all the sqlite files and unite all the data in one R dataframe
 combined_data <- load_localizations_data_from_all_sqlite_files_in_folder(path_to_species)
-# atlas_data <- load_atlas_data_from_multiple_sqlite_files(sqlite_files_in_species_folder)
-# combined_data <- atlas_data$LOCALIZATIONS
 
 # Convert `TIME` from milliseconds to human-readable datetime
 combined_data$dateTime <- as.POSIXct(combined_data$TIME / 1000, origin = "1970-01-01", tz = "UTC")
