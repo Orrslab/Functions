@@ -1,4 +1,27 @@
-
+#' Plot the data from the Visual Filter App on a Leaflet Map
+#'
+#' This function creates an interactive Leaflet map to visualize valid points, outliers, 
+#' and uncertain points from the animal movement data, annotated by the Visual Filter App.
+#'
+#' @param data A dataframe containing at least an `Outliers` column, latitude, and longitude.
+#' @param color_valid_points A character string specifying the color for valid points. 
+#' @param color_outliers A character string specifying the color for outliers. 
+#' @param color_uncertain_points A character string specifying the color for uncertain points. 
+#'
+#' @return A Leaflet map displaying the categorized data.
+#'
+#' @details 
+#' The function:
+#' - Checks if the `Outliers` column exists in the input dataframe.
+#' - Separates the data into three groups: valid points (`Outliers == 0`), 
+#'   outliers (`Outliers == 1`), and uncertain points (`Outliers == 2`).
+#' - Selects an appropriate mapping function based on the available data groups:
+#'   - `interactive_map_three_atlas_datasets()` for all three groups.
+#'   - `interactive_map_two_atlas_datasets()` for two groups.
+#'   - `interactive_map_single_atlas_dataset()` for one group.
+#' - Uses external mapping functions from sourced scripts.
+#'
+#' @export
 
 library(dplyr)
 library(leaflet)
