@@ -16,7 +16,7 @@
   - **Species_name**: The full name of the species.
 - Fill in the species ID and corresponding species name for each dataset you received.
 
-## 4. Run `get_data_range_and_check_multiplications.R` Script
+## 4. Run `get_data_range_and_check_multiplications.R` Script for each species
 This script:
 - Generates a metadata file named `{species_id}_files_metadata.csv` for each species, and saves it inside the species folder.
 - Creates a bar plot showing the time ranges covered by each data file, grouped by tag number.
@@ -53,3 +53,7 @@ This script:
 - Combines metadata across all species from the file `/Annotated_data/metadata_per_tag.csv`.
 - Generates a `/Annotated_data/metadata_per_species.csv` file containing the following columns:
   - `Species_ID`, `Num_tags`, `Start_time`, `End_time`, `Num_records`
+  
+## 6. Data Visualization
+To create interactive maps of the data in the sqlite files from the Visual Filter App, run /Data_visualization/create_maps_of_all_sqlite_files_in_DB.R
+It is recommended to run this script for each species separately.
