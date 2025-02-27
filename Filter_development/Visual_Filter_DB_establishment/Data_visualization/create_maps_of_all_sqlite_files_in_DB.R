@@ -56,18 +56,11 @@ for (i in seq_along(tag_numbers)) {
   
   print(i)
   
-  start_time_for_filepath <- as.POSIXct(sub("\\.\\d+$", "", start_time), format = "%Y-%m-%d %H:%M:%S")
-  end_time_for_filepath <- as.POSIXct(sub("\\.\\d+$", "", end_time), format = "%Y-%m-%d %H:%M:%S")
-  
-  # Ensure the time is always included
-  start_time_for_filepath <- format(start_time_for_filepath, "%Y-%m-%d %H:%M:%S")
-  end_time_for_filepath <- format(end_time_for_filepath, "%Y-%m-%d %H:%M:%S")
-  
   # Get the file name and full path of the sqlite file with the data for the map
   path_to_sqlite_file <- create_sqlite_filepath(animal_name_code = species_id, 
                                                 tag_numbers = tag_number, 
-                                                start_time = start_time_for_filepath, 
-                                                end_time = end_time_for_filepath, 
+                                                start_time = start_time, 
+                                                end_time = end_time, 
                                                 folder_path_to_sqlite_files = path_to_species_folder)
   
   # Append "_annotated" before ".sqlite"
