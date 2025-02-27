@@ -70,8 +70,6 @@ data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,Tag_numbers,inclu
       # build a  DETECTIONS query for the system, the results include the variables listed below
       query = paste('select * from DETECTIONS WHERE TAG=',Tag_numbers[i],
                     'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
-      # query = paste('select TAG,TIME,BS,RSSI,GAIN,SNR,SAMPLES_CLK from DETECTIONS WHERE TAG=',Tag_numbers[i],
-      #               'AND TIME >=', ATLAS_Start_Time, 'AND TIME <=', ATLAS_End_Time)
       All_Data <- dbGetQuery(dbc,query)
       AllTagsDet[[i]] <- All_Data
     }
