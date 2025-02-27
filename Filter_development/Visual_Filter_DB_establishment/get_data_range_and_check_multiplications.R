@@ -1,3 +1,9 @@
+
+# clean the data and set some preferences
+rm(list=ls()) # clean history
+options(digits = 14) # Makes sure long numbers are not abbreviated.
+rm(list = setdiff(ls(), lsf.str())) # removes data, not
+
 # Load required libraries
 library(DBI)
 library(dplyr)
@@ -6,14 +12,14 @@ library(scales)
 library(stringr)
 library(lubridate)
 
-# clean the data and set some preferences
-rm(list=ls()) # clean history
-options(digits = 14) # Makes sure long numbers are not abbreviated.
-rm(list = setdiff(ls(), lsf.str())) # removes data, not
+source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
+source(paste0(getwd(), "/load_localizations_data_from_all_sqlite_files_in_folder.R"))
+# source(paste0(getwd(), "/load_atlas_data_from_multiple_sqlite_files.R"))
+source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 
 #######################################################################
 # USER INPUT- set the species name
-species_id <- "WB"
+species_id <- "BS"
 
 # USER INPUT- insert the name of the person who annotated the data
 # reviewer_name <- "Shlomo Cain"
@@ -40,7 +46,6 @@ path_to_species <- paste0(path_to_db, species_id)
 #######################################################################
 
 ### Get the metadata from the sqlite files ###
-source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
 files_metadata <- get_metadata_from_all_sqlite_files_in_folder(path_to_species)
 
 # Add the Species ID, Reviewer and data source
@@ -76,12 +81,15 @@ print(p)
 ggsave(filename = paste0(path_to_species, "/time_ranges_plot_", species_id, ".png"),
        plot = p, width = 10, height = 6, dpi = 300, bg = "white")
 
-
 ### Combine all the location data of the species
 
+# Get all SQLite files in the folder
+sqlite_files_in_species_folder <- list.files(path_to_species, pattern = "\\.sqlite$", full.names = TRUE)
+
 # Open all the sqlite files and unite all the data in one R dataframe
-source(paste0(getwd(), "/load_data_from_all_sqlite_files_in_folder.R"))
-combined_data <- load_data_from_all_sqlite_files_in_folder(path_to_species)
+combined_data <- load_localizations_data_from_all_sqlite_files_in_folder(path_to_species)
+# atlas_data <- load_atlas_data_from_multiple_sqlite_files(sqlite_files_in_species_folder)
+# combined_data <- atlas_data$LOCALIZATIONS
 
 # Convert `TIME` from milliseconds to human-readable datetime
 combined_data$dateTime <- as.POSIXct(combined_data$TIME / 1000, origin = "1970-01-01", tz = "UTC")
@@ -90,7 +98,6 @@ combined_data$dateTime <- as.POSIXct(combined_data$TIME / 1000, origin = "1970-0
 file_name_species <- paste0(species_id, "_localizations_annotated.sqlite")
 sqlite_filepath <- paste0(path_to_db, "/Annotated_data/", file_name_species)
 
-source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 save_ATLAS_data_to_sqlite(localizations_data = combined_data,
                           fullpath = sqlite_filepath)
 
