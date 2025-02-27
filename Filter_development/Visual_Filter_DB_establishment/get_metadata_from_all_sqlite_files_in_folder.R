@@ -38,12 +38,12 @@ get_metadata_from_all_sqlite_files_in_folder <- function(sqlite_folder) {
   # Initialize an empty list to store metadata
   metadata_list <- list()
   
-  source(paste0(getwd(), "/load_data_from_sqlite_file.R"))
+  source(paste0(getwd(), "/load_localizations_data_from_sqlite_file.R"))
   
   # Iterate over SQLite files and load data
   for (file in sqlite_files) {
     # cat("Loading data from:", file, "\n")
-    data <- load_data_from_sqlite_file(file)
+    data <- load_localizations_data_from_sqlite_file(file)
     
     # Convert `TIME` from milliseconds to human-readable datetime
     data$dateTime <- as.POSIXct(data$TIME / 1000, origin = "1970-01-01", tz = "UTC")
