@@ -16,7 +16,6 @@ source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 # Specify the necessary paths
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
 path_to_species_metadata <- paste0(path_to_db, "/Species_metadata.xlsx")
-path_to_data_request_files <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Backup_Visual_filter_DB_25-02-25/Add_DETECTIONS"
 
 # Read the species data from the species metadata file
 species_data <- read_excel(path_to_species_metadata)
