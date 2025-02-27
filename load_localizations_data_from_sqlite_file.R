@@ -1,7 +1,7 @@
 library(DBI)
 
 # Function to load data from a SQLite file
-load_data_from_sqlite_file <- function(sqlite_file) {
+load_localizations_data_from_sqlite_file <- function(sqlite_file) {
   # Try to connect to the SQLite database
   conn <- tryCatch({
     dbConnect(RSQLite::SQLite(), sqlite_file)
