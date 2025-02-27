@@ -12,6 +12,7 @@ source(paste0(getwd(), "/connect_to_atlas_db.R"))
 source(paste0(getwd(), "/Data_from_ATLAS_server.R"))
 source(paste0(getwd(), "/create_sqlite_filepath.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
+source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/Add_DETECTIONS/add_detections_to_single_file.R"))
 
 # Specify the necessary paths
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
@@ -56,35 +57,18 @@ for (species_id in species_id_codes) {
   
   for (i in seq_along(tag_numbers)) {
     
+    print(i)
+    
     tag_number <- tag_numbers[i]
     start_time <- start_times[i]
     end_time <- end_times[i]
     
-    # Retrieve the DETECTIONS from the ATLAS server (VPN connection is required)
-    atlas_data <- data_from_atlas_server(Start_Time_Str = start_time,
-                                         End_Time_Str = end_time,
-                                         Tag_numbers = tag_number,
-                                         includeDet = TRUE,
-                                         includeLoc = FALSE, 
-                                         dbc = db_conn)
-    
-    print(i)
-    
-    detections_data <- atlas_data$DETECTIONS
-    
-    # Get the file name and full path of the sqlite file to which the DETECTIONS data should be added
-    path_to_sqlite_file <- create_sqlite_filepath(animal_name_code = species_id, 
-                                                  tag_numbers = tag_number, 
-                                                  start_time = as.POSIXct(sub("\\.\\d+$", "", start_time), format = "%Y-%m-%d %H:%M:%S"), 
-                                                  end_time = as.POSIXct(sub("\\.\\d+$", "", end_time), format = "%Y-%m-%d %H:%M:%S"), 
-                                                  folder_path_to_sqlite_files = path_to_species_folder)
-    
-    # Append "_annotated" before ".sqlite"
-    path_to_sqlite_file <- sub("\\.sqlite$", "_annotated.sqlite", path_to_sqlite_file)
-    
-    # Save the DETECTIONS data into the sqlite file
-    save_ATLAS_data_to_sqlite(detections_data = detections_data,
-                              fullpath = path_to_sqlite_file)
+    add_detections_to_single_file(species_id = species_id,
+                                  tag_number = tag_number,
+                                  start_time = start_time,
+                                  end_time = end_time,
+                                  atlas_db_conn = db_conn,
+                                  path_to_sqlite_files = path_to_species_folder)
     
   }
   
