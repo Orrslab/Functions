@@ -77,7 +77,7 @@ for (species_id in species_id_codes) {
                                                   tag_numbers = tag_number, 
                                                   start_time = as.POSIXct(sub("\\.\\d+$", "", start_time), format = "%Y-%m-%d %H:%M:%S"), 
                                                   end_time = as.POSIXct(sub("\\.\\d+$", "", end_time), format = "%Y-%m-%d %H:%M:%S"), 
-                                                  folder_path_to_sqlite_files = paste0(path_to_species_folder, "/"))
+                                                  folder_path_to_sqlite_files = path_to_species_folder)
     
     # Append "_annotated" before ".sqlite"
     path_to_sqlite_file <- sub("\\.sqlite$", "_annotated.sqlite", path_to_sqlite_file)

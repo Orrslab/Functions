@@ -28,11 +28,11 @@
 #' \dontrun{
 #' # Example for a single tag
 #' create_sqlite_filepath("BO", 972006000556, "2021-07-01 08:00:00", "2021-07-01 10:00:00", 
-#'                        "C:/data/filtered_data/")
+#'                        "C:/data/filtered_data")
 #'
 #' # Example for multiple tags
 #' create_sqlite_filepath("BO", c(972006000556, 972006000430), "2021-07-01 08:00:00", "2021-07-01 10:00:00", 
-#'                        "C:/data/filtered_data/")
+#'                        "C:/data/filtered_data")
 #' }
 #'
 #' @export
@@ -58,7 +58,7 @@ create_sqlite_filepath <- function(animal_name_code, tag_numbers, start_time, en
                     tag_number_str, "_from_", 
                     start_time_replace_colons, "_to_", 
                     end_time_replace_colons, ".sqlite", sep = "")
-  filepath = paste0(folder_path_to_sqlite_files, filename)
+  filepath = paste0(folder_path_to_sqlite_files, "/", filename)
 
   return(filepath)
 }
