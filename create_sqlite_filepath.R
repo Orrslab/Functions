@@ -45,9 +45,17 @@ create_sqlite_filepath <- function(animal_name_code, tag_numbers, start_time, en
     tag_number_str = "Multiple_tags"
   }
   
+  # Convert the start and end times to the correct format, which captures also the time 00:00:00 
+  start_time_for_filepath <- as.POSIXct(sub("\\.\\d+$", "", start_time), format = "%Y-%m-%d %H:%M:%S")
+  end_time_for_filepath <- as.POSIXct(sub("\\.\\d+$", "", end_time), format = "%Y-%m-%d %H:%M:%S")
+  
+  # Ensure the time is always included
+  start_time_for_filepath <- format(start_time_for_filepath, "%Y-%m-%d %H:%M:%S")
+  end_time_for_filepath <- format(end_time_for_filepath, "%Y-%m-%d %H:%M:%S")
+  
   # Replace spaces with underscores
-  start_time_replace_spaces <- gsub(" ", "_", start_time)
-  end_time_replace_spaces <- gsub(" ", "_", end_time)
+  start_time_replace_spaces <- gsub(" ", "_", start_time_for_filepath)
+  end_time_replace_spaces <- gsub(" ", "_", end_time_for_filepath)
   
   # Replace colons with minus signs
   start_time_replace_colons <- gsub(":", "-", start_time_replace_spaces)
