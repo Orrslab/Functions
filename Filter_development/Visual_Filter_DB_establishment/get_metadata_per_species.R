@@ -3,7 +3,7 @@
 library(dplyr)
 
 # Open the metadata per tag file
-metadata_file_path <- paste0(path_to_db, "/Annotated_data/metadata_per_tag.csv")
+metadata_file_path <- paste0(path_to_db, "/Combined_species_data/metadata_per_tag.csv")
 if (file.exists(metadata_file_path)) {
   metadata_per_tag <- read.csv(metadata_file_path)
   
@@ -26,7 +26,7 @@ if (file.exists(metadata_file_path)) {
     ungroup()
   
   # Save the dataframe as metadata_per_species.csv
-  output_file_path <- paste0(path_to_db, "/Annotated_data/metadata_per_species.csv")
+  output_file_path <- paste0(path_to_db, "/Combined_species_data/metadata_per_species.csv")
   write.csv(metadata_per_species, output_file_path, row.names = FALSE)
   
   message("Metadata per species saved to: ", output_file_path)

@@ -14,16 +14,17 @@ library(lubridate)
 
 source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
 source(paste0(getwd(), "/load_localizations_data_from_all_sqlite_files_in_folder.R"))
+source(file.path(getwd(), "load_atlas_data_from_multiple_sqlite_files.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 
 #######################################################################
 # USER INPUT- set the species name
-species_id <- "GJ"
+species_id <- "WB"
 
 # USER INPUT- insert the name of the person who annotated the data
 # reviewer_name <- "Shlomo Cain"
-# reviewer_name <- "Michal Handel"
-reviewer_name <- "Jehuda Samuel"
+reviewer_name <- "Michal Handel"
+# reviewer_name <- "Jehuda Samuel"
 
 data_source <- "ATLAS system Harod"
 
@@ -86,22 +87,27 @@ ggsave(filename = paste0(path_to_species, "/time_ranges_plot_", species_id, ".pn
 sqlite_files_in_species_folder <- list.files(path_to_species, pattern = "\\.sqlite$", full.names = TRUE)
 
 # Open all the sqlite files and unite all the data in one R dataframe
-combined_data <- load_localizations_data_from_all_sqlite_files_in_folder(path_to_species)
+# combined_data <- load_localizations_data_from_all_sqlite_files_in_folder(path_to_species)
+combined_data <- load_atlas_data_from_multiple_sqlite_files(sqlite_files_in_species_folder)
+
+localization_data <- combined_data$LOCALIZATIONS
+detection_data <- combined_data$DETECTIONS
 
 # Convert `TIME` from milliseconds to human-readable datetime
-combined_data$dateTime <- as.POSIXct(combined_data$TIME / 1000, origin = "1970-01-01", tz = "UTC")
+localization_data$dateTime <- as.POSIXct(localization_data$TIME / 1000, origin = "1970-01-01", tz = "UTC")
 
 # Save the combined data as sqlite
-file_name_species <- paste0(species_id, "_localizations_annotated.sqlite")
-sqlite_filepath <- paste0(path_to_db, "/Annotated_data/", file_name_species)
+file_name_species <- paste0(species_id, "_labeled_data.sqlite")
+sqlite_filepath <- paste0(path_to_db, "/Combined_species_data/", file_name_species)
 
-save_ATLAS_data_to_sqlite(localizations_data = combined_data,
+save_ATLAS_data_to_sqlite(localizations_data = localization_data,
+                          detections_data = detection_data,
                           fullpath = sqlite_filepath)
 
 ## Check for duplicates ##
 
 # Check for duplicates based on both TAG and TIME- returns a few wrong duplicates whose TIME values are different in just a few seconds
-duplicates_temp <- combined_data %>%
+duplicates_temp <- localization_data %>%
   distinct(TAG, TIME, .keep_all = TRUE)
 
 # Another level of verifying duplicates
@@ -125,7 +131,7 @@ if (nrow(duplicates) == 0) {
 ### Add the metadata of the combined species file to the metatada of the other files
 
 # Create a dataframe with the metadata of the file
-metadata_per_tag <- combined_data %>%
+metadata_per_tag <- localization_data %>%
   group_by(TAG) %>%
   arrange(dateTime) %>%
   summarise(
@@ -149,7 +155,7 @@ metadata_per_tag <- metadata_per_tag %>%
   select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
 
 # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
-metadata_file_path <- paste0(path_to_db, "/Annotated_data/metadata_per_tag.csv")
+metadata_file_path <- paste0(path_to_db, "/Combined_species_data/metadata_per_tag.csv")
 if (file.exists(metadata_file_path)) {
   existing_metadata_per_tag <- read.csv(metadata_file_path)
   

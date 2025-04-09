@@ -22,11 +22,11 @@ This script:
 - Creates a bar plot showing the time ranges covered by each data file, grouped by tag number.
 - Checks for multiple annotations of the same data point.
 - Merges all the data from the SQLite files and saves it as a single SQLite file for each species.
-- Generates a `/Annotated_data/metadata_per_tag.csv` file containing the following columns:
+- Generates a `/Combined_species_data/metadata_per_tag.csv` file containing the following columns:
   - `Species_ID`, `TAG`, `Start_time`, `End_time`, `Num_records`, `Data_source`, `Reviewer`, `Filter_applied` 
 
 ### Before Running the Script:
-- Create a new folder named **`Annotated_data`** inside your main database folder.
+- Create a new folder named **`Combined_species_data`** inside your main database folder.
 - Provide the following input parameters in the script:
   - `species_id <- "BO"` → Insert the species ID you're processing.
   - `reviewer_name <- "Neta Tsur"` → Enter the name of the data reviewer.
@@ -50,8 +50,8 @@ This script:
 
 ## 5. Run `get_metadata_per_species.R` Script
 This script:
-- Combines metadata across all species from the file `/Annotated_data/metadata_per_tag.csv`.
-- Generates a `/Annotated_data/metadata_per_species.csv` file containing the following columns:
+- Combines metadata across all species from the file `/Combined_species_data/metadata_per_tag.csv`.
+- Generates a `/Combined_species_data/metadata_per_species.csv` file containing the following columns:
   - `Species_ID`, `Num_tags`, `Start_time`, `End_time`, `Num_records`
   
 ## 6. Data Visualization
