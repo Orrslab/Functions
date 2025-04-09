@@ -114,7 +114,6 @@ calculate_std <- function(var_x, var_y, cov_xy) {
 #' calculate_cosine_turning_angle(X, Y)
 #'
 #' @export
-calculate_cosine_turning_angle
 calculate_cosine_turning_angle <- function(X_column, Y_column) {
   
   # Initialize a vector to store the cosine of turning angles
