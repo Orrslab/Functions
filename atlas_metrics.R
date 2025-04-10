@@ -62,6 +62,13 @@ calculate_speed <- function(distance, time_diff) {
   return(speed)
 }
 
+calculate_acceleration <- function(speed_column, time_diff_column) {
+  speed_diff <- c(NA, diff(speed_column))
+  # Avoid division by zero
+  acceleration <- ifelse(time_diff_column > 0, speed_diff / time_diff_column, NA)
+  return(acceleration)
+}
+
 #' Calculate Standard Deviation
 #'
 #' This function calculates the standard deviation based on the variance of X, variance of Y, and the covariance of X and Y.
@@ -121,6 +128,7 @@ calculate_cosine_turning_angle <- function(X_column, Y_column) {
   
   # Loop through the rows to calculate turning angles
   for (i in 2:(length(Y_column) - 1)) {
+      
     # Vectors
     v1 <- c(X_column[i] - X_column[i - 1], Y_column[i] - Y_column[i - 1])  # Previous to current point
     v2 <- c(X_column[i + 1] - X_column[i], Y_column[i + 1] - Y_column[i])  # Current to next point
@@ -134,6 +142,7 @@ calculate_cosine_turning_angle <- function(X_column, Y_column) {
     
     # Calculate cosine of the turning angle
     cos_angles[i] <- dot_product / (norm_v1 * norm_v2)
+    
   }
   
   # Return the data frame with cosine values added as a new column
