@@ -30,6 +30,8 @@ species_metadata <- read_excel(path_to_species_metadata)
 # Run on the species
 for (species_id in species_metadata$Species_ID) {
   
+  print(species_id)
+  
   # Set the soecies' sqlite file name and path
   file_name <- paste0(species_id, "_labeled_data.sqlite")
   file_path <- file.path(path_to_db, "Combined_species_data", file_name)
@@ -55,8 +57,8 @@ for (species_id in species_metadata$Species_ID) {
     ) %>%
     ungroup()
   
-  localization_data <- calculate_point_based_features(localization_data)
-  print(head(localization_data))
+  localization_data <- calculate_point_based_features(localization_data, detection_data)
+
 }
 
 
