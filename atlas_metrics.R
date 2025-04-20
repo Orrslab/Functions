@@ -62,6 +62,17 @@ calculate_speed <- function(distance, time_diff) {
   return(speed)
 }
 
+#' Calculate Acceleration from Speed and Time Difference
+#'
+#' Computes acceleration as the change in speed divided by the time difference between consecutive points.
+#'
+#' @param speed_column A numeric vector of speed values (in meters per second).
+#' @param time_diff_column A numeric vector of time differences (in seconds) between consecutive observations.
+#'
+#' @return A numeric vector of acceleration values (in meters per second squared), 
+#'         with `NA` for the first element and wherever time differences are zero or `NA`.
+#'
+#' @export
 calculate_acceleration <- function(speed_column, time_diff_column) {
   speed_diff <- c(NA, diff(speed_column))
   # Avoid division by zero
