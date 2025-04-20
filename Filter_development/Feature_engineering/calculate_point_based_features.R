@@ -1,10 +1,11 @@
+library(dplyr)
+
+source(file.path(getwd(), "atlas_metrics.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
+
 # Calculate the point-based features per TAG and per Track_id
 
 calculate_point_based_features <- function(localization_data, detection_data) {
-  
-  library(dplyr)
-  
-  source(file.path(getwd(), "atlas_metrics.R"))
   
   # Verify that the data frame has the columns TAG, track_id, and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
@@ -36,8 +37,15 @@ calculate_point_based_features <- function(localization_data, detection_data) {
   localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
                                                                         localization_data$Y)   
 
+  ### 2. Location-Based Features
+  # Currently I calculate these features only within a time window
   
-  # Set the values of the beginning of the track to NA
+  ### 3. Signal-Based Features
+  
+  # NBS- Number of participation Base Stations- already included in the raw data from the ATLAS database
+
+  # SNR- Signal to Noise Ratio
+  localization_data <- calculate_detection_based_features(localization_data, detection_data)
   
   return(localization_data)
   
