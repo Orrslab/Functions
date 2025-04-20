@@ -9,6 +9,7 @@ library(dplyr)
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
+source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
 
 ## USER INPUT BEGINNING 
 
@@ -19,6 +20,8 @@ path_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_develo
 # Define the time gap between tracks in seconds. 
 # This is the time gap that most likely distinguished between different trakectories of the same animal.
 gap_between_tracks_sec <- 600 
+
+half_time_window_size_sec <- 20
 
 ### USER INPUT END
 
@@ -57,8 +60,13 @@ for (species_id in species_metadata$Species_ID) {
     ) %>%
     ungroup()
   
+  # Calculate the point-based_features
   localization_data <- calculate_point_based_features(localization_data, detection_data)
 
+  # Calculate the time-window-based features
+  localization_data <- calculate_time_window_based_features(localizations_data = localization_data,
+                                                            half_window_size_sec = half_time_window_size_sec)
+  
 }
 
 
