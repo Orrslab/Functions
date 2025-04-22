@@ -1,3 +1,33 @@
+# Helper functions to calculate different metrices
+
+calculate_min_of_column <- function(x) {
+  min(x, na.rm = TRUE)
+}
+
+# Returns the maximum value, ignoring NAs
+calculate_max_of_column <- function(x) {
+  max(x, na.rm = TRUE)
+}
+
+calculate_mean_of_column <- function(x) mean(x, na.rm = TRUE)
+
+calculate_median_of_column <- function(x) median(x, na.rm = TRUE)
+
+# calculate_range_of_column <- function(x) diff(range(x, na.rm = TRUE))
+
+calculate_variance_of_column <- function(x) var(x, na.rm = TRUE)
+
+calculate_std_of_column <- function(x) {
+  return(sd(x, na.rm = TRUE))
+}
+
+# calculate_cv_of_column <- function(x) {
+#   m <- mean(x, na.rm = TRUE)
+#   s <- sd(x, na.rm = TRUE)
+#   if (m == 0) return(NA)
+#   return(s / m)
+# }
+
 
 #' Calculate Time Differences
 #'
@@ -39,6 +69,12 @@ calculate_distance <- function(x, y) {
   # Compute Euclidean distance between consecutive points
   distance <- c(NA, sqrt(diff(x)^2 + diff(y)^2))
   return(distance)
+}
+
+calculate_euclidean_distance <- function(X1, X2, Y1, Y2) {
+  
+  sqrt((X2 - X1)^2 + (Y2 - Y1)^2)
+  
 }
 
 #' Calculate Speed
@@ -110,6 +146,10 @@ calculate_std <- function(var_x, var_y, cov_xy) {
   std <- sqrt(var_x + var_y + 2 * cov_xy)
   
   return(std)
+}
+
+calculate_speed_std <- function(window_data) {
+  return(sd(window_data$Speed_m_s, na.rm = TRUE))
 }
 
 #' Calculate Cosine of Turning Angles

@@ -29,8 +29,14 @@ calculate_time_window_based_features <- function(localizations_data, half_window
       TAG == tag_i & TIME >= (time_i - half_window_millisec) & TIME <= (time_i + half_window_millisec)
     ]
     
+    # Get the X and Y coordinated of the obsereved point
+    x_i <- loc_dt[i, X]
+    y_i <- loc_dt[i, Y]
+    
     # Compute features for the current window
-    features_list[[i]] <- calculate_features_in_time_window(window_data)
+    features_list[[i]] <- calculate_features_in_time_window(window_data, 
+                                                            x_i,
+                                                            y_i)
     
     setTxtProgressBar(pb, i)
   }
