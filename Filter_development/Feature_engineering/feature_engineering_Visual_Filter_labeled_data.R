@@ -21,7 +21,7 @@ path_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_develo
 # This is the time gap that most likely distinguished between different trakectories of the same animal.
 gap_between_tracks_sec <- 600 
 
-half_time_window_size_sec <- 20
+half_time_window_size_sec <- 25
 
 ### USER INPUT END
 
@@ -66,7 +66,8 @@ for (species_id in species_metadata$Species_ID) {
   # Calculate the time-window-based features
   localization_data <- calculate_time_window_based_features(localizations_data = localization_data,
                                                             half_window_size_sec = half_time_window_size_sec)
-  
+
+  print(head(localization_data))  
 }
 
 
