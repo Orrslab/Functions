@@ -26,6 +26,10 @@ calculate_point_based_features <- function(localization_data, detection_data) {
   localization_data$dist_m <- calculate_distance(localization_data$X, 
                                                  localization_data$Y)
   
+  # For each location point, calculate the ratio between the distance from the previous point and the distance between the previous and next point
+  localization_data$distance_triangle_ratio <- calculate_triangle_distance_ratio(localization_data$X,
+                                                                                 localization_data$Y)
+  
   # Speed [m/s]
   # was already calculated by the Visual Filter App
   
