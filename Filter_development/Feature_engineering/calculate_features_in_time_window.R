@@ -9,9 +9,11 @@ calculate_features_in_time_window <- function(window_data,
   valid_values <- outliers_col[!is.na(outliers_col)]
   
   list(
+    X_mean = calculate_mean_of_column(window_data$X),
+    Y_mean = calculate_mean_of_column(window_data$Y),
     X_median = calculate_median_of_column(window_data$X),
     Y_median = calculate_median_of_column(window_data$Y),
-    Speed_window = calculate_std_of_column(speed_col),
+    Speed_window_std = calculate_std_of_column(speed_col),
     Speed_window_mean = calculate_mean_of_column(speed_col),
     Speed_window_median = calculate_median_of_column(speed_col),
     avg_dist_from_points_in_window = calculate_mean_of_column(calculate_euclidean_distance(window_data$X, X_observed_point, window_data$Y, Y_observed_point)),
