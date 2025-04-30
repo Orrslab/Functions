@@ -76,7 +76,7 @@ for (species_id in species_metadata$Species_ID) {
   print(head(localization_data))  
   
   ## Save the data as sqlite
-  output_file_name <- paste0(spacies_id, "features_eng.sqlite")
+  output_file_name <- paste0(species_id, "features_eng.sqlite")
   save_ATLAS_data_to_sqlite(localizations_data = localization_data,
                             detections_data = detection_data,
                             fullpath = file.path(folder_to_save_results, output_file_name))
