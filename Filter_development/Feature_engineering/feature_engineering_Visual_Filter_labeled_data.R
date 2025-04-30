@@ -11,12 +11,13 @@ source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
 source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_post_window_features.R"))
+source(file.path(getwd(), "save_ATLAS_data_to_sqlite.R"))
 
 ## USER INPUT BEGINNING 
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
-path_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering"
+folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
 # Define the time gap between tracks in seconds. 
 # This is the time gap that most likely distinguished between different trakectories of the same animal.
@@ -73,4 +74,10 @@ for (species_id in species_metadata$Species_ID) {
   
   # Print the first rows of localization_data
   print(head(localization_data))  
+  
+  ## Save the data as sqlite
+  output_file_name <- paste0(spacies_id, "features_eng.sqlite")
+  save_ATLAS_data_to_sqlite(localizations_data = localization_data,
+                            detections_data = detection_data,
+                            fullpath = file.path(folder_to_save_results, output_file_name))
 }
