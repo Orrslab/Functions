@@ -4,28 +4,8 @@ library(geosphere)
 # source(file.path(getwd(), "get_base_station_coordinates.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
 
-calculate_distance_to_closest_base_station <- function(matched_detections, localizations_data) {
+calculate_distance_to_closest_base_station <- function(localizations_data, matched_detections, base_stations_info) {
   message("Calculating the distance to the closest base station.")
-  
-  # --- Load and preprocess base station info ---
-  base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
-  bs_info <- fread(base_stations_info_path)
-  
-  bs_info[, Until := ifelse(Until == "Infinity", "2100-Jan-01 00:00", Until)]
-  
-  # Ensure consistent locale for parsing- without it the code does not convert September dates correctly...
-  Sys.setlocale("LC_TIME", "C")
-  
-  # Convert bs times to POSIXct (correct time format assumed)
-  bs_info[, Since := as.POSIXct(Since, format = "%Y-%b-%d %H:%M", tz = "UTC")]
-  bs_info[, Until := as.POSIXct(Until, format = "%Y-%b-%d %H:%M", tz = "UTC")]
-  
-  # Convert bs times to numeric (Unix timestamp)
-  bs_info[, Since := as.numeric(Since)]
-  bs_info[, Until := as.numeric(Until)]
-  
-  # Filter relevant columns and rename to distinguish them from the localizations' coordinates
-  bs_info <- bs_info[, .(Radio_serial_number, bs_lat = Latitude, bs_lon = Longitude, Since, Until)]
   
   # --- Prepare matched detections ---
   matched <- as.data.table(matched_detections)
@@ -43,7 +23,7 @@ calculate_distance_to_closest_base_station <- function(matched_detections, local
   setnames(matched, old = c("lat", "lon"), new = c("loc_lat", "loc_lon"))
   
   # For each detection, assign the coordinates of the corresponding base station
-  matched <- get_bs_coordinates_from_matched_detections(matched, bs_info)
+  matched <- get_bs_coordinates_from_matched_detections(matched, base_stations_info)
 
   # --- Check/convert all coordinate columns to numeric ---
   matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),

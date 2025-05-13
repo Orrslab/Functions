@@ -1,5 +1,6 @@
 source(file.path(getwd(), "match_detections_to_localizations.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_base_station.R"))
 
 # Features per location, that reqire knowing the detections that correspond to each location
@@ -11,10 +12,15 @@ calculate_detection_based_features <- function(localizations_data, detections_da
   # Calculate the SNR features
   localizations_data_with_features <- calculate_SNR_features(matched_detections, localizations_data)
   
+  # Load the base stations info
+  base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
+  base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
+  
   # Calculate the distance of each location from the closest receiver
   localizations_data_with_features <- calculate_distance_to_closest_base_station(
+    localizations_data_with_features,
     matched_detections,
-    localizations_data_with_features)
+    base_stations_info)
   
   return(localizations_data_with_features)
   
