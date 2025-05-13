@@ -24,7 +24,11 @@ calculate_distance_to_closest_base_station <- function(localizations_data, match
   
   # For each detection, assign the coordinates of the corresponding base station
   matched <- get_bs_coordinates_from_matched_detections(matched, base_stations_info)
-
+  
+  # FOR DEBUGGING PURPOSES
+  # print(head(loc_with_bs[loc_with_bs$Radio_serial_number == 972006002, c("dateTime", "BS", "bs_lat", "bs_lon")], 100))
+  # print(matched[matched$BS == 972006004, c("dateTime", "BS", "bs_lat", "bs_lon")])
+  
   # --- Check/convert all coordinate columns to numeric ---
   matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),
           .SDcols = c("bs_lat", "bs_lon", "loc_lat", "loc_lon")]
