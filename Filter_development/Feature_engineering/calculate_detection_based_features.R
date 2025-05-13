@@ -2,6 +2,7 @@ source(file.path(getwd(), "match_detections_to_localizations.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_base_station.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_missed_base_stations_features.R"))
 
 # Features per location, that reqire knowing the detections that correspond to each location
 calculate_detection_based_features <- function(localizations_data, detections_data) {
@@ -21,6 +22,11 @@ calculate_detection_based_features <- function(localizations_data, detections_da
     localizations_data_with_features,
     matched_detections,
     base_stations_info)
+  
+  # Get the base stations that were excluded from each localization 
+  # and evaluated features that are related to these base stations
+  localizations_data_with_features <- calculate_missed_base_stations_features(localizations_data,
+                                                                              base_stations_info)
   
   return(localizations_data_with_features)
   
