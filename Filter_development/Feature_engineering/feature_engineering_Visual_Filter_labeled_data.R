@@ -48,6 +48,8 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- data$LOCALIZATIONS
   detection_data <- data$DETECTIONS
   
+  localization_data$dateTime <- as.POSIXct(localization_data$dateTime, origin = "1970-01-01", tz = "UTC")
+  
   # Calculate the time difference between consecutive points
   localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
