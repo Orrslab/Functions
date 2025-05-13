@@ -58,11 +58,18 @@ calculate_distance_to_closest_base_station <- function(matched_detections, local
   closest <- matched[, .SD[which.min(dist)], by = .(TAG, roundTIME)]
   closest <- closest[, .(TAG, roundTIME, Min_distance_to_BS = dist, Closest_BS = BS)]
 
+  # --- Find the farthest base station per point ---
+  farthest <- matched[, .SD[which.max(dist)], by = .(TAG, roundTIME)]
+  farthest <- farthest[, .(TAG, roundTIME, Max_distance_to_BS = dist, Farthest_BS = BS)]
+
   # --- Merge back into full localization dataset ---
   localizations_data <- as.data.table(localizations_data)
   localizations_data[, roundTIME := as.POSIXct(round(TIME / 1000), origin = "1970-01-01", tz = "UTC")]
   
   result <- merge(localizations_data, closest, by = c("TAG", "roundTIME"), all.x = TRUE)
+  result <- merge(result, farthest, by = c("TAG", "roundTIME"), all.x = TRUE)
+  
+  # Remove the roundTIME column from the Localizations table
   result[, roundTIME := NULL]
   
   return(as.data.frame(result))
