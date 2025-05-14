@@ -7,6 +7,7 @@ library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
+source(file.path(getwd(), "Filter_development/Visual_Filter_DB_establishment/check_and_clean_duplicates_in_localizations.R"))
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
 source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
@@ -48,6 +49,12 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- data$LOCALIZATIONS
   detection_data <- data$DETECTIONS
   
+  # Delete duplicates from the localizations data- in case there are duplicates
+  localization_data <- check_and_clean_duplicates_in_localizations(
+    localization_data = localization_data,
+    clean_duplicates = TRUE)
+  
+  # Convert dateTime to a human-readable format- relevant only for the data I got by March 2025
   localization_data$dateTime <- as.POSIXct(localization_data$dateTime, origin = "1970-01-01", tz = "UTC")
   
   # Calculate the time difference between consecutive points

@@ -107,26 +107,23 @@ save_ATLAS_data_to_sqlite(localizations_data = localization_data,
 ## Check for duplicates ##
 
 # Check for duplicates based on both TAG and TIME- returns a few wrong duplicates whose TIME values are different in just a few seconds
-duplicates_temp <- localization_data %>%
-  distinct(TAG, TIME, .keep_all = TRUE)
-
-# Another level of verifying duplicates
-duplicates <- duplicates_temp %>%
+duplicates <- localization_data %>%
   group_by(TAG, TIME) %>%
   filter(n() > 1) %>%
   ungroup()
 
-# Check if duplicates exist
-if (nrow(duplicates) == 0) {
-  message(paste0("There are no duplicates in the ", species_id, " annotated data."))
-} else {
+# Print message depending on whether duplicates were found
+if (nrow(duplicates) > 0) {
+  cat("Number of duplicated (TAG, TIME) combinations:", nrow(duplicates), "\n")
   print(duplicates)
-  
-  # Save duplicates as a CSV file
-  write.csv(duplicates, paste0(path_to_species, "/duplicates.csv"), row.names = FALSE)
-  
-  print(paste("Duplicates in the", species_id, "saved as duplicates.csv"))
+} else {
+  cat("There are no duplicates in the data.\n")
 }
+
+# Clean the duplicates, while prioritizing leaving the Outliers = 1
+localization_data <- localization_data %>%
+  arrange(TAG, TIME, desc(Outliers == 1), desc(Outliers == 2)) %>%
+  distinct(TAG, TIME, .keep_all = TRUE)
 
 ### Add the metadata of the combined species file to the metatada of the other files
 
