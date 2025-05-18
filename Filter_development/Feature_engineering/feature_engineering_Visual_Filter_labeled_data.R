@@ -12,7 +12,7 @@ source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
 source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_post_window_features.R"))
-source(file.path(getwd(), "save_ATLAS_data_to_sqlite.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
 ## USER INPUT BEGINNING 
 
@@ -35,6 +35,9 @@ species_metadata <- read_excel(path_to_species_metadata)
 
 # Run on the species
 for (species_id in species_metadata$Species_ID) {
+  
+  # For debug purposes
+  species_id <- "LD"
   
   print(species_id)
   
@@ -60,19 +63,12 @@ for (species_id in species_metadata$Species_ID) {
   # Calculate the time difference between consecutive points
   localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
-  # For each individual (tag number), evaluate the track_id
-  # A new track starts if the time difference  > gap_between_tracks_sec
-  localization_data <- localization_data %>%
-    arrange(TAG, TIME) %>%
-    group_by(TAG) %>%
-    mutate(
-      new_track = if_else(is.na(time_diff_sec) | time_diff_sec > gap_between_tracks_sec, 1, 0),
-      track_id = cumsum(new_track)
-    ) %>%
-    ungroup()
-  
   # Calculate the point-based_features
-  localization_data <- calculate_point_based_features(localization_data, detection_data)
+  results <- calculate_point_based_features(localization_data, detection_data)
+  
+  localization_data <- results$localizations_data
+  participating_base_stations <- results$participating_base_stations
+  missed_base_stations <- results$missed_base_stations
 
   # Calculate the time-window-based features
   localization_data <- calculate_time_window_based_features(localizations_data = localization_data,
@@ -82,11 +78,15 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- calculate_post_window_features(localization_data)
   
   # Print the first rows of localization_data
-  print(head(localization_data))
+  print("Final LOCALIZATIONA with features:")
+  print(head(localization_data, 20))
   
   ## Save the data as sqlite
   output_file_name <- paste0(species_id, "_features_eng.sqlite")
-  save_ATLAS_data_to_sqlite(localizations_data = localization_data,
-                            detections_data = detection_data,
-                            fullpath = file.path(folder_to_save_results, output_file_name))
+  save_ATLAS_data_with_features_to_sqlite(
+    localizations_data = localization_data,
+    detections_data = detection_data,
+    participating_base_stations = participating_base_stations,
+    missed_base_stations = missed_base_stations,
+    fullpath = file.path(folder_to_save_results, output_file_name))
 }

@@ -29,9 +29,16 @@ calculate_detection_based_features <- function(localizations_data, detections_da
   
   # Get the base stations that were excluded from each localization 
   # and evaluated features that are related to these base stations
-  localizations_data_with_features <- calculate_missed_base_stations_features(localizations_data_with_features,
-                                                                              base_stations_info)
+  results <- calculate_missed_base_stations_features(localizations_data_with_features,
+                                                     base_stations_info)
   
-  return(localizations_data_with_features)
+  localizations_data_with_features <- results$localizations_data
+  missed_base_stations <- results$missed_base_stations
+  
+  return(list(
+    localizations_data = localizations_data_with_features,
+    participating_base_stations <- participating_base_stations,
+    missed_base_stations = missed_base_stations
+  ))
   
 }

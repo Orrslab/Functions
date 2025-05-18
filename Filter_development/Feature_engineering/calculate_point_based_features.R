@@ -3,17 +3,13 @@ library(dplyr)
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
 
-# Calculate the point-based features per TAG and per Track_id
+# Calculate the point-based features per TAG and TIME
 
 calculate_point_based_features <- function(localization_data, detection_data) {
   
-  # Verify that the data frame has the columns TAG, track_id, and time_diff_sec
+  # Verify that the data frame has the columns TAG and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
     stop("Error: 'TAG' column is missing from the dataframe.")
-  }
-  
-  if (!"track_id" %in% colnames(localization_data)) {
-    stop("Error: 'track_id' column is missing from the dataframe.")
   }
   
   if (!"time_diff_sec" %in% colnames(localization_data)) {
@@ -48,9 +44,13 @@ calculate_point_based_features <- function(localization_data, detection_data) {
   
   # NBS- Number of participation Base Stations- already included in the raw data from the ATLAS database
 
-  # SNR- Signal to Noise Ratio
-  localization_data <- calculate_detection_based_features(localization_data, detection_data)
+  # SNR- Signal to Noise Ratio and other detection-based features
+  results <- calculate_detection_based_features(localization_data, detection_data)
   
-  return(localization_data)
+  return(list(
+    localizations_data = results$localizations_data,
+    participating_base_stations = results$participating_base_stations,
+    missed_base_stations = results$missed_base_stations
+  ))
   
 }
