@@ -7,7 +7,7 @@ library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
-source(file.path(getwd(), "Filter_development/Visual_Filter_DB_establishment/check_and_clean_duplicates_in_localizations.R"))
+source(file.path(getwd(), "check_and_clean_duplicates_in_localizations.R"))
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
 source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
