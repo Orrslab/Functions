@@ -1,6 +1,7 @@
 library(dplyr)
 
 source(file.path(getwd(), "atlas_metrics.R"))
+source(file.path(getwd(), "calculate_elevation_per_location.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
 
 # Calculate the point-based features per TAG and TIME
@@ -42,9 +43,14 @@ calculate_point_based_features <- function(localization_data, detection_data) {
   
   ### 3. Signal-Based Features
   
+  # Elevation above sea level from Digital Elevation Model (DEM)
+  localization_data <- calculate_elevation_per_location(localization_data,
+                                                        dem_file = "DEM_Harod.tif")
+  
   # NBS- Number of participation Base Stations- already included in the raw data from the ATLAS database
 
   # SNR- Signal to Noise Ratio and other detection-based features
+  
   results <- calculate_detection_based_features(localization_data, detection_data)
   
   return(list(
