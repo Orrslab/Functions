@@ -1,3 +1,4 @@
+
 # Helper functions to calculate different metrices
 
 calculate_min_of_column <- function(x) {
@@ -80,15 +81,30 @@ calculate_euclidean_distance <- function(X1, X2, Y1, Y2) {
 calculate_triangle_distance_ratio <- function(X_column, Y_column) {
   
   # Calculate the distance between each location point and the previous point
-  dist_p1_p2 <- sqrt((X_column - shift(X_column, 1))^2 + (Y_column - shift(Y_column, 1))^2)
+  dist_p1_p2 <- sqrt((X_column - dplyr::lag(X_column, 1))^2 + (Y_column - dplyr::lag(Y_column, 1))^2)
   
   # Calculate the distance between the previous and next points to each location point
-  dist_p1_p3 <- sqrt((shift(X_column, -1) - shift(X_column, 1))^2 + (shift(Y_column, -1) - shift(Y_column, 1))^2)
+  dist_p1_p3 <- sqrt((dplyr::lead(X_column, 1) - dplyr::lag(X_column, 1))^2 +
+                       (dplyr::lead(Y_column, 1) - dplyr::lag(Y_column, 1))^2)
   
   # Calculate ratio between the distances
   triangle_distance_ratio <- dist_p1_p2 / dist_p1_p3
+  print(triangle_distance_ratio)
   
   return(triangle_distance_ratio)
+  
+  ## Function's version for data type data.table
+  #
+  # # Calculate the distance between each location point and the previous point
+  # dist_p1_p2 <- sqrt((X_column - shift(X_column, 1))^2 + (Y_column - shift(Y_column, 1))^2)
+  # # Calculate the distance between the previous and next points to each location point
+  # dist_p1_p3 <- sqrt((shift(X_column, -1) - shift(X_column, 1))^2 + (shift(Y_column, -1) - shift(Y_column, 1))^2)
+  # 
+  # # Calculate ratio between the distances
+  # triangle_distance_ratio <- dist_p1_p2 / dist_p1_p3
+  # 
+  # return(triangle_distance_ratio)
+  
 }
 
 #' Calculate Speed
