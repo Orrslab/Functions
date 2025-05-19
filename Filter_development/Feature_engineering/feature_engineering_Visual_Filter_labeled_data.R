@@ -5,6 +5,7 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 
 library(readxl)
 library(dplyr)
+library(data.table)
 
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 source(file.path(getwd(), "check_and_clean_duplicates_in_localizations.R"))
@@ -20,10 +21,10 @@ path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Anno
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
-# Define the time gap between tracks in seconds. 
-# This is the time gap that most likely distinguished between different trakectories of the same animal.
-gap_between_tracks_sec <- 600 
-
+# # Define the time gap between tracks in seconds. 
+# # This is the time gap that most likely distinguished between different trakectories of the same animal.
+# gap_between_tracks_sec <- 600 
+# 
 half_time_window_size_sec <- 25
 
 ### USER INPUT END
@@ -37,7 +38,8 @@ species_metadata <- read_excel(path_to_species_metadata)
 for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
-  species_id <- "LD"
+  # species_id <- "LD"
+  species_id <- "CB"
   
   print(species_id)
   

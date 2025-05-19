@@ -2,7 +2,7 @@ source(file.path(getwd(), "convert_sqlite_table_to_csv.R"))
 
 # From where to take the sqlite file
 sqlite_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
-filename <- "GJ_features_eng"
+filename <- "CB_features_eng"
 
 # Where to save the csv file
 output_csv_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features/csv_files"

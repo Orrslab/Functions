@@ -89,7 +89,6 @@ calculate_triangle_distance_ratio <- function(X_column, Y_column) {
   
   # Calculate ratio between the distances
   triangle_distance_ratio <- dist_p1_p2 / dist_p1_p3
-  print(triangle_distance_ratio)
   
   return(triangle_distance_ratio)
   
