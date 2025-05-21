@@ -39,7 +39,7 @@ for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
   # species_id <- "LD"
-  species_id <- "CB"
+  # species_id <- "CB"
   
   print(species_id)
   
@@ -53,6 +53,9 @@ for (species_id in species_metadata$Species_ID) {
   # Extract the localizations and detections data
   localization_data <- data$LOCALIZATIONS
   detection_data <- data$DETECTIONS
+  
+  # Add the species_id to the localizations data
+  localization_data$Species_id <- species_id
   
   # Delete duplicates from the localizations data- in case there are duplicates
   localization_data <- check_and_clean_duplicates_in_localizations(
@@ -80,7 +83,8 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- calculate_post_window_features(localization_data)
   
   # Print the first rows of localization_data
-  print("Final LOCALIZATIONA with features:")
+  print("Final LOCALIZATIONS with features:")
+  # print(colnames(localization_data))
   print(head(localization_data, 20))
   
   ## Save the data as sqlite
