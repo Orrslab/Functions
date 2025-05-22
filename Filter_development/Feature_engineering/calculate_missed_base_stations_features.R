@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Calculate Missed Base Stations Features
 #'
 #' Identifies base stations that were active and closer than the participating base stations, but did not participate in a given localization, 
@@ -53,8 +55,6 @@
 #' }
 #'
 #' @export
-
-library(data.table)
 
 calculate_missed_base_stations_features <- function(localizations_data, base_stations_info) {
   message("calculating features of missed base stations in each localization.")

@@ -1,3 +1,10 @@
+source(file.path(getwd(), "match_detections_to_localizations.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
+source(file.path(getwd(), "create_participating_base_stations_table.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_and_farthest_base_stations.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_missed_base_stations_features.R"))
+
 #' Calculate detection-based features for each localization point
 #'
 #' This function enriches each localization in the dataset with features derived from the corresponding detections.
@@ -35,13 +42,6 @@
 #'
 #' @export
 
-source(file.path(getwd(), "match_detections_to_localizations.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
-source(file.path(getwd(), "create_participating_base_stations_table.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_and_farthest_base_station.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_missed_base_stations_features.R"))
-
 # Features per location, that reqire knowing the detections that correspond to each location
 calculate_detection_based_features <- function(localizations_data, detections_data) {
   
@@ -56,7 +56,7 @@ calculate_detection_based_features <- function(localizations_data, detections_da
   base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
   
   # Calculate the distance of each location from the closest base station
-  localizations_data_with_features <- calculate_distance_to_closest_and_farthest_base_station(
+  localizations_data_with_features <- calculate_distance_to_closest_and_farthest_base_stations(
     localizations_data_with_features,
     matched_detections,
     base_stations_info)

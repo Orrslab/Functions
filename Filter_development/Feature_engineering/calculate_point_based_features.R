@@ -1,3 +1,9 @@
+library(dplyr)
+
+source(file.path(getwd(), "atlas_metrics.R"))
+source(file.path(getwd(), "calculate_elevation_per_location.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
+
 #' Calculate point-based movement, location, and signal-based features for the outliers filtering algorithm
 #'
 #' Computes a set of point-based features for each localization point to characterize movement, 
@@ -26,12 +32,6 @@
 #'
 #' @import dplyr
 #' @export
-
-library(dplyr)
-
-source(file.path(getwd(), "atlas_metrics.R"))
-source(file.path(getwd(), "calculate_elevation_per_location.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
 
 calculate_point_based_features <- function(localization_data, detection_data) {
   

@@ -1,3 +1,6 @@
+library(data.table)
+library(dplyr)
+
 #' Calculate SNR-based features for each localization point
 #'
 #' This function computes summary statistics of the Signal-to-Noise Ratio (SNR) for each localization
@@ -27,9 +30,6 @@
 #' @import data.table
 #' @importFrom dplyr %>%
 #' @export
-
-library(data.table)
-library(dplyr)
 
 calculate_SNR_features <- function(matched_detections, localizations_data) {
   

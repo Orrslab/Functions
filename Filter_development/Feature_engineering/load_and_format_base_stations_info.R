@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Load and format base stations metadata
 #'
 #' This function loads the base stations information from a CSV file, standardizes date formats,

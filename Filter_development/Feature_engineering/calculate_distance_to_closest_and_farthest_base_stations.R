@@ -1,3 +1,9 @@
+library(data.table)
+library(geosphere)
+
+source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
+
+
 #' Calculate distances to closest and farthest base stations
 #'
 #' For each localization point, this function computes the distances to all detected base stations
@@ -33,12 +39,6 @@
 #' }
 #'
 #' @export
-
-library(data.table)
-library(geosphere)
-
-# source(file.path(getwd(), "get_base_station_coordinates.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
 
 calculate_distance_to_closest_and_farthest_base_stations <- function(localizations_data, matched_detections, base_stations_info) {
   message("Calculating the distance to the closest base station.")
