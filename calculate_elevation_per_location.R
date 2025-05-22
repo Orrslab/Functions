@@ -1,3 +1,6 @@
+library(raster)
+library(sp)
+
 #' Add elevation data to localization points using a Digital Elevation Model (DEM)
 #'
 #' Extracts elevation values from a Digital Elevation Model (DEM) raster and adds them
@@ -24,9 +27,6 @@
 #' @importFrom raster raster extract crs
 #' @importFrom sp SpatialPoints CRS spTransform
 #' @export
-
-library(raster)
-library(sp)
 
 # Function to add elevation from local DEM to your localizations data
 calculate_elevation_per_location <- function(localizations_data, dem_file = "DEM_Harod.tif") {

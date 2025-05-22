@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Create Participating Base Stations Table
 #'
 #' Generates a table listing all base stations that participated in the calculation of each ATLAS location point,
@@ -29,8 +31,6 @@
 #' }
 #'
 #' @export
-
-library(data.table)
 
 create_participating_base_stations_table <- function(localizations_data, matched_detections) {
   # Ensure both inputs are data.tables

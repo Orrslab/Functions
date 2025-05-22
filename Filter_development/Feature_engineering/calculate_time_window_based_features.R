@@ -1,3 +1,7 @@
+library(data.table)
+
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_features_in_time_window.R"))
+
 #' Calculate Time Window-Based Features for each location point
 #'
 #' Computes features for each localization based on a surrounding time window of localizations from the same tag.
@@ -35,11 +39,7 @@
 #' }
 #'
 #' @export
-
-library(data.table)
-
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_features_in_time_window.R"))
-
+#' 
 calculate_time_window_based_features <- function(localizations_data, half_window_size_sec = 20) {
   
   # Convert to data.table

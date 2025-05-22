@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Match detections to localizations by TAG and rounded TIME
 #'
 #' This function matches each localization to its corresponding detections based on `TAG` and a rounded `TIME` value.
@@ -24,8 +26,6 @@
 #'
 #' @import data.table
 #' @export
-
-library(data.table)
 
 match_detections_to_localizations <- function(localizations_data, detections_data) {
   loc <- copy(as.data.table(localizations_data))

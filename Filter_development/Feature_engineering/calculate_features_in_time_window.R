@@ -1,3 +1,5 @@
+source(file.path(getwd(), "atlas_metrics.R"))
+
 #' Calculate Features in a Time Window
 #'
 #' Computes summary statistics and spatial metrics for a given subset of localizations (a time window)
@@ -31,8 +33,6 @@
 #' }
 #'
 #' @export
-
-source(file.path(getwd(), "atlas_metrics.R"))
 
 calculate_features_in_time_window <- function(window_data,
                                               X_observed_point,

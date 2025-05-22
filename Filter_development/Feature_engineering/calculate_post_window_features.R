@@ -1,3 +1,5 @@
+source(file.path(getwd(), "atlas_metrics.R"))
+
 #' Calculate Post-Window Features for Localizations
 #'
 #' Adds derived features to localization data based on comparisons between observed points and
@@ -32,8 +34,6 @@
 #' }
 #'
 #' @export
-
-source(file.path(getwd(), "atlas_metrics.R"))
 
 calculate_post_window_features <- function(localization_data) {
   
