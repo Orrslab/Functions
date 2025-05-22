@@ -1,3 +1,35 @@
+#' Create Participating Base Stations Table
+#'
+#' Generates a table listing all base stations that participated in the calculation of each ATLAS location point,
+#' based on `TAG` and rounded `TIME`.
+#'
+#' @param localizations_data A `data.frame` or `data.table` containing localization data with `TAG`, `TIME`, and optionally `roundTIME`.
+#' @param matched_detections A `data.frame` or `data.table` of detection data with `TAG`, `roundTIME`, and `BS` (base station ID).
+#'
+#' @return A `data.table` with one row per participating base station per localization, containing the columns:
+#' \describe{
+#'   \item{TAG}{Animal's tag number}
+#'   \item{TIME}{Exact timestamp of the localization (in milliseconds since epoch)}
+#'   \item{participating_bs_id}{Base station ID that participated in the localization}
+#' }
+#'
+#' @details
+#' \itemize{
+#'   \item If `roundTIME` is not present in `localizations_data`, it is calculated by rounding `TIME` to the nearest second (in milliseconds).
+#'   \item Collapses base stations per `(TAG, roundTIME)` group from `matched_detections`.
+#'   \item Merges with localization `TIME` values to return exact timestamps.
+#'   \item Expands the list of base stations into individual rows.
+#' }
+#'
+#' @import data.table
+#'
+#' @examples
+#' \dontrun{
+#' participating_bs <- create_participating_base_stations_table(localizations_data, matched_detections)
+#' }
+#'
+#' @export
+
 library(data.table)
 
 create_participating_base_stations_table <- function(localizations_data, matched_detections) {

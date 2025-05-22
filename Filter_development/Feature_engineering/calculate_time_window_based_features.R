@@ -1,3 +1,41 @@
+#' Calculate Time Window-Based Features for each location point
+#'
+#' Computes features for each localization based on a surrounding time window of localizations from the same tag.
+#' \code{calculate_features_in_time_window()}.
+#'
+#' @param localizations_data A `data.frame` or `data.table` containing localization data, with columns:
+#' \itemize{
+#'   \item `TAG` – identifier of the animal/tag
+#'   \item `TIME` – timestamp in milliseconds
+#'   \item `X`, `Y` – coordinates of the localization (typically in projected units)
+#' }
+#' @param half_window_size_sec Numeric. Half the size of the time window (in seconds) to use around each localization.
+#' The full time window size will be twice this value. Default is 20 seconds (i.e., a 40-second window).
+#'
+#' @return A `data.frame` containing the original data with additional columns for the computed features.
+#' The specific features added depend on the implementation of the function \code{calculate_features_in_time_window()}.
+#'
+#' @details
+#' For each localization, the function selects all localizations with the same `TAG` within a specified time window.
+#' It then applies a custom feature extraction routine to that subset.
+#'
+#' \itemize{
+#'   \item The time window is centered on each localization.
+#'   \item Features are computed based on the surrounding localizations and their relationship to the focal point (`X`, `Y`).
+#'   \item Progress is displayed with a text-based progress bar.
+#' }
+#'
+#' @seealso \code{\link{calculate_features_in_time_window}} for the actual feature computation logic.
+#'
+#' @import data.table
+#'
+#' @examples
+#' \dontrun{
+#' enriched_data <- calculate_time_window_based_features(localizations_data, half_window_size_sec = 30)
+#' }
+#'
+#' @export
+
 library(data.table)
 
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_features_in_time_window.R"))
