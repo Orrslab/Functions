@@ -28,8 +28,6 @@ tables_to_load <- c("LOCALIZATIONS", "PARTICIPATING_BASE_STATIONS")
 # Load species metadata
 species_metadata <- read_excel(path_to_species_metadata)
 
-# all_data <- load_atlas_data_from_sqlite(file.path(path_to_db, "labeled_data_db.sqlite"))
-
 # Initialize tables which will be saved as files at the end of this script
 all_discrepancies <- data.table()
 error_summary <- data.table()
