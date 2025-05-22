@@ -37,7 +37,7 @@ calculate_detection_based_features <- function(localizations_data, detections_da
   
   return(list(
     localizations_data = localizations_data_with_features,
-    participating_base_stations <- participating_base_stations,
+    participating_base_stations = participating_base_stations,
     missed_base_stations = missed_base_stations
   ))
   
