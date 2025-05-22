@@ -11,7 +11,7 @@ create_participating_base_stations_table <- function(localizations_data, matched
   }
   
   # Group by TAG and roundTIME, and collapse BS numbers into a list or character string
-  participating_base_stations <- matched_detections[
+  bs_grouped <- matched_detections[
     , .(participating_bs = list(BS)), 
     by = .(TAG, roundTIME)
   ]
@@ -19,12 +19,19 @@ create_participating_base_stations_table <- function(localizations_data, matched
   # Merge with TIME from localizations_data (one TIME per TAG & roundTIME is guaranteed)
   time_lookup <- unique(localizations_data[, .(TAG, roundTIME, TIME)])
   
-  participating_base_stations <- merge(
-    participating_base_stations,
+  # Merge to add TIME
+  bs_merged <- merge(
+    bs_grouped,
     time_lookup,
     by = c("TAG", "roundTIME"),
     all.x = TRUE
   )
+  
+  # Unnest the list column so each BS gets its own row
+  participating_base_stations <- bs_merged[
+    , .(participating_bs_id = unlist(participating_bs)), 
+    by = .(TAG, TIME)
+  ]
   
   return(participating_base_stations)
 }
