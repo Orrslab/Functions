@@ -12,7 +12,7 @@
 #' @examples
 #' # Example usage:
 #' file_path <- "C:/data/Filtered_data/my_file.sqlite"
-#' result <- load_tables_from_sqlite(file_path, c("LOCALIZATIONS", "DETECTIONS", "META"))
+#' result <- load_tables_from_sqlite_file(file_path, c("LOCALIZATIONS", "DETECTIONS", "META"))
 #'
 #' if (!is.null(result$LOCALIZATIONS)) head(result$LOCALIZATIONS)
 
