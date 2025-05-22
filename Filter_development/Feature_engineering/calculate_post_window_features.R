@@ -1,3 +1,38 @@
+#' Calculate Post-Window Features for Localizations
+#'
+#' Adds derived features to localization data based on comparisons between observed points and
+#' summary statistics from a surrounding time window (mean/median coordinates and speeds).
+#'
+#' @param localization_data A `data.frame` or `data.table` containing localization data with precomputed
+#' window-based features, such as `X_mean`, `X_median`, `Speed_window_mean`, and `Speed_window_median`.
+#'
+#' @return A `data.frame` or `data.table` (same class as input) with the following additional columns:
+#' \itemize{
+#'   \item `dist_from_mean`: Euclidean distance between observed point and window mean location.
+#'   \item `dist_from_meadian`: Euclidean distance between observed point and window median location.
+#'   \item `diff_dist_mean_median`: Absolute difference between the two distances above.
+#'   \item `ratio_dist_mean_median`: Ratio between distance from mean and distance from median location.
+#'   \item `speed_diff_from_mean`: Absolute difference between observed speed and mean speed in window.
+#'   \item `speed_diff_from_median`: Absolute difference between observed speed and median speed in window.
+#'   \item `speed_z_score`: Z-score of observed speed relative to window mean and standard deviation.
+#'   \item `ratio_speed_median`: Ratio between observed speed and median speed in window.
+#' }
+#'
+#' @details
+#' This function assumes that \code{calculate_euclidean_distance()} has been defined and sourced
+#' from the \code{atlas_metrics.R} script. It should be applied after window-based summary features
+#' have already been calculated (e.g., via \code{calculate_time_window_based_features()}).
+#'
+#' @seealso
+#' \code{\link{calculate_time_window_based_features}}, \code{\link{calculate_features_in_time_window}}
+#'
+#' @examples
+#' \dontrun{
+#' enriched_data <- calculate_post_window_features(localization_data)
+#' }
+#'
+#' @export
+
 source(file.path(getwd(), "atlas_metrics.R"))
 
 calculate_post_window_features <- function(localization_data) {

@@ -1,3 +1,59 @@
+#' Calculate Missed Base Stations Features
+#'
+#' Identifies base stations that were active and closer than the participating base stations, but did not participate in a given localization, 
+#' and computes features describing these "missed" base stations, such as their count and distance.
+#'
+#' @param localizations_data A `data.frame` or `data.table` of localization results, containing:
+#' \itemize{
+#'   \item `TAG` – animal or tag identifier
+#'   \item `TIME` – timestamp in milliseconds
+#'   \item `lat`, `lon` – coordinates of the localization
+#'   \item `Min_distance_to_BS` – distance to the closest participating base station (required for filtering)
+#' }
+#' @param base_stations_info A `data.frame` or `data.table` describing base station metadata. Must include:
+#' \itemize{
+#'   \item `Radio_serial_number` – base station ID
+#'   \item `bs_lat`, `bs_lon` – coordinates of each base station
+#'   \item `Since`, `Until` – operational times (in seconds since epoch)
+#' }
+#'
+#' @return A list with two elements:
+#' \describe{
+#'   \item{`localizations_data`}{The input localization data, enriched with the following new columns: 
+#'     \itemize{
+#'       \item `num_missed_bs` – number of missed base stations that were active and closer than the closest detected one
+#'       \item `closest_missed_bs_distance` – distance to the nearest missed base station
+#'       \item `mean_missed_bs_distance` – mean distance to missed base stations (if there is more than one missed base station)
+#'     }
+#'   }
+#'   \item{`missed_base_stations`}{A `data.table` of missed base stations per localization, with:
+#'     \itemize{
+#'       \item `TAG`, `TIME` – identifiers of the localization
+#'       \item `missed_bs_id` – ID of the missed base station
+#'     }
+#'   }
+#' }
+#'
+#' @details
+#' \itemize{
+#'   \item A "missed" base station is defined as one that was active at the time of localization and
+#'   was geographically closer than the closest base station that did participate.
+#'   \item Assumes `TIME` is in milliseconds and converts it to seconds internally for comparison with `Since` and `Until` from `base stations info`.
+#'   \item Uses the Haversine formula via `geosphere::distHaversine()` to compute geographic distances.
+#' }
+#'
+#' @import data.table
+#' @importFrom geosphere distHaversine
+#'
+#' @examples
+#' \dontrun{
+#' result <- calculate_missed_base_stations_features(localizations_data, base_stations_info)
+#' updated_data <- result$localizations_data
+#' missed_bs_table <- result$missed_base_stations
+#' }
+#'
+#' @export
+
 library(data.table)
 
 calculate_missed_base_stations_features <- function(localizations_data, base_stations_info) {

@@ -1,10 +1,46 @@
+#' Calculate distances to closest and farthest base stations
+#'
+#' For each localization point, this function computes the distances to all detected base stations
+#' and identifies the closest and farthest base stations using the Haversine formula.
+#'
+#' @param localizations_data A `data.frame` or `data.table` containing localization records with at least `TAG`, `TIME`, `lat`, and `lon` columns.
+#' @param matched_detections A `data.frame` or `data.table` of detection records that were matched to localizations, including `TIME`, `BS`, `SNR`, and location coordinates.
+#' @param base_stations_info A `data.table` containing base station metadata with coordinates and activation times.
+#'
+#' @return A `data.frame` of the original localization data with four new columns:
+#' \describe{
+#'   \item{Min_distance_to_BS}{Distance in meters to the closest base station}
+#'   \item{Closest_BS}{Base station ID of the closest base station}
+#'   \item{Max_distance_to_BS}{Distance in meters to the farthest base station}
+#'   \item{Farthest_BS}{Base station ID of the farthest base station}
+#' }
+#'
+#' @details
+#' \itemize{
+#'   \item Converts times to Unix seconds and aligns timestamps between localizations and detections
+#'   \item Retrieves base station coordinates for each detection using \code{\link{get_bs_coordinates_from_matched_detections}}
+#'   \item Computes geodesic distances using the Haversine formula via \code{\link[geosphere]{distHaversine}}
+#'   \item Merges distance information back into the original localization data
+#' }
+#'
+#' @import data.table
+#' @import geosphere
+#' @seealso \code{\link{get_bs_coordinates_from_matched_detections}}
+#'
+#' @examples
+#' \dontrun{
+#' result <- calculate_distance_to_closest_and_farthest_base_stations(localizations_data, matched_detections, base_stations_info)
+#' }
+#'
+#' @export
+
 library(data.table)
 library(geosphere)
 
 # source(file.path(getwd(), "get_base_station_coordinates.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
 
-calculate_distance_to_closest_base_station <- function(localizations_data, matched_detections, base_stations_info) {
+calculate_distance_to_closest_and_farthest_base_stations <- function(localizations_data, matched_detections, base_stations_info) {
   message("Calculating the distance to the closest base station.")
   
   # --- Prepare matched detections ---

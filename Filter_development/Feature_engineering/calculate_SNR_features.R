@@ -1,6 +1,35 @@
+#' Calculate SNR-based features for each localization point
+#'
+#' This function computes summary statistics of the Signal-to-Noise Ratio (SNR) for each localization
+#' based on the matched detections. Statistics include min, max, range, mean, median, standard deviation,
+#' and coefficient of variation (CV) of the SNR values.
+#'
+#' @param matched_detections A data frame or data.table of detection records that have been matched to localizations.
+#'                           Must include columns `TAG`, `TIME`, and `SNR`.
+#' @param localizations_data A data frame or data.table containing the original localization data, with columns `TAG` and `TIME`.
+#'
+#' @return A data.frame of the localization data with additional columns for SNR features:
+#' `SNR_min`, `SNR_max`, `SNR_range`, `SNR_mean`, `SNR_median`, `SNR_sd`, and `SNR_cv`.
+#'
+#' @details
+#' The function:
+#' \itemize{
+#'   \item Groups the matched detections by `TAG` and `TIME`
+#'   \item Calculates summary statistics of the `SNR` per group
+#'   \item Merges the resulting features back into the localization data
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' snr_features <- calculate_SNR_features(matched_detections, localizations_data)
+#' }
+#'
+#' @import data.table
+#' @importFrom dplyr %>%
+#' @export
+
 library(data.table)
 library(dplyr)
-
 
 calculate_SNR_features <- function(matched_detections, localizations_data) {
   

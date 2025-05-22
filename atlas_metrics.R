@@ -10,14 +10,18 @@ calculate_max_of_column <- function(x) {
   max(x, na.rm = TRUE)
 }
 
+# Calculate the mean of a column
 calculate_mean_of_column <- function(x) mean(x, na.rm = TRUE)
 
+# Calculate the median of a column
 calculate_median_of_column <- function(x) median(x, na.rm = TRUE)
 
 # calculate_range_of_column <- function(x) diff(range(x, na.rm = TRUE))
 
+# Calculate the variance of a column
 calculate_variance_of_column <- function(x) var(x, na.rm = TRUE)
 
+# Calculate the standard deviation of a column
 calculate_std_of_column <- function(x) {
   return(sd(x, na.rm = TRUE))
 }
@@ -72,12 +76,31 @@ calculate_distance <- function(x, y) {
   return(distance)
 }
 
+# Calculate the 2D Euclidean distance between two points: (X1, Y1) and (X2, Y2)
 calculate_euclidean_distance <- function(X1, X2, Y1, Y2) {
   
   sqrt((X2 - X1)^2 + (Y2 - Y1)^2)
   
 }
 
+#' Calculate triangle distance ratio for movement analysis of location data
+#'
+#' Computes the ratio between the distance from the current location point to the previous point and 
+#' the distance between the previous and next points. This metric helps identify movement irregularities,
+#' such as sudden deviations or spikes in trajectories.
+#'
+#' @param X_column A numeric vector of the X coordinates (e.g., easting or longitude).
+#' @param Y_column A numeric vector of the Y coordinates (e.g., northing or latitude).
+#'
+#' @return A numeric vector of the same length as the input, containing the triangle distance ratio for each location point.
+#' Values at the start and end of the vector may be `NA` due to lack of the previous and next points in these cases.
+#'
+#' @examples
+#' x <- c(1, 2, 4, 5)
+#' y <- c(1, 1, 1, 1)
+#' calculate_triangle_distance_ratio(x, y)
+#'
+#' @export
 calculate_triangle_distance_ratio <- function(X_column, Y_column) {
   
   # Calculate the distance between each location point and the previous point
@@ -175,10 +198,6 @@ calculate_std <- function(var_x, var_y, cov_xy) {
   std <- sqrt(var_x + var_y + 2 * cov_xy)
   
   return(std)
-}
-
-calculate_speed_std <- function(window_data) {
-  return(sd(window_data$Speed_m_s, na.rm = TRUE))
 }
 
 #' Calculate Cosine of Turning Angles
