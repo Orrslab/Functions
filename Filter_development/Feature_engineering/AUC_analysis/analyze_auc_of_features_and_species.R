@@ -41,6 +41,7 @@ auc_per_feature_per_species <- calculate_auc_per_feature_per_species(df = locali
 # Save the AUC per feature per species as csv
 fwrite(auc_per_feature_per_species, file.path(auc_analysis_folder, auc_per_feature_per_species_filename))
 
+# Calculate the AUC per feature and per species
 auc_per_feature_per_species <- fread(file.path(auc_analysis_folder, auc_per_feature_per_species_filename))
 
 # Plot a heat matrix of the AUC values
