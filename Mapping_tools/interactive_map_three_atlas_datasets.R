@@ -14,7 +14,12 @@
 #' @import sf
 #' @importFrom RColorBrewer brewer.pal  
 #'
-interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.WorldImagery', legendLabels=c("1", "2", "3")) 
+interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,
+                                                 color_dd1 = "red",
+                                                 color_dd2 = "blue",
+                                                 color_dd3 = "green",
+                                                 MapProvider='Esri.WorldImagery', 
+                                                 legendLabels=c("1", "2", "3")) 
 {
   
   library(leaflet)
@@ -22,18 +27,6 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
   library(RColorBrewer)
   library(dplyr)
   library(htmltools)
-  
-  # Check if the required columns exist in both 'dd1' and 'dd2'. 
-  # If a column is missing, add it with NA values.
-  varlist =c("PENALTY","spd","distance","moveAngle","stdVarXY","val1","val2","ellipsDir","DistMed5","Z")
-  for (varname in varlist){
-    if (!(varname %in% names(dd1)))
-      dd1[,varname] <- NA
-    if (!(varname %in% names(dd2)))
-      dd2[,varname] <- NA
-    if (!(varname %in% names(dd3)))
-      dd3[,varname] <- NA
-  }
   
   # Remove rows with NA in X or Y columns
   dd1 <- dd1[!is.na(dd1$X) & !is.na(dd1$Y), ]
@@ -89,7 +82,7 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
     # addPolylines(data = llpd1_lines, weight = 1, opacity = 1, color = "#FFB000", group = legendLabels[1]) %>%
     
     # Add circles at the locations of the first dataset 'dd1'
-    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = "#FFB000", group = legendLabels[1],
+    addCircles(data = llpd1_sf, weight = 3, fillOpacity = 1, color = color_dd1, group = legendLabels[1],
                popup = ~htmlEscape(paste0("1:time=", as.character(llpd1_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd1_sf$TIME),
                                           ", NBS=", as.character(llpd1_sf$NBS),
@@ -101,7 +94,7 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
     # addPolylines(data = llpd2_lines, weight = 1, opacity = 1, color = "#E66100", group = legendLabels[2]) %>%
     
     # Add circles at the locations of the second dataset 'dd2'
-    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = "#E66100", group = legendLabels[2],
+    addCircles(data = llpd2_sf, weight = 3, fillOpacity = 1, color = color_dd2, group = legendLabels[2],
                popup = ~htmlEscape(paste0("2:time=", as.character(llpd2_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd2_sf$TIME),
                                           ", NBS=", as.character(llpd2_sf$NBS),
@@ -110,10 +103,10 @@ interactive_map_three_atlas_datasets <- function(dd1,dd2,dd3,MapProvider='Esri.W
                                           ", TAG=", llpd2_sf$TAG))) %>%
     
     # Add lines that connect the point locations included in 'dd3'
-    addPolylines(data = llpd3_lines, weight = 1, opacity = 1, color = "#5D3A9B", group = legendLabels[3]) %>%
+    addPolylines(data = llpd3_lines, weight = 1, opacity = 1, color = color_dd3, group = legendLabels[3]) %>%
     
     # Add circles at the locations of the third dataset 'dd3'
-    addCircles(data = llpd3_sf, weight = 3, fillOpacity = 1, color = "#5D3A9B", group = legendLabels[3],
+    addCircles(data = llpd3_sf, weight = 3, fillOpacity = 1, color = color_dd3, group = legendLabels[3],
                popup = ~htmlEscape(paste0("3:time=", as.character(llpd3_sf$dateTimeFormatted),
                                           ", TIME=", as.character(llpd3_sf$TIME),
                                           ", NBS=", as.character(llpd3_sf$NBS),

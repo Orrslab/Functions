@@ -1,4 +1,39 @@
 
+# Helper functions to calculate different metrices
+
+calculate_min_of_column <- function(x) {
+  min(x, na.rm = TRUE)
+}
+
+# Returns the maximum value, ignoring NAs
+calculate_max_of_column <- function(x) {
+  max(x, na.rm = TRUE)
+}
+
+# Calculate the mean of a column
+calculate_mean_of_column <- function(x) mean(x, na.rm = TRUE)
+
+# Calculate the median of a column
+calculate_median_of_column <- function(x) median(x, na.rm = TRUE)
+
+# calculate_range_of_column <- function(x) diff(range(x, na.rm = TRUE))
+
+# Calculate the variance of a column
+calculate_variance_of_column <- function(x) var(x, na.rm = TRUE)
+
+# Calculate the standard deviation of a column
+calculate_std_of_column <- function(x) {
+  return(sd(x, na.rm = TRUE))
+}
+
+# calculate_cv_of_column <- function(x) {
+#   m <- mean(x, na.rm = TRUE)
+#   s <- sd(x, na.rm = TRUE)
+#   if (m == 0) return(NA)
+#   return(s / m)
+# }
+
+
 #' Calculate Time Differences
 #'
 #' This function computes the time differences (in seconds) between consecutive rows in a time column.
@@ -41,6 +76,59 @@ calculate_distance <- function(x, y) {
   return(distance)
 }
 
+# Calculate the 2D Euclidean distance between two points: (X1, Y1) and (X2, Y2)
+calculate_euclidean_distance <- function(X1, X2, Y1, Y2) {
+  
+  sqrt((X2 - X1)^2 + (Y2 - Y1)^2)
+  
+}
+
+#' Calculate triangle distance ratio for movement analysis of location data
+#'
+#' Computes the ratio between the distance from the current location point to the previous point and 
+#' the distance between the previous and next points. This metric helps identify movement irregularities,
+#' such as sudden deviations or spikes in trajectories.
+#'
+#' @param X_column A numeric vector of the X coordinates (e.g., easting or longitude).
+#' @param Y_column A numeric vector of the Y coordinates (e.g., northing or latitude).
+#'
+#' @return A numeric vector of the same length as the input, containing the triangle distance ratio for each location point.
+#' Values at the start and end of the vector may be `NA` due to lack of the previous and next points in these cases.
+#'
+#' @examples
+#' x <- c(1, 2, 4, 5)
+#' y <- c(1, 1, 1, 1)
+#' calculate_triangle_distance_ratio(x, y)
+#'
+#' @export
+calculate_triangle_distance_ratio <- function(X_column, Y_column) {
+  
+  # Calculate the distance between each location point and the previous point
+  dist_p1_p2 <- sqrt((X_column - dplyr::lag(X_column, 1))^2 + (Y_column - dplyr::lag(Y_column, 1))^2)
+  
+  # Calculate the distance between the previous and next points to each location point
+  dist_p1_p3 <- sqrt((dplyr::lead(X_column, 1) - dplyr::lag(X_column, 1))^2 +
+                       (dplyr::lead(Y_column, 1) - dplyr::lag(Y_column, 1))^2)
+  
+  # Calculate ratio between the distances
+  triangle_distance_ratio <- dist_p1_p2 / dist_p1_p3
+  
+  return(triangle_distance_ratio)
+  
+  ## Function's version for data type data.table
+  #
+  # # Calculate the distance between each location point and the previous point
+  # dist_p1_p2 <- sqrt((X_column - shift(X_column, 1))^2 + (Y_column - shift(Y_column, 1))^2)
+  # # Calculate the distance between the previous and next points to each location point
+  # dist_p1_p3 <- sqrt((shift(X_column, -1) - shift(X_column, 1))^2 + (shift(Y_column, -1) - shift(Y_column, 1))^2)
+  # 
+  # # Calculate ratio between the distances
+  # triangle_distance_ratio <- dist_p1_p2 / dist_p1_p3
+  # 
+  # return(triangle_distance_ratio)
+  
+}
+
 #' Calculate Speed
 #'
 #' This function computes speed by dividing distances by time differences.
@@ -60,6 +148,24 @@ calculate_speed <- function(distance, time_diff) {
   # Avoid division by zero
   speed <- ifelse(time_diff > 0, distance / time_diff, NA)
   return(speed)
+}
+
+#' Calculate Acceleration from Speed and Time Difference
+#'
+#' Computes acceleration as the change in speed divided by the time difference between consecutive points.
+#'
+#' @param speed_column A numeric vector of speed values (in meters per second).
+#' @param time_diff_column A numeric vector of time differences (in seconds) between consecutive observations.
+#'
+#' @return A numeric vector of acceleration values (in meters per second squared), 
+#'         with `NA` for the first element and wherever time differences are zero or `NA`.
+#'
+#' @export
+calculate_acceleration <- function(speed_column, time_diff_column) {
+  speed_diff <- c(NA, diff(speed_column))
+  # Avoid division by zero
+  acceleration <- ifelse(time_diff_column > 0, speed_diff / time_diff_column, NA)
+  return(acceleration)
 }
 
 #' Calculate Standard Deviation
@@ -114,7 +220,6 @@ calculate_std <- function(var_x, var_y, cov_xy) {
 #' calculate_cosine_turning_angle(X, Y)
 #'
 #' @export
-calculate_cosine_turning_angle
 calculate_cosine_turning_angle <- function(X_column, Y_column) {
   
   # Initialize a vector to store the cosine of turning angles
@@ -122,6 +227,7 @@ calculate_cosine_turning_angle <- function(X_column, Y_column) {
   
   # Loop through the rows to calculate turning angles
   for (i in 2:(length(Y_column) - 1)) {
+      
     # Vectors
     v1 <- c(X_column[i] - X_column[i - 1], Y_column[i] - Y_column[i - 1])  # Previous to current point
     v2 <- c(X_column[i + 1] - X_column[i], Y_column[i + 1] - Y_column[i])  # Current to next point
@@ -135,6 +241,7 @@ calculate_cosine_turning_angle <- function(X_column, Y_column) {
     
     # Calculate cosine of the turning angle
     cos_angles[i] <- dot_product / (norm_v1 * norm_v2)
+    
   }
   
   # Return the data frame with cosine values added as a new column
