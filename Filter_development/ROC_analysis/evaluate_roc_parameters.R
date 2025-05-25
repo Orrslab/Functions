@@ -55,7 +55,7 @@ evaluate_roc_parameters <- function(feature_data, outliers_data){
   
   return(list(tpr = tpr, 
               fpr = fpr, 
-              auc = roc_curve["auc"],
+              auc = as.numeric(roc_curve["auc"]),
               best_threshold = best_thresholds))
 }
 
