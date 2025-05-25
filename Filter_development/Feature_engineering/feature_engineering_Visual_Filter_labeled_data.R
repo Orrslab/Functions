@@ -38,12 +38,12 @@ species_metadata <- read_excel(path_to_species_metadata)
 for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
-  # species_id <- "LD"
+  species_id <- "LD"
   # species_id <- "CB"
   
   print(species_id)
   
-  # Set the soecies' sqlite file name and path
+  # Set the species' sqlite file name and path
   file_name <- paste0(species_id, "_labeled_data.sqlite")
   file_path <- file.path(path_to_db, "Combined_species_data", file_name)
   
@@ -62,7 +62,7 @@ for (species_id in species_metadata$Species_ID) {
     localization_data = localization_data,
     clean_duplicates = TRUE)
   
-  # Convert dateTime to a human-readable format- relevant only for the data I got by March 2025
+  # Convert dateTime to a human-readable format
   localization_data$dateTime <- as.POSIXct(localization_data$dateTime, origin = "1970-01-01", tz = "UTC")
   
   # Calculate the time difference between consecutive points
