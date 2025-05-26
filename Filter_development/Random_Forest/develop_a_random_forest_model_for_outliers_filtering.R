@@ -50,7 +50,7 @@ test_set_filename <- "test_set.rds"
 training_and_validation_set <- readRDS(file.path(RF_results_folder, training_validation_set_filename))
 
 # REMOVE THE FEATURE "outleirs_percentage"
-training_and_validation_set <- training_and_validation_set %>% select(-outliers_percentage)
+training_and_validation_set <- training_and_validation_set %>% select(-outleirs_percentage)
 
 # Make sure that the Response Variable (Outliers) is of type factor
 training_and_validation_set$Outliers <- as.factor(training_and_validation_set$Outliers)
