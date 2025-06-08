@@ -52,8 +52,7 @@ calculate_features_in_time_window <- function(window_data,
     Speed_window_median = calculate_median_of_column(speed_col),
     avg_dist_from_points_in_window = calculate_mean_of_column(calculate_euclidean_distance(window_data$X, X_observed_point, window_data$Y, Y_observed_point)),
     var_x_window = calculate_variance_of_column(window_data$X),
-    var_y_window = calculate_variance_of_column(window_data$Y),
-    outleirs_percentage = sum(valid_values == 1) / length(valid_values) * 100
+    var_y_window = calculate_variance_of_column(window_data$Y)
   )
 
 }
