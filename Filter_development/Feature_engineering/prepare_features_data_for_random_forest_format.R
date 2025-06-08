@@ -1,7 +1,5 @@
-# This script gets the localizations_data with all the features, 
-# and turns it into a data frame with the Predictor Variables (features), 
-# and a Response Variable (Outliers labeling).
-# The script cleans and formats the data to match the input format of the Random Forest function.
+# This script gets the localizations_data with all the features,
+# cleans, and formats the data to match the input format of the Random Forest function.
 # It will also be used for the feature analyses, such as AUC calculation.
 # The script unites the data of all species
 
@@ -18,7 +16,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 ## USER INPUT BEGINNING 
 
-path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
+path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
 output_filename <- "Features_data_for_RF_all_species.sqlite"
@@ -30,9 +28,6 @@ tables_to_load <- c("LOCALIZATIONS")
 
 # DEBUG
 # tables_to_load <- c("LOCALIZATIONS", "DETECTIONS")
-
-non_feature_column_names <- c("TAG", "TIME", "X", "Y", "Z", "lat", "lon", 
-                              "dateTime", "DAY", "geometry")
 
 # Load species metadata
 species_metadata <- read_excel(path_to_species_metadata)
@@ -57,13 +52,6 @@ for (species_id in species_metadata$Species_ID) {
     tables = tables_to_load)
   
   localization_data <- data$LOCALIZATIONS
-  
-  # # DEBUG
-  # detections_data <- data$DETECTIONS
-  
-  # Remove the non-feature columns
-  localization_data <- localization_data %>%
-    dplyr::select(-all_of(non_feature_column_names))
   
   ##  Handle columns with structural NA values- random forest does not accept NA values
 
@@ -94,7 +82,7 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- localization_data %>%
     dplyr::select(-Outliers, Outliers)
   
-  # Append the species data to the combined dataframe
+  # Append the prepared species data to the combined dataframe
   combined_data <- bind_rows(combined_data, localization_data)
   
 }
