@@ -1,3 +1,6 @@
+library(DBI)
+library(dplyr)
+
 #' Get Metadata_per_file from All SQLite Files in a Folder
 #'
 #' This function retrieves metadata (such as tag number, start time, end time, and number of records) 
@@ -29,9 +32,6 @@
 
 get_metadata_from_all_sqlite_files_in_folder <- function(sqlite_folder) {
   
-  library(DBI)
-  library(dplyr)
-  
   # Get all SQLite files in the folder
   sqlite_files <- list.files(sqlite_folder, pattern = "\\.sqlite$", full.names = TRUE)
   
@@ -62,6 +62,8 @@ get_metadata_from_all_sqlite_files_in_folder <- function(sqlite_folder) {
   # Combine all dataframes into one
   if (length(metadata_list) > 0) {
     files_metadata <- bind_rows(metadata_list)
+  } else {
+    files_metadata <- data.frame()  # return empty df if no files found
   }
   
   return(files_metadata)

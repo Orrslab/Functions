@@ -1,9 +1,13 @@
-# Get the metadata per species from the metadata_per_tag.csv file
-
 library(dplyr)
 
+# Get the metadata per species from the metadata_per_tag.csv file
+
+### USER'S INPUT BEGIN ###
+combined_species_data_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB/Combined_species_data"
+### USER'S INPUT END
+
 # Open the metadata per tag file
-metadata_file_path <- paste0(path_to_db, "/Combined_species_data/metadata_per_tag.csv")
+metadata_file_path <- file.path(combined_species_data_folder, "metadata_per_tag.csv")
 if (file.exists(metadata_file_path)) {
   metadata_per_tag <- read.csv(metadata_file_path)
   
