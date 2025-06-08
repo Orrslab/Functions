@@ -62,7 +62,8 @@ get_ATLAS_data <- function(data_requests,
     raw_atlas_data <- retrieve_and_store_atlas_data(data_requests = data_requests, 
                                                     atlas_db_credentials = atlas_db_credentials,
                                                     save_data_to_sqlite_file = save_data_to_sqlite_file,
-                                                    full_paths_to_store_sqlite_files= full_paths_to_sqlite_files)
+                                                    full_paths_to_store_data_files= full_paths_to_sqlite_files,
+                                                    save_data_to_csv_file = save_data_to_csv_file)
     
   } else {
     
