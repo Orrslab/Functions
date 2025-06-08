@@ -1,5 +1,5 @@
 
-source(paste0(path_to_atlas_data_analysis_repo, "create_sqlite_filepath.R"))
+source(file.path(getwd(), "create_sqlite_filepath.R"))
 
 #' Generate a list of SQLite file paths based on data requests
 #'
