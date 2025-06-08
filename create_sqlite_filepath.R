@@ -65,8 +65,8 @@ create_sqlite_filepath <- function(animal_name_code, tag_numbers, start_time, en
   filename <- paste(animal_name_code, "_",
                     tag_number_str, "_from_", 
                     start_time_replace_colons, "_to_", 
-                    end_time_replace_colons, ".sqlite", sep = "")
-  filepath = paste0(folder_path_to_sqlite_files, "/", filename)
+                    end_time_replace_colons, sep = "")
+  filepath = file.path(folder_path_to_sqlite_files, filename)
 
   return(filepath)
 }
