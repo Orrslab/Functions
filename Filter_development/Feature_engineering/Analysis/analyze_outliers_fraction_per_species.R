@@ -9,10 +9,12 @@ library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
 
-path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
-path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
+### USER'S INPUT BEGIN ###
+path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/lABELED_data_DB/Visual_Filter_DB"
+path_to_combined_species_data <- file.path(path_to_db, "Combined_species_data")
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
 output_filepath <- file.path("C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Features_analysis", "species_outlier_summary.csv")
+### USER'S INPUT'S END ###
 
 # Load species metadata
 species_metadata <- read_excel(path_to_species_metadata)
@@ -26,11 +28,11 @@ for (species_id in species_metadata$Species_ID) {
   print(species_id)
   
   # Name of the sqlite file with the localization_data + features of the species
-  sqlite_file_name <- paste0(species_id, "_features_eng.sqlite")
+  sqlite_file_name <- paste0(species_id, "_labeled_data.sqlite")
   
   # Load the LOCALIZATIONS and PARTICIPATING_BASE_STATIONS data tables from sqlite
   data <- load_tables_from_sqlite_file(
-    sqlite_filepath = file.path(path_to_data_with_features, sqlite_file_name), 
+    sqlite_filepath = file.path(path_to_combined_species_data, sqlite_file_name), 
     tables = "LOCALIZATIONS")
   
   localizations_data <- data$LOCALIZATIONS
