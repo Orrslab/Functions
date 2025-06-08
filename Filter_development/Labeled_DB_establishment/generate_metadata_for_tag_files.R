@@ -21,7 +21,7 @@ generate_metadata_for_tag_files <- function(path_to_species,
   
   # Re-order the column names
   files_metadata <- files_metadata %>%
-    select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
+    dplyr::select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
   
   return(files_metadata)
 }

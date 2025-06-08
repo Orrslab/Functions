@@ -61,7 +61,7 @@ generate_metadata_per_tag_from_species_localizations_data <- function(localizati
   
   # Re-order the column names
   metadata_per_tag <- metadata_per_tag %>%
-    select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
+    dplyr::select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
   
   # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
   metadata_file_path <- file.path(combined_species_data_folder, "metadata_per_tag.csv")
