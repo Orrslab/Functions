@@ -45,10 +45,10 @@ path_to_species <- paste0(path_to_db, species_id)
 
 #######################################################################
 
-### Get the metadata from the sqlite files ###
+### Generate the metadata from all the sqlite files of the labeled data sent from the reviewers ###
 files_metadata <- get_metadata_from_all_sqlite_files_in_folder(path_to_species)
 
-# Add the Species ID, Reviewer and data source
+# Add the Species ID, Reviewer's name and data source
 files_metadata <- files_metadata %>%
   mutate(
     Species_ID = species_id,    # Assuming species_id is a single value for all rows
