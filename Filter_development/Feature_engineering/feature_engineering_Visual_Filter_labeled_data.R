@@ -17,7 +17,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 ## USER INPUT BEGINNING 
 
-path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
+path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
@@ -38,7 +38,7 @@ species_metadata <- read_excel(path_to_species_metadata)
 for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
-  species_id <- "LD"
+  # species_id <- "LD"
   # species_id <- "CB"
   
   print(species_id)
@@ -60,7 +60,7 @@ for (species_id in species_metadata$Species_ID) {
   # Delete duplicates from the localizations data- in case there are duplicates
   localization_data <- check_and_clean_duplicates_in_localizations(
     localization_data = localization_data,
-    clean_duplicates = TRUE)
+    clean_duplicates = FALSE)
   
   # Convert dateTime to a human-readable format
   localization_data$dateTime <- as.POSIXct(localization_data$dateTime, origin = "1970-01-01", tz = "UTC")
