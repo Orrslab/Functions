@@ -90,16 +90,19 @@ sqlite_filepath <- file.path(combined_species_data_folder, file_name_species)
 species_localizations_data <- combined_species_data$LOCALIZATIONS
 species_detections_data <- combined_species_data$DETECTIONS
 
-save_ATLAS_data_to_sqlite(localizations_data = species_localizations_data,
-                          detections_data = species_detections_data,
-                          fullpath = sqlite_filepath)
-
 #######################################################################
 
 # Check for duplicates in the combined species data
 species_localizations_data <- check_and_clean_duplicates_in_localizations(
   localization_data = species_localizations_data,
   clean_duplicates = TRUE)
+
+#######################################################################
+
+# Save the combined species data
+save_ATLAS_data_to_sqlite(localizations_data = species_localizations_data,
+                          detections_data = species_detections_data,
+                          fullpath = sqlite_filepath)
 
 #######################################################################
 
