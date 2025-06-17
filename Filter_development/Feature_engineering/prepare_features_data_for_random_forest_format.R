@@ -19,39 +19,45 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
-output_filename <- "Features_data_for_RF_all_species.sqlite"
+cleaned_feature_data_all_species_filename <- "Features_data_for_RF_all_species.sqlite"
 
 ### USER INPUT END
 
 # Set the names of the relevant tables to load from the sqlite data file
-tables_to_load <- c("LOCALIZATIONS")
-
-# DEBUG
-# tables_to_load <- c("LOCALIZATIONS", "DETECTIONS")
+tables_to_load <- c("LOCALIZATIONS", 
+                    "DETECTIONS", 
+                    "PARTICIPATING_BASE_STATIONS", 
+                    "MISSED_BASE_STATIONS")
 
 # Load species metadata
 species_metadata <- read_excel(path_to_species_metadata)
 
-# Initialize a data frame for the combined data of all species
-combined_data <- data.frame()
+# Initialize a data frames for the combined data of all species
+combined_localizations_data <- data.frame()
+combined_detections_data <- data.frame()
+combined_participating_bs_data <- data.frame()
+combined_missed_bs_data <- data.frame()
 
 # Run on the species
 for (species_id in species_metadata$Species_ID) {
  
   # For debug purposes
-  # species_id <- "RW"
+  # species_id <- "LD"
   
   print(species_id)
   
   # Name of the sqlite file with the localization_data + features of the species
   sqlite_file_name <- paste0(species_id, "_features_eng.sqlite")
   
-  # Load the LOCALIZATIONS and PARTICIPATING_BASE_STATIONS data tables from sqlite
+  # Load the features' data tables from sqlite
   data <- load_tables_from_sqlite_file(
     sqlite_filepath = file.path(path_to_data_with_features, sqlite_file_name), 
     tables = tables_to_load)
   
   localization_data <- data$LOCALIZATIONS
+  detections_data <- data$DETECTIONS
+  participating_base_stations <- data$PARTICIPATING_BASE_STATIONS
+  missed_base_stations <- data$MISSED_BASE_STATIONS
   
   ##  Handle columns with structural NA values- random forest does not accept NA values
 
@@ -83,9 +89,15 @@ for (species_id in species_metadata$Species_ID) {
     dplyr::select(-Outliers, Outliers)
   
   # Append the prepared species data to the combined dataframe
-  combined_data <- bind_rows(combined_data, localization_data)
+  combined_localizations_data <- bind_rows(combined_localizations_data, localization_data)
+  combined_detections_data <- bind_rows(combined_detections_data, detections_data)
+  combined_participating_bs_data <- bind_rows(combined_participating_bs_data, participating_base_stations)
+  combined_missed_bs_data <- bind_rows(combined_missed_bs_data, missed_base_stations)
   
 }
 
-save_ATLAS_data_with_features_to_sqlite(localizations_data = combined_data,
-                                        fullpath = file.path(path_to_data_with_features, output_filename))
+save_ATLAS_data_with_features_to_sqlite(localizations_data = combined_localizations_data,
+                                        detections_data = combined_detections_data,
+                                        participating_base_stations = combined_participating_bs_data,
+                                        missed_base_stations = combined_missed_bs_data,
+                                        fullpath = file.path(path_to_data_with_features, cleaned_feature_data_all_species_filename))
