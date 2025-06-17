@@ -54,9 +54,6 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- data$LOCALIZATIONS
   detection_data <- data$DETECTIONS
   
-  # Add the species_id to the localizations data
-  localization_data$Species_id <- species_id
-  
   # Delete duplicates from the localizations data- in case there are duplicates
   localization_data <- check_and_clean_duplicates_in_localizations(
     localization_data = localization_data,
@@ -81,6 +78,12 @@ for (species_id in species_metadata$Species_ID) {
 
   # Calculate features that require values of other point-based and window-based features
   localization_data <- calculate_post_window_features(localization_data)
+  
+  # Add the species_id to the data tables
+  localization_data$Species_id <- species_id
+  detection_data$Species_id <- species_id
+  participating_base_stations$Species_id <- species_id
+  missed_base_stations$Species_id <- species_id
   
   # Print the first rows of localization_data
   print("Final LOCALIZATIONS with features:")
