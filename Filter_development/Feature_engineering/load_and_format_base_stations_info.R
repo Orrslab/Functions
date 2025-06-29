@@ -53,7 +53,7 @@ load_and_format_base_stations_info <- function(base_stations_info_path) {
   bs_info[, Until := as.numeric(Until)]
   
   # Filter relevant columns and rename to distinguish them from the localizations' coordinates
-  bs_info <- bs_info[, .(Radio_serial_number, bs_lat = Latitude, bs_lon = Longitude, Since, Until)]
+  bs_info <- bs_info[, .(Radio_serial_number, bs_lat = Latitude, bs_lon = Longitude, Elevation, Since, Until)]
   
   return(bs_info)
 }

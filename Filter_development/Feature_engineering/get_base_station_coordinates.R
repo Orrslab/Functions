@@ -18,7 +18,8 @@
 #'
 #' @return A named list with the elements:
 #'   - `bs_lon`: Longitude of the base station
-#'   - `bs_lat`: Latitude of the base station  
+#'   - `bs_lat`: Latitude of the base station 
+#'   - `bs_elevation`: Elevation of the base station above sea level [m]
 #'   If no matching record is found, returns `NULL`.
 #'
 #' @details 
@@ -44,5 +45,8 @@ get_base_station_coordinates <- function(base_station_number, location_time_unix
   
   if (nrow(bs_subset) == 0) return(NULL)
   
-  return(list(bs_lon = bs_subset$bs_lon[1], bs_lat = bs_subset$bs_lat[1]))
+  return(list(
+    bs_lon = bs_subset$bs_lon[1], 
+    bs_lat = bs_subset$bs_lat[1],
+    bs_elevation = bs_subset$Elevation[1]))
 }

@@ -2,7 +2,7 @@ library(data.table)
 library(geosphere)
 
 source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
-
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_base_stations_distribution_features.R"))
 
 #' Calculate distances to closest and farthest base stations
 #'
@@ -68,6 +68,9 @@ calculate_distance_to_closest_and_farthest_base_stations <- function(localizatio
   # --- Check/convert all coordinate columns to numeric ---
   matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),
           .SDcols = c("bs_lat", "bs_lon", "loc_lat", "loc_lon")]
+  
+  # --- Calculate the distribution of the base stations --- #
+  localizations_data <- calculate_base_stations_distribution_features(matched, localizations_data)
 
   # --- Compute distance from each localization to each base station ---
   matched[, dist := mapply(function(lat1, lon1, lat2, lon2) {

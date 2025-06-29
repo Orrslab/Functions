@@ -2,6 +2,8 @@ library(dplyr)
 
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "calculate_elevation_per_location.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
 
 #' Calculate point-based movement, location, and signal-based features for the outliers filtering algorithm
@@ -78,10 +80,25 @@ calculate_point_based_features <- function(localization_data, detection_data) {
 
   # SNR- Signal to Noise Ratio and other detection-based features
   
-  results <- calculate_detection_based_features(localization_data, detection_data)
+  # Load the base stations info
+  base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
+  base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
+  
+  # Calculate the detection-based features
+  results <- calculate_detection_based_features(localization_data, 
+                                                detection_data,
+                                                base_stations_info)
+  
+  # Calculate the absolute value of the average difference between the location's elevation 
+  # and the elevation of each participating base station
+  localizations_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
+    localizations_data = results$localizations_data,
+    participating_base_stations = results$participating_base_stations,
+    base_stations_info = base_stations_info
+  )
   
   return(list(
-    localizations_data = results$localizations_data,
+    localizations_data = localizations_data,
     participating_base_stations = results$participating_base_stations,
     missed_base_stations = results$missed_base_stations
   ))
