@@ -3,6 +3,7 @@ library(geosphere)
 
 source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_base_stations_convex_hull_polygon.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circular_variance_of_participating_base_stations.R"))
 
 #' Calculate distances to closest and farthest base stations
 #'
@@ -69,9 +70,12 @@ calculate_distance_to_closest_and_farthest_base_stations <- function(localizatio
   matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),
           .SDcols = c("bs_lat", "bs_lon", "loc_lat", "loc_lon")]
   
-  # --- Calculate the distribution of the base stations --- #
-  localizations_data <- calculate_base_stations_convex_hull_polygon(matched, localizations_data)
-
+  # # --- Calculate the distribution of the base stations --- #
+  # localizations_data <- calculate_base_stations_convex_hull_polygon(matched, localizations_data)
+  
+  # --- Calculate the circular variance of the participating base stations
+  localizations_data <- calculate_circular_variance_of_participating_base_stations(localizations_data, matched)
+  
   # --- Compute distance from each localization to each base station ---
   matched[, dist := mapply(function(lat1, lon1, lat2, lon2) {
     distHaversine(c(lon1, lat1), c(lon2, lat2))
