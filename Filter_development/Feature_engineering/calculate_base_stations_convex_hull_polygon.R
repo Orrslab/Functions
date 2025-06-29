@@ -3,7 +3,7 @@ library(sp)
 library(geosphere)
 library(dplyr)
 
-#' Calculate Base Stations Distribution Features
+#' Calculate Base Stations Convex Hull Polygon
 #'
 #' For each localization, this function:
 #' - Computes the area of the convex hull polygon formed by the participating base stations.
@@ -20,13 +20,17 @@ library(dplyr)
 #'   - `is_loc_inside_bs_polygon`: logical, TRUE if location is within the polygon, FALSE otherwise
 #'
 #' @export
-calculate_base_stations_distribution_features <- function(matched, localizations_data) {
+calculate_base_stations_convex_hull_polygon <- function(matched, localizations_data) {
   # Ensure input is data.table
   matched <- as.data.table(matched)
   localizations_data <- as.data.table(localizations_data)
   
   # Add unique ID to group by location
   matched[, loc_id := .GRP, by = .(TAG, TIME)]
+  
+  #### Calculate the area of the polygon generated from the coordinates 
+  #### of the participating base stations of each location, 
+  #### and check if the location is inside or outside of the polygon
   
   # For each location
   results <- matched[, {
