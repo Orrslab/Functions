@@ -4,12 +4,12 @@ library(sp)
 #' Add elevation data to localization points using a Digital Elevation Model (DEM)
 #'
 #' Extracts elevation values from a Digital Elevation Model (DEM) raster and adds them
-#' to a localization dataset based on geographic coordinates (longitude and latitude).
+#' to a localization data set, based on geographic coordinates (longitude and latitude).
 #'
 #' @param localizations_data A data frame containing localization points with columns named \code{lon} and \code{lat}
 #' representing geographic coordinates in decimal degrees (WGS84).
 #' @param dem_file A character string specifying the path to the DEM file (GeoTIFF or similar raster format). 
-#' Default is \code{"DEM_Harod.tif"}. Such a file can be downliaded from the internet.
+#' Default is \code{"DEM_Harod.tif"}. Such a file can be downloaded from the internet.
 #' Here is how: https://www.youtube.com/watch?v=yYWdxExabHo&ab_channel=GeoDeltaLabs
 #'
 #' @return A data frame identical to \code{localizations_data}, with an additional column \code{DEM_elevation}
