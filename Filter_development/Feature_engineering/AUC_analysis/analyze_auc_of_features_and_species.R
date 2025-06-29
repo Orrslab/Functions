@@ -26,6 +26,11 @@ data <- load_tables_from_sqlite_file(
 
 localizations_data <- data$LOCALIZATIONS
 
+# Remove the TIME column
+localizations_data <- localizations_data %>% select(-TIME)
+# Remove the TAG column
+localizations_data <- localizations_data %>% select(-TAG)
+
 # Calculate the AUC value per feature
 auc_per_feature <- calculate_auc_per_feature(df = localizations_data)
 
