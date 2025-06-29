@@ -32,6 +32,11 @@ localizations_data$Outliers <- factor(localizations_data$Outliers, levels = c("v
 # Print the order of levels of Outliers in order to interpret correctly the results of Cohen's d
 print(paste0("Level of the Outleirs column are: ", levels(localizations_data$Outliers)))
 
+# Remove the TIME column
+localizations_data <- localizations_data %>% select(-TIME)
+# Remove the TAG column
+localizations_data <- localizations_data %>% select(-TAG)
+
 # Calculate Cohen's d per feature
 cohens_d_per_feature <- calculate_cohens_d_per_feature(df = localizations_data)
 
