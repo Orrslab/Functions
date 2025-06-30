@@ -70,8 +70,8 @@ calculate_distance_to_closest_and_farthest_base_stations <- function(localizatio
   matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),
           .SDcols = c("bs_lat", "bs_lon", "loc_lat", "loc_lon")]
   
-  # # --- Calculate the distribution of the base stations --- #
-  # localizations_data <- calculate_base_stations_convex_hull_polygon(matched, localizations_data)
+  # --- Calculate the distribution of the base stations, relative to the convex hull polygon --- #
+  localizations_data <- calculate_base_stations_convex_hull_polygon(matched, localizations_data)
   
   # --- Calculate the circular variance of the participating base stations
   localizations_data <- calculate_circular_variance_of_participating_base_stations(localizations_data, matched)
