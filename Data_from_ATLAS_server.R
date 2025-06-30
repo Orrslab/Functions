@@ -78,7 +78,7 @@ data_from_atlas_server <- function(Start_Time_Str,End_Time_Str,Tag_numbers,inclu
   # If 'includeLoc' is TRUE, retrieve the locations data from the database
   if(includeLoc) {
     for (i in 1:length(Tag_numbers)) { 
-      # build a  LOCALIZATIONS query for the system, the results include the variables listed below # NCONSTRAINTS
+      # build a  LOCALIZATIONS query for the system, the results include the variables listed below
       query = paste('SELECT TAG,TIME,X,Y,Z,VARX,VARY,COVXY,NBS,PENALTY', 
                     'FROM LOCALIZATIONS WHERE TAG=', Tag_numbers[i], 
                     'AND TIME >=', ATLAS_Start_Time, 
