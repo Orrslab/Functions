@@ -70,6 +70,9 @@ calculate_detection_based_features <- function(localizations_data,
   # Calculate the distance to all matched base stations
   matched_with_dist <- calculate_distance_to_matched_base_stations(matched_detections, base_stations_info)
   
+  # Create a table with the participating base stations in each localization
+  participating_base_stations <- create_participating_base_stations_table(localizations_data, matched_with_dist)
+  
   # Calculate the distribution of the base stations, relative to the convex hull polygon --- #
   localizations_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localizations_data)
   
@@ -80,9 +83,6 @@ calculate_detection_based_features <- function(localizations_data,
   localizations_data_with_features <- calculate_distance_to_closest_and_farthest_base_stations(
     localizations_data_with_features,
     matched_with_dist)
-  
-  # Create a table with the participating base stations in each localization
-  participating_base_stations <- create_participating_base_stations_table(localizations_data, matched_with_dist)
   
   # Get the base stations that were excluded from each localization 
   # and evaluated features that are related to these base stations
