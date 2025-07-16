@@ -72,7 +72,5 @@ create_participating_base_stations_table <- function(localizations_data, matched
     by = .(TAG, TIME)
   ]
   
-  print(participating_base_stations)
-  
   return(participating_base_stations)
 }
