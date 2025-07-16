@@ -37,13 +37,24 @@ calculate_SNR_features <- function(matched_detections, localizations_data) {
   matched_dt <- as.data.table(matched_detections)
   loc_dt <- as.data.table(localizations_data)
   
+  # Add rounded time column to matched detections if not present
+  if (!"roundTIME" %in% names(matched_dt)) {
+    matched_dt[, roundTIME := round(TIME / 1000) * 1000]
+  }
+  
+  # Add rounded time column to localizations data
+  loc_dt[, roundTIME := round(TIME / 1000) * 1000]
+  
+  print(head(matched_dt$roundTIME))
+  print(head(loc_dt$roundTIME))
+  
   # Calculate SNR-based features per localization (by TAG and TIME or roundTIME)
   snr_summary <- matched_dt[
     , {
       snr_min <- min(SNR, na.rm = TRUE)
       snr_max <- max(SNR, na.rm = TRUE)
       snr_mean <- mean(SNR, na.rm = TRUE)
-      snr_sd <- sd(SNR, na.rm = TRUE)
+      snr_sd <- sd(SNR, na.rm = TRUE)  # no num_non_na check
       list(
         SNR_min = snr_min,
         SNR_max = snr_max,
@@ -54,11 +65,11 @@ calculate_SNR_features <- function(matched_detections, localizations_data) {
         SNR_cv = ifelse(snr_mean == 0, NA, snr_sd / snr_mean)
       )
     },
-    by = .(TAG, TIME)
+    by = .(TAG, roundTIME)
   ]
   
   # Merge SNR features back into the localization_data (preserving order)
-  localizations_data_with_snr_features <- merge(loc_dt, snr_summary, by = c("TAG", "TIME"), all.x = TRUE)
+  localizations_data_with_snr_features <- merge(loc_dt, snr_summary, by = c("TAG", "roundTIME"), all.x = TRUE)
   
   # Return as data.frame if needed
   return(as.data.frame(localizations_data_with_snr_features))
