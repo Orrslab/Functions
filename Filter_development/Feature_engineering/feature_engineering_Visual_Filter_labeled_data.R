@@ -11,7 +11,7 @@ source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 source(file.path(getwd(), "check_and_clean_duplicates_in_localizations.R"))
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
-source(file.path(getwd(),"Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_post_window_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
@@ -19,6 +19,9 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+folder_of_beacons_info_tables <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/Feature_engineering"
+filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
+filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
 # # Define the time gap between tracks in seconds. 
@@ -27,10 +30,18 @@ folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_deve
 # 
 half_time_window_size_sec <- 25
 
+low_beacon_detection_fraction <- 0.6
+
 ### USER INPUT END
 
 # Load species metadata
 species_metadata <- read_excel(path_to_species_metadata)
+
+# Load the hourly detections counts of the beacons
+base_stations_summary_per_beacon <- readRDS(file.path(folder_of_beacons_info_tables, filename_base_stations_summary_per_beacon))
+
+# Load the beacons detection ratio table
+beacons_detection_ratio_per_hour <- readRDS(file.path(folder_of_beacons_info_tables, filename_beacons_detection_ratio_table))
 
 # all_data <- load_atlas_data_from_sqlite(file.path(path_to_db, "labeled_data_db.sqlite"))
 
@@ -40,6 +51,8 @@ for (species_id in species_metadata$Species_ID) {
   # For debug purposes
   # species_id <- "LD"
   # species_id <- "CB"
+  # species_id <- "RW"
+  # species_id <- "GJ"
   
   print(species_id)
   
@@ -66,8 +79,13 @@ for (species_id in species_metadata$Species_ID) {
   localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
   # Calculate the point-based_features
-  results <- calculate_point_based_features(localization_data, detection_data)
+  results <- calculate_point_based_features(localization_data, 
+                                            detection_data, 
+                                            beacons_detection_ratio_per_hour,
+                                            base_stations_summary_per_beacon,
+                                            low_beacon_detection_fraction)
   
+  # Extract the results
   localization_data <- results$localizations_data
   participating_base_stations <- results$participating_base_stations
   missed_base_stations <- results$missed_base_stations
@@ -86,9 +104,9 @@ for (species_id in species_metadata$Species_ID) {
   missed_base_stations$Species_id <- species_id
   
   # Print the first rows of localization_data
-  print("Final LOCALIZATIONS with features:")
+  # print("Final LOCALIZATIONS with features:")
   # print(colnames(localization_data))
-  print(head(localization_data, 20))
+  # print(head(localization_data, 20))
   
   ## Save the data as sqlite
   output_file_name <- paste0(species_id, "_features_eng.sqlite")

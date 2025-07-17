@@ -5,6 +5,7 @@ source(file.path(getwd(), "calculate_elevation_per_location.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beacon_derived_features.R"))
 
 #' Calculate point-based movement, location, and signal-based features for the outliers filtering algorithm
 #'
@@ -35,7 +36,11 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_dete
 #' @import dplyr
 #' @export
 
-calculate_point_based_features <- function(localization_data, detection_data) {
+calculate_point_based_features <- function(localization_data, 
+                                           detection_data, 
+                                           beacons_detection_ratio_per_hour, 
+                                           base_stations_summary_per_beacon,
+                                           low_beacon_detection_fraction) {
   
   # Verify that the data frame has the columns TAG and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
@@ -89,18 +94,29 @@ calculate_point_based_features <- function(localization_data, detection_data) {
                                                 detection_data,
                                                 base_stations_info)
   
+  localizations_data <- results$localizations_data
+  participating_base_stations <- results$participating_base_stations
+  missed_base_stations <- results$missed_base_stations
+  
   # Calculate the absolute value of the average difference between the location's elevation 
   # and the elevation of each participating base station
   localizations_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
-    localizations_data = results$localizations_data,
-    participating_base_stations = results$participating_base_stations,
-    base_stations_info = base_stations_info
+    localizations_data,
+    participating_base_stations,
+    base_stations_info
   )
+  
+  # Calculate beacons' features
+  localizations_data <- calculate_beacon_derived_features(localizations_data, 
+                                                          participating_base_stations, 
+                                                          beacons_detection_ratio_per_hour,
+                                                          base_stations_summary_per_beacon,
+                                                          low_beacon_detection_fraction) 
   
   return(list(
     localizations_data = localizations_data,
-    participating_base_stations = results$participating_base_stations,
-    missed_base_stations = results$missed_base_stations
+    participating_base_stations = participating_base_stations,
+    missed_base_stations = missed_base_stations
   ))
   
 }

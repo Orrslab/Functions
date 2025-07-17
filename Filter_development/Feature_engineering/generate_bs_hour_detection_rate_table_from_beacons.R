@@ -1,7 +1,7 @@
 library(dplyr)
 library(tidyr)
 
-generate_bs_hour_detection_rate_table_from_beacons <- function(bs_summary_data, detection_summary, min_detection_ratio = 0.5, max_distance_beacon_bs_km = 7) {
+generate_bs_hour_detection_rate_table_from_beacons <- function(bs_summary_data, detection_summary, min_detection_ratio = 0.5, max_distance_beacon_bs_km = 7, low_detection_fraction = 0.6) {
   
   # Filter the detection_summary table by the minimum detection ratio
   expected_detections <- detection_summary %>%
@@ -23,10 +23,10 @@ generate_bs_hour_detection_rate_table_from_beacons <- function(bs_summary_data, 
     mutate(
       HOUR_POSIX = as.POSIXct(HOUR / 1000, origin = "1970-01-01", tz = "UTC")
       ) %>%
-    select(BS, TAG, HOUR, HOUR_POSIX, DETECTIONS, MAX_SNR) %>%
+    dplyr::select(BS, TAG, HOUR, HOUR_POSIX, DETECTIONS, MAX_SNR) %>%
     left_join(
       expected_detections %>%
-        select(TAG, BS, OVERLAP_START, OVERLAP_END),
+        dplyr::select(TAG, BS, OVERLAP_START, OVERLAP_END),
       by = c("TAG", "BS"), 
       relationship = "many-to-many"
     ) %>%
@@ -42,15 +42,16 @@ generate_bs_hour_detection_rate_table_from_beacons <- function(bs_summary_data, 
       TOTAL_DETECTIONS = sum(DETECTIONS, na.rm = TRUE),
       TOTAL_MAX_SNR = sum(MAX_SNR, na.rm = TRUE),
       NUM_EXPECTED_BEACONS = n_distinct(TAG),
+      NUM_LOW_DETECTION_BEACONS = sum(NORMALIZED_DETECTIONS < low_detection_fraction, na.rm = TRUE),
       BEACONS_DETECTION_MULTIPLICATION = prod(NORMALIZED_DETECTIONS, na.rm = TRUE),
       TAGS_EXPECTED = list(unique(TAG)),
       .groups = "drop"
     ) %>%
     mutate(
       BEACONS_DETECTION_RATE = TOTAL_DETECTIONS / (NUM_EXPECTED_BEACONS * 3600),
-      MAX_SNR_TOTAL_RATIO = TOTAL_MAX_SNR / NUM_EXPECTED_BEACONS
+      MAX_SNR_MEAN_RATIO = TOTAL_MAX_SNR / NUM_EXPECTED_BEACONS
     ) %>%
-    select(BS, HOUR, NUM_EXPECTED_BEACONS, BEACONS_DETECTION_MULTIPLICATION, BEACONS_DETECTION_RATE, MAX_SNR_TOTAL_RATIO, TAGS_EXPECTED)
+    dplyr::select(BS, HOUR, NUM_EXPECTED_BEACONS, NUM_LOW_DETECTION_BEACONS, BEACONS_DETECTION_MULTIPLICATION, BEACONS_DETECTION_RATE, MAX_SNR_MEAN_RATIO, TAGS_EXPECTED)
   
   
   # # Group by BS and HOUR, then compute the rate
