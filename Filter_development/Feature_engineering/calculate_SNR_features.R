@@ -45,9 +45,6 @@ calculate_SNR_features <- function(matched_detections, localizations_data) {
   # Add rounded time column to localizations data
   loc_dt[, roundTIME := round(TIME / 1000) * 1000]
   
-  print(head(matched_dt$roundTIME))
-  print(head(loc_dt$roundTIME))
-  
   # Calculate SNR-based features per localization (by TAG and TIME or roundTIME)
   snr_summary <- matched_dt[
     , {
