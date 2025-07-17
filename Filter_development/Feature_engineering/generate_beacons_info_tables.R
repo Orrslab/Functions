@@ -16,9 +16,10 @@ path_to_atlas_info <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stat
 path_to_beacons_info <- file.path(path_to_atlas_info, "Beacons_info.xlsx")
 path_to_base_stations_info <- file.path(path_to_atlas_info, "Base_stations_info.csv")
 time_of_bs_detections_summary_retrieval <- "2025-Jul-13 18:00"
-min_detection_ratio <- 0.7   # minimum ratio between number of hours that a base station detected a certain beacon to the total number of hours
-min_detections_number <- 300
+min_detection_ratio <- 0.80   # minimum ratio between number of hours that a base station detected a certain beacon to the total number of hours
+min_detections_number <- 3600*0.9
 max_distance_beacon_bs_km <- 7
+low_detection_fraction = 0.6   # Fraction below which the number of DETECTIONS in an HOUR is considered low.
 ### USER'S INPUT END
 
 # Upload the hourly detections of each beacon by each base station
@@ -45,7 +46,8 @@ beacons_detection_ratio_per_hour <- generate_bs_hour_detection_rate_table_from_b
   base_stations_summary_per_tag, 
   beacons_detection_ratio_per_bs, 
   min_detection_ratio,
-  max_distance_beacon_bs_km)
+  max_distance_beacon_bs_km,
+  low_detection_fraction)
 
 # print(beacons_detection_ratio_per_hour)
 
