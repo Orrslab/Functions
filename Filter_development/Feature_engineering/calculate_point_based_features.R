@@ -51,6 +51,10 @@ calculate_point_based_features <- function(localization_data,
     stop("Error: 'time_diff_sec' column is missing from the dataframe.")
   }
   
+  if (!all(c("VARX", "VARY", "COVXY") %in% colnames(localization_data))) {
+    stop("Error: 'VARX', 'VARY' and 'COVXY' columns are missing from the dataframe.")
+  }
+  
   ### 1. Movement-Based Features (Time-Dependent)- to capture unrealistic movement patterns
   
   # Distance between consecutive points
@@ -62,11 +66,16 @@ calculate_point_based_features <- function(localization_data,
                                                                                  localization_data$Y)
   
   # Speed [m/s]
-  # was already calculated by the Visual Filter App
+  localization_data$Speed_m_s <- calculate_speed(localization_data$dist_m, 
+                                                 localization_data$time_diff_sec)
   
   # Acceleration [m/s^2]
   localization_data$Acceleration_m_s_2 <- calculate_acceleration(localization_data$Speed_m_s, 
                                                                  localization_data$time_diff_sec)
+  # STD of the ATLAS localizations
+  localization_data$STD <- calculate_std(localization_data$VARX,
+                                         localization_data$VARY,
+                                         localization_data$COVXY)
   
   # Cosine of the turning angle
   localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
