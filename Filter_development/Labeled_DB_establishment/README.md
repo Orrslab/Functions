@@ -48,7 +48,7 @@ This script:
 
 ---
 
-## 5. Run `generate_metadata_per_species.R` Script
+## 5. Run `get_metadata_per_species.R` Script
 This script:
 - Combines metadata across all species from the file `/Combined_species_data/metadata_per_tag.csv`.
 - Generates a `/Combined_species_data/metadata_per_species.csv` file containing the following columns:
