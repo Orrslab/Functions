@@ -77,9 +77,13 @@ calculate_point_based_features <- function(localization_data,
                                          localization_data$VARY,
                                          localization_data$COVXY)
   
-  # Cosine of the turning angle
-  localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
-                                                                        localization_data$Y)   
+  # # Cosine of the turning angle
+  # localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
+  #                                                                       localization_data$Y)  
+  
+  # Turning angle between each location and its' previous and next consecutive points
+  localization_data$turning_angle <- calculate_directional_turning_angle(localization_data$X, 
+                                                                         localization_data$Y)
 
   ### 2. Location-Based Features
   # Currently I calculate these features only within a time window
