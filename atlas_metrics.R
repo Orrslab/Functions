@@ -247,3 +247,18 @@ calculate_cosine_turning_angle <- function(X_column, Y_column) {
   # Return the data frame with cosine values added as a new column
   return(cos_angles)
 }
+
+# Calculate the turning angle between each location point and its previous and next points.
+# Results vary between 0 and 360 degrees.
+calculate_directional_turning_angle <- function(X, Y) {
+  # Compute the differences between consecutive points
+  dx <- diff(X)
+  dy <- diff(Y)
+  
+  # Calculate the angle in radians using atan2, then convert to degrees
+  angle_rad <- atan2(dy, dx)
+  angle_deg <- (angle_rad * 180 / pi) %% 360  # Ensure the angle is between 0 and 360
+  
+  # Return NA for the first row (since it has no previous point)
+  return(c(NA, angle_deg))
+}
