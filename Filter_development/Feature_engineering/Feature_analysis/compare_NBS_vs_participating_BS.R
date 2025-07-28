@@ -47,17 +47,17 @@ for (species_id in species_metadata$Species_ID) {
   data <- load_tables_from_sqlite_file(sqlite_filepath = file.path(path_to_data_with_features, sqlite_file_name), 
                                        tables = tables_to_load)
   
-  localizations_data <- data$LOCALIZATIONS
+  localization_data <- data$LOCALIZATIONS
   participating_bs <- data$PARTICIPATING_BASE_STATIONS
 
   # Convert the data frames to data.table
-  loc_dt <- as.data.table(localizations_data)
+  loc_dt <- as.data.table(localization_data)
   pbs_dt <- as.data.table(participating_bs)
 
   # Count the number of participating base stations per (TAG, TIME)
   pbs_counts <- pbs_dt[, .(num_participating_bs = .N), by = .(TAG, TIME)]
 
-  # Merge with localizations_data to compare
+  # Merge with localization_data to compare
   merged_dt <- merge(loc_dt, pbs_counts, by = c("TAG", "TIME"), all.x = TRUE)
 
   # Replace NA in num_participating_bs with 0 (in case no matches were found)

@@ -31,12 +31,12 @@
 #' reviewer_name <- "NT"
 #' data_source <- "ATLAS"
 #' filter_applied <- "Visual Filter App"
-#' generate_metadata_per_tag_from_species_localizations_data(localization_data, "data/Lapwing")
+#' generate_metadata_per_tag_from_species_localization_data(localization_data, "data/Lapwing")
 #' }
 #'
 #' @export
 #' 
-generate_metadata_per_tag_from_species_localizations_data <- function(localization_data,
+generate_metadata_per_tag_from_species_localization_data <- function(localization_data,
                                                                       combined_species_data_folder) {
   
   # Create a dataframe with the metadata of the file

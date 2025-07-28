@@ -12,13 +12,13 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circ
 #' Enriches each localization point with detection-based features derived from matched detections, including:
 #' signal quality, spatial distribution of base stations, and identification of missed base stations.
 #'
-#' @param localizations_data A `data.frame` or `data.table` containing localization data with columns such as `TAG`, `TIME`, `lat`, and `lon`.
+#' @param localization_data A `data.frame` or `data.table` containing localization data with columns such as `TAG`, `TIME`, `lat`, and `lon`.
 #' @param detections_data A `data.frame` or `data.table` of raw ATLAS detections, including detection times and base station IDs.
 #' @param base_stations_info A `data.frame` or `data.table` containing metadata about base stations, including location and identifiers.
 #'
 #' @return A named list with the following components:
 #' \describe{
-#'   \item{localizations_data}{The input localization data augmented with detection-based features.}
+#'   \item{localization_data}{The input localization data augmented with detection-based features.}
 #'   \item{participating_base_stations}{A `data.table` with the base stations that contributed to each localization.}
 #'   \item{missed_base_stations}{A `data.table` or list of base stations that were expected to contribute but did not detect the beacon.}
 #' }
@@ -47,8 +47,8 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circ
 #'
 #' @examples
 #' \dontrun{
-#' result <- calculate_detection_based_features(localizations_data, detections_data, base_stations_info)
-#' enriched_data <- result$localizations_data
+#' result <- calculate_detection_based_features(localization_data, detections_data, base_stations_info)
+#' enriched_data <- result$localization_data
 #' bs_participation <- result$participating_base_stations
 #' missed_bs <- result$missed_base_stations
 #' }
@@ -57,43 +57,43 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circ
 #' @export
 
 # Features per location, that reqire knowing the detections that correspond to each location
-calculate_detection_based_features <- function(localizations_data, 
+calculate_detection_based_features <- function(localization_data, 
                                                detections_data,
                                                base_stations_info) {
   
   # Get the detections corresponding to each location
-  matched_detections <- match_detections_to_localizations(localizations_data, detections_data)
+  matched_detections <- match_detections_to_localizations(localization_data, detections_data)
   
   # Calculate the SNR features
-  localizations_data_with_features <- calculate_SNR_features(matched_detections, localizations_data)
+  localization_data <- calculate_SNR_features(matched_detections, localization_data)
   
   # Calculate the distance to all matched base stations
   matched_with_dist <- calculate_distance_to_matched_base_stations(matched_detections, base_stations_info)
   
   # Create a table with the participating base stations in each localization
-  participating_base_stations <- create_participating_base_stations_table(localizations_data, matched_with_dist)
+  participating_base_stations <- create_participating_base_stations_table(localization_data, matched_with_dist)
   
   # Calculate the distribution of the base stations, relative to the convex hull polygon --- #
-  localizations_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localizations_data)
+  localization_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localization_data)
   
   # Calculate the circular variance of the participating base stations
-  localizations_data <- calculate_circular_variance_of_participating_base_stations(localizations_data, matched_with_dist)
+  localization_data <- calculate_circular_variance_of_participating_base_stations(localization_data, matched_with_dist)
   
   # Calculate the distance of each location from the closest base station
-  localizations_data_with_features <- calculate_distance_to_closest_and_farthest_base_stations(
-    localizations_data_with_features,
+  localization_data <- calculate_distance_to_closest_and_farthest_base_stations(
+    localization_data,
     matched_with_dist)
   
   # Get the base stations that were excluded from each localization 
   # and evaluated features that are related to these base stations
-  results <- calculate_missed_base_stations_features(localizations_data_with_features,
+  results <- calculate_missed_base_stations_features(localization_data,
                                                      base_stations_info)
   
-  localizations_data_with_features <- results$localizations_data
+  localization_data <- results$localization_data
   missed_base_stations <- results$missed_base_stations
   
   return(list(
-    localizations_data = localizations_data_with_features,
+    localization_data = localization_data,
     participating_base_stations = participating_base_stations,
     missed_base_stations = missed_base_stations
   ))

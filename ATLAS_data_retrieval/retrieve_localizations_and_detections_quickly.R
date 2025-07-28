@@ -29,4 +29,4 @@ atlas_data <- data_from_atlas_server(Start_Time_Str = "2024-08-15 06:01:00",
 
 detections_data <- atlas_data$DETECTIONS
 
-localizations_data <- atlas_data$LOCALIZATIONS
+localization_data <- atlas_data$LOCALIZATIONS

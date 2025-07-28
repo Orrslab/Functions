@@ -12,18 +12,18 @@ library(dplyr)
 #' @param matched A data.table containing matched localization and participating base station data.
 #'   Must contain columns: TAG, TIME, loc_lat, loc_lon, bs_lat, bs_lon.
 #'
-#' @param localizations_data A data.table of localization points to which the features will be added.
+#' @param localization_data A data.table of localization points to which the features will be added.
 #'   Must contain TAG and TIME.
 #'
-#' @return `localizations_data` with two new columns:
+#' @return `localization_data` with two new columns:
 #'   - `bs_polygon_area`: area of the polygon (in square meters)
 #'   - `is_loc_inside_bs_polygon`: logical, TRUE if location is within the polygon, FALSE otherwise
 #'
 #' @export
-calculate_base_stations_convex_hull_polygon <- function(matched, localizations_data) {
+calculate_base_stations_convex_hull_polygon <- function(matched, localization_data) {
   # Ensure input is data.table
   matched <- as.data.table(matched)
-  localizations_data <- as.data.table(localizations_data)
+  localization_data <- as.data.table(localization_data)
   
   # Add unique ID to group by location
   matched[, loc_id := .GRP, by = .(TAG, TIME)]
@@ -107,16 +107,16 @@ calculate_base_stations_convex_hull_polygon <- function(matched, localizations_d
   
   ################
   
-  # Convert matched to miliseconds to match the time units in localizations_data.
+  # Convert matched to miliseconds to match the time units in localization_data.
   matched[, TIME := TIME * 1000]
   
-  # Merge results back to localizations_data using loc_id
+  # Merge results back to localization_data using loc_id
   loc_ids <- unique(matched[, .(TAG, TIME, loc_id)])
-  localizations_data <- merge(localizations_data, loc_ids, by = c("TAG", "TIME"), all.x = TRUE)
-  localizations_data <- merge(localizations_data, results, by = "loc_id", all.x = TRUE)
+  localization_data <- merge(localization_data, loc_ids, by = c("TAG", "TIME"), all.x = TRUE)
+  localization_data <- merge(localization_data, results, by = "loc_id", all.x = TRUE)
   
   # Clean up
-  localizations_data[, loc_id := NULL]
+  localization_data[, loc_id := NULL]
   
-  return(localizations_data)
+  return(localization_data)
 }

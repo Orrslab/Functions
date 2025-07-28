@@ -5,7 +5,7 @@ library(data.table)
 #' Identifies base stations that were active and closer than the participating base stations, but did not participate in a given localization, 
 #' and computes features describing these "missed" base stations, such as their count and distance.
 #'
-#' @param localizations_data A `data.frame` or `data.table` of localization results, containing:
+#' @param localization_data A `data.frame` or `data.table` of localization results, containing:
 #' \itemize{
 #'   \item `TAG` – animal or tag identifier
 #'   \item `TIME` – timestamp in milliseconds
@@ -21,7 +21,7 @@ library(data.table)
 #'
 #' @return A list with two elements:
 #' \describe{
-#'   \item{`localizations_data`}{The input localization data, enriched with the following new columns: 
+#'   \item{`localization_data`}{The input localization data, enriched with the following new columns: 
 #'     \itemize{
 #'       \item `num_missed_bs` – number of missed base stations that were active and closer than the closest detected one
 #'       \item `closest_missed_bs_distance` – distance to the nearest missed base station
@@ -49,18 +49,18 @@ library(data.table)
 #'
 #' @examples
 #' \dontrun{
-#' result <- calculate_missed_base_stations_features(localizations_data, base_stations_info)
-#' updated_data <- result$localizations_data
+#' result <- calculate_missed_base_stations_features(localization_data, base_stations_info)
+#' updated_data <- result$localization_data
 #' missed_bs_table <- result$missed_base_stations
 #' }
 #'
 #' @export
 
-calculate_missed_base_stations_features <- function(localizations_data, base_stations_info) {
+calculate_missed_base_stations_features <- function(localization_data, base_stations_info) {
   message("calculating features of missed base stations in each localization.")
   
   # Ensure the data.tables are sorted and properly typed
-  loc_data <- as.data.table(localizations_data)
+  loc_data <- as.data.table(localization_data)
   bs_info <-  as.data.table(base_stations_info)
   
   # Convert loc_data$TIME from milliseconds to POSIXct
@@ -99,19 +99,19 @@ calculate_missed_base_stations_features <- function(localizations_data, base_sta
     mean_missed_bs_distance = if (.N > 1) mean(bs_distance) else NA_real_
   ), by = .(TAG, TIME)]
   
-  # Merge features back to localizations_data
-  localizations_data <- merge(localizations_data, missed_features, 
+  # Merge features back to localization_data
+  localization_data <- merge(localization_data, missed_features, 
                               by = c("TAG", "TIME"), all.x = TRUE)
   
   # Replace NAs with 0 or NA_real_ as needed- in case num_missed_bs got NA value instead of zero
-  localizations_data$num_missed_bs[is.na(localizations_data$num_missed_bs)] <- 0
-  localizations_data$closest_missed_bs_distance[is.na(localizations_data$closest_missed_bs_distance) & 
-                                                  localizations_data$num_missed_bs == 0] <- NA_real_
-  localizations_data$mean_missed_bs_distance[is.na(localizations_data$mean_missed_bs_distance) & 
-                                               localizations_data$num_missed_bs <= 1] <- NA_real_
+  localization_data$num_missed_bs[is.na(localization_data$num_missed_bs)] <- 0
+  localization_data$closest_missed_bs_distance[is.na(localization_data$closest_missed_bs_distance) & 
+                                                  localization_data$num_missed_bs == 0] <- NA_real_
+  localization_data$mean_missed_bs_distance[is.na(localization_data$mean_missed_bs_distance) & 
+                                               localization_data$num_missed_bs <= 1] <- NA_real_
   
   return(list(
-    localizations_data = localizations_data,
+    localization_data = localization_data,
     missed_base_stations = missed_bs
   ))
 

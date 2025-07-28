@@ -27,21 +27,21 @@ tables_to_load <- c("LOCALIZATIONS")
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 
 # Make sure data is a data.table
-localizations_data <- as.data.table(localizations_data)
+localization_data <- as.data.table(localization_data)
 
 ##############################
 ### Comnfusion table- is in polygon versus Outliers
 
 # Ensure both columns exist and are of the right type
-localizations_data <- localizations_data[!is.na(is_loc_inside_bs_polygon) & !is.na(Outliers)]
+localization_data <- localization_data[!is.na(is_loc_inside_bs_polygon) & !is.na(Outliers)]
 
 # Create confusion-style table
 confusion_table <- table(
-  InsidePolygon = localizations_data$is_loc_inside_bs_polygon,
-  OutlierStatus = localizations_data$Outliers
+  InsidePolygon = localization_data$is_loc_inside_bs_polygon,
+  OutlierStatus = localization_data$Outliers
 )
 
 # Print the table
@@ -51,7 +51,7 @@ print(confusion_table)
 ### Histograms of the participating base stations' polygon area, per species.
 
 # Remove rows with missing polygon area or species
-plot_data <- localizations_data[!is.na(bs_polygon_area) & !is.na(Species_id)]
+plot_data <- localization_data[!is.na(bs_polygon_area) & !is.na(Species_id)]
 
 # Loop over species and save histogram per species
 unique_species <- unique(plot_data$Species_id)

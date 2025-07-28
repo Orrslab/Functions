@@ -18,7 +18,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beac
 #'
 #' @return A list with the following elements:
 #' \describe{
-#'   \item{localizations_data}{A data frame with the original localizations and newly added features such as distance, acceleration, turning angle, and elevation.}
+#'   \item{localization_data}{A data frame with the original localizations and newly added features such as distance, acceleration, turning angle, and elevation.}
 #'   \item{participating_base_stations}{A data frame with the id numbers of the participating base stations per localization.}
 #'   \item{missed_base_stations}{A data frame with the expected but missing base stations id numbers per localization.}
 #' }
@@ -77,9 +77,9 @@ calculate_point_based_features <- function(localization_data,
                                          localization_data$VARY,
                                          localization_data$COVXY)
   
-  # # Cosine of the turning angle
-  # localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
-  #                                                                       localization_data$Y)  
+  # Cosine of the turning angle
+  localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X,
+                                                                        localization_data$Y)
   
   # Turning angle between each location and its' previous and next consecutive points
   localization_data$turning_angle <- calculate_directional_turning_angle(localization_data$X, 
@@ -107,27 +107,27 @@ calculate_point_based_features <- function(localization_data,
                                                 detection_data,
                                                 base_stations_info)
   
-  localizations_data <- results$localizations_data
+  localization_data <- results$localization_data
   participating_base_stations <- results$participating_base_stations
   missed_base_stations <- results$missed_base_stations
   
   # Calculate the absolute value of the average difference between the location's elevation 
   # and the elevation of each participating base station
-  localizations_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
-    localizations_data,
+  localization_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
+    localization_data,
     participating_base_stations,
     base_stations_info
   )
   
   # Calculate beacons' features
-  localizations_data <- calculate_beacon_derived_features(localizations_data, 
-                                                          participating_base_stations, 
-                                                          beacons_detection_ratio_per_hour,
-                                                          base_stations_summary_per_beacon,
-                                                          low_beacon_detection_fraction) 
+  localization_data <- calculate_beacon_derived_features(localization_data, 
+                                                         participating_base_stations, 
+                                                         beacons_detection_ratio_per_hour,
+                                                         base_stations_summary_per_beacon,
+                                                         low_beacon_detection_fraction) 
   
   return(list(
-    localizations_data = localizations_data,
+    localization_data = localization_data,
     participating_base_stations = participating_base_stations,
     missed_base_stations = missed_base_stations
   ))

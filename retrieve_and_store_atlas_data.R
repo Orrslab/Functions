@@ -109,7 +109,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
           
           # Save the data as sqlite
           source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
-          save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
+          save_ATLAS_data_to_sqlite(localization_data = RawLoc0,
                                     detections_data = RawDet0,
                                     fullpath=full_paths_to_store_sqlite_files)
           

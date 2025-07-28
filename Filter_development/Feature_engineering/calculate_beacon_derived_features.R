@@ -98,23 +98,23 @@ calculate_beacon_derived_features <- function(localization_data,
   )
   
   #### Results Analysis
-  # Count by num_bs_with_all_low_beacons and Outliers
-  count_by_num_bs <- localization_data[
-    , .N, by = .(num_bs_with_all_low_beacons, Outliers)
-  ][order(num_bs_with_all_low_beacons, Outliers)]
-
-  # Print the result
-  cat("Counts by num_bs_with_all_low_beacons and Outliers:\n")
-  print(count_by_num_bs)
-
-  # Count by frac_bs_with_all_low_beacons and Outliers
-  count_by_frac_bs <- localization_data[
-    , .N, by = .(frac_bs_with_all_low_beacons, Outliers)
-  ][order(frac_bs_with_all_low_beacons, Outliers)]
-
-  # Print the result
-  cat("\nCounts by frac_bs_with_all_low_beacons and Outliers:\n")
-  print(count_by_frac_bs)
+  # # Count by num_bs_with_all_low_beacons and Outliers
+  # count_by_num_bs <- localization_data[
+  #   , .N, by = .(num_bs_with_all_low_beacons, Outliers)
+  # ][order(num_bs_with_all_low_beacons, Outliers)]
+  # 
+  # # Print the result
+  # cat("Counts by num_bs_with_all_low_beacons and Outliers:\n")
+  # print(count_by_num_bs)
+  # 
+  # # Count by frac_bs_with_all_low_beacons and Outliers
+  # count_by_frac_bs <- localization_data[
+  #   , .N, by = .(frac_bs_with_all_low_beacons, Outliers)
+  # ][order(frac_bs_with_all_low_beacons, Outliers)]
+  # 
+  # # Print the result
+  # cat("\nCounts by frac_bs_with_all_low_beacons and Outliers:\n")
+  # print(count_by_frac_bs)
   ####
   
   return(localization_data)

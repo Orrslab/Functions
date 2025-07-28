@@ -27,16 +27,16 @@ tables_to_load <- c("LOCALIZATIONS")
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 
 # Ensure data is a data.table
-localizations_data <- as.data.table(localizations_data)
+localization_data <- as.data.table(localization_data)
 
 # Ensure Outliers is a factor
-localizations_data[, Outliers := as.factor(Outliers)]
+localization_data[, Outliers := as.factor(Outliers)]
 
 # Subset only rows with non-missing circular variance
-plot_data <- localizations_data[!is.na(circ_variance)]
+plot_data <- localization_data[!is.na(circ_variance)]
 
 # Plot: circular variance distribution by Outliers status
 p <- ggplot(plot_data, aes(x = circ_variance, fill = Outliers)) +
@@ -61,7 +61,7 @@ ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
 
 # Plot facet histograms of the circular varianve versus label- each species on a separate canvas
 p <- 
-  ggplot(localizations_data[!is.na(circ_variance)], 
+  ggplot(localization_data[!is.na(circ_variance)], 
          aes(x = circ_variance, fill = Outliers)) +
   geom_histogram(position = "identity", alpha = 0.5, bins = 40) +
   facet_wrap(~ Species_id, scales = "free_y") +
@@ -77,11 +77,11 @@ file_name <- paste0(analysis_folder, "/circular_variance_per_species", ".png")
 ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
 
 # # Generate the new feature (only if both components exist)
-# localizations_data[!is.na(circ_variance) & !is.na(Min_distance_to_BS), 
+# localization_data[!is.na(circ_variance) & !is.na(Min_distance_to_BS), 
 #                    combined_circ_dist_feature := circ_variance * log1p(Min_distance_to_BS)]
 # 
 # # Filter for rows where feature is available
-# plot_data <- localizations_data[!is.na(combined_circ_dist_feature)]
+# plot_data <- localization_data[!is.na(combined_circ_dist_feature)]
 # 
 # # Plot 1: Histogram by Outliers label
 # p1 <- ggplot(plot_data, aes(x = combined_circ_dist_feature, fill = Outliers)) +

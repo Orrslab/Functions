@@ -6,7 +6,7 @@ library(geosphere)
 #' Computes the distances from each localization point to all matched base stations and identifies
 #' the closest and farthest base stations based on geodesic distance.
 #'
-#' @param localizations_data A `data.frame` or `data.table` with localization data, including:
+#' @param localization_data A `data.frame` or `data.table` with localization data, including:
 #' \describe{
 #'   \item{TAG}{Animal's tag ID}
 #'   \item{TIME}{Timestamp of localization (in milliseconds since epoch)}
@@ -30,7 +30,7 @@ library(geosphere)
 #' @details
 #' \itemize{
 #'   \item Uses `dist` column in `matched_detections_with_dist`, assumed to be precomputed with \code{geosphere::distHaversine}.
-#'   \item `roundTIME` in `localizations_data` is computed from `TIME` if not already present, rounding to nearest second.
+#'   \item `roundTIME` in `localization_data` is computed from `TIME` if not already present, rounding to nearest second.
 #'   \item Finds closest and farthest base stations per `(TAG, roundTIME)` group and merges the result into the localization data.
 #'   \item Removes `roundTIME` after merging.
 #' }
@@ -40,12 +40,12 @@ library(geosphere)
 #'
 #' @examples
 #' \dontrun{
-#' distances_df <- calculate_distance_to_closest_and_farthest_base_stations(localizations_data, matched_detections_with_dist, base_stations_info)
+#' distances_df <- calculate_distance_to_closest_and_farthest_base_stations(localization_data, matched_detections_with_dist, base_stations_info)
 #' }
 #'
 #' @export
 
-calculate_distance_to_closest_and_farthest_base_stations <- function(localizations_data, matched_detections_with_dist) {
+calculate_distance_to_closest_and_farthest_base_stations <- function(localization_data, matched_detections_with_dist) {
 
   # --- Find the closest base station per point ---
   closest <- matched_detections_with_dist[, .SD[which.min(dist)], by = .(TAG, roundTIME)]
@@ -56,10 +56,10 @@ calculate_distance_to_closest_and_farthest_base_stations <- function(localizatio
   farthest <- farthest[, .(TAG, roundTIME, Max_distance_to_BS = dist, Farthest_BS = BS)]
 
   # --- Merge back into full localization dataset ---
-  localizations_data <- as.data.table(localizations_data)
-  localizations_data[, roundTIME := as.POSIXct(round(TIME / 1000), origin = "1970-01-01", tz = "UTC")]
+  localization_data <- as.data.table(localization_data)
+  localization_data[, roundTIME := as.POSIXct(round(TIME / 1000), origin = "1970-01-01", tz = "UTC")]
   
-  result <- merge(localizations_data, closest, by = c("TAG", "roundTIME"), all.x = TRUE)
+  result <- merge(localization_data, closest, by = c("TAG", "roundTIME"), all.x = TRUE)
   result <- merge(result, farthest, by = c("TAG", "roundTIME"), all.x = TRUE)
   
   # Remove the roundTIME column from the Localizations table

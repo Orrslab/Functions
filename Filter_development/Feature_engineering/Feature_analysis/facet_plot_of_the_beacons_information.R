@@ -27,16 +27,16 @@ tables_to_load <- c("LOCALIZATIONS")
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 
 # Ensure data is a data.table
-localizations_data <- as.data.table(localizations_data)
+localization_data <- as.data.table(localization_data)
 
 # Ensure Outliers is a factor
-localizations_data[, Outliers := as.factor(Outliers)]
+localization_data[, Outliers := as.factor(Outliers)]
 
 # Subset only rows with non-missing feature values
-plot_data <- localizations_data[!is.na(detection_probability_factor_3_closest_bs)]
+plot_data <- localization_data[!is.na(detection_probability_factor_3_closest_bs)]
 
 # Plot: feature distribution by Outliers status
 p <- ggplot(plot_data, aes(x = detection_probability_factor_3_closest_bs, fill = Outliers)) +
@@ -62,7 +62,7 @@ ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
 #################################################
 
 # Subset only rows with non-missing feature values
-plot_data <- localizations_data[!is.na(mean_max_snr_mean_ratio_3_closest_bs)]
+plot_data <- localization_data[!is.na(mean_max_snr_mean_ratio_3_closest_bs)]
 
 # Plot: feature distribution by Outliers status
 p <- ggplot(plot_data, aes(x = mean_max_snr_mean_ratio_3_closest_bs, fill = Outliers)) +
@@ -88,7 +88,7 @@ ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
 #################################################
 
 # Subset only rows with non-missing feature values
-plot_data <- localizations_data[!is.na(num_low_detection_beacons_by_participating_bs_3_closest_bs)]
+plot_data <- localization_data[!is.na(num_low_detection_beacons_by_participating_bs_3_closest_bs)]
 
 # Plot: feature distribution by Outliers status
 p <- ggplot(plot_data, aes(x = num_low_detection_beacons_by_participating_bs_3_closest_bs, fill = Outliers)) +

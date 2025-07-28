@@ -29,16 +29,16 @@ tables_to_load <- c("LOCALIZATIONS")
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 
 # Ensure data is a data.table
-localizations_data <- as.data.table(localizations_data)
+localization_data <- as.data.table(localization_data)
 
 # Ensure Outliers is a factor
-localizations_data[, Outliers := as.factor(Outliers)]
+localization_data[, Outliers := as.factor(Outliers)]
 
 # Count by num_bs_with_all_low_beacons and Outliers
-count_by_num_bs <- localizations_data[
+count_by_num_bs <- localization_data[
   , .N, by = .(num_bs_with_all_low_beacons, Outliers)
 ][order(num_bs_with_all_low_beacons, Outliers)]
 
@@ -47,7 +47,7 @@ cat("Counts by num_bs_with_all_low_beacons and Outliers:\n")
 print(count_by_num_bs)
 
 # Count by frac_bs_with_all_low_beacons and Outliers
-count_by_frac_bs <- localizations_data[
+count_by_frac_bs <- localization_data[
   , .N, by = .(frac_bs_with_all_low_beacons, Outliers)
 ][order(frac_bs_with_all_low_beacons, Outliers)]
 
@@ -82,11 +82,11 @@ print(doc, target = file.path(analysis_folder, "Beacon_summary_num_low_detection
 doc <- read_docx()
 
 # Get list of species
-species_list <- unique(localizations_data$Species_id)
+species_list <- unique(localization_data$Species_id)
 
 for (species in species_list) {
   # Filter the data for the current species
-  species_data <- localizations_data[Species_id == species]
+  species_data <- localization_data[Species_id == species]
   
   # Skip if there's no data
   if (nrow(species_data) == 0) next

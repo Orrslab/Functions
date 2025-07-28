@@ -7,7 +7,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_feat
 #' Computes features for each localization based on a surrounding time window of localizations from the same tag.
 #' \code{calculate_features_in_time_window()}.
 #'
-#' @param localizations_data A `data.frame` or `data.table` containing localization data, with columns:
+#' @param localization_data A `data.frame` or `data.table` containing localization data, with columns:
 #' \itemize{
 #'   \item `TAG` – identifier of the animal/tag
 #'   \item `TIME` – timestamp in milliseconds
@@ -35,15 +35,15 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_feat
 #'
 #' @examples
 #' \dontrun{
-#' enriched_data <- calculate_time_window_based_features(localizations_data, half_window_size_sec = 30)
+#' enriched_data <- calculate_time_window_based_features(localization_data, half_window_size_sec = 30)
 #' }
 #'
 #' @export
 #' 
-calculate_time_window_based_features <- function(localizations_data, half_window_size_sec = 20) {
+calculate_time_window_based_features <- function(localization_data, half_window_size_sec = 20) {
   
   # Convert to data.table
-  loc_dt <- as.data.table(localizations_data)
+  loc_dt <- as.data.table(localization_data)
   
   # Ensure data is sorted (important for speed)
   setkey(loc_dt, TAG, TIME)
