@@ -73,8 +73,8 @@ calculate_detection_based_features <- function(localization_data,
   # Create a table with the participating base stations in each localization
   participating_base_stations <- create_participating_base_stations_table(localization_data, matched_with_dist)
   
-  # Calculate the distribution of the base stations, relative to the convex hull polygon --- #
-  localization_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localization_data)
+  # # Calculate the distribution of the base stations, relative to the convex hull polygon --- #
+  # localization_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localization_data)
   
   # Calculate the circular variance of the participating base stations
   localization_data <- calculate_circular_variance_of_participating_base_stations(localization_data, matched_with_dist)
