@@ -44,6 +44,20 @@ create_participating_base_stations_table <- function(localization_data, matched_
     localization_data[, roundTIME := round(TIME / 1000)]
   }
   
+  # Convert roundTIME in matched_detections to numeric seconds
+  if ("roundTIME" %in% names(matched_detections_with_dist)) {
+    if (inherits(matched_detections_with_dist$roundTIME, "POSIXt")) {
+      matched_detections_with_dist[, roundTIME := as.numeric(roundTIME)]
+    }
+  }
+  
+  # Convert to miliseconds to match the roundTIME format of localization_data
+  matched_detections_with_dist[, roundTIME := roundTIME * 1000]
+  
+  # Ensure roundTIME is numeric
+  localization_data[, roundTIME := as.numeric(roundTIME)]
+  matched_detections_with_dist[, roundTIME := as.numeric(roundTIME)]
+  
   # Merge with TIME from localization_data (one TIME per TAG & roundTIME is guaranteed)
   time_lookup <- unique(localization_data[, .(TAG, roundTIME, TIME)])
   
