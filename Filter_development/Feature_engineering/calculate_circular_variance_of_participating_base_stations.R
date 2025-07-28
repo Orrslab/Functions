@@ -1,19 +1,19 @@
 library(data.table)
 
-calculate_circular_variance_of_participating_base_stations <- function(localizations_data, matched) {
+calculate_circular_variance_of_participating_base_stations <- function(localization_data, matched) {
   
   # Convert to data.table
   matched <- as.data.table(matched)
-  localizations_data <- as.data.table(localizations_data)
+  localization_data <- as.data.table(localization_data)
   
-  # Convert the time of matched to miliseconds to match the time units in localizations_data.
+  # Convert the time of matched to miliseconds to match the time units in localization_data.
   if (max(matched$TIME, na.rm = TRUE) < 1e12) {
     matched[, TIME := TIME * 1000]
   }
   
   # Add location ID to group matched detections by localization
   matched[, loc_id := .GRP, by = .(TAG, TIME)]
-  localizations_data[, loc_id := .GRP, by = .(TAG, TIME)]
+  localization_data[, loc_id := .GRP, by = .(TAG, TIME)]
   
   # Calculate direction vector components from localization to base station
   matched[, `:=`(
@@ -39,12 +39,12 @@ calculate_circular_variance_of_participating_base_stations <- function(localizat
   circular_stats[, R_bar := sqrt(mean_x^2 + mean_y^2)]
   circular_stats[, circ_variance := 1 - R_bar]
   
-  # Merge circular variance back into localizations_data
-  localizations_data <- merge(localizations_data, circular_stats[, .(loc_id, circ_variance)], by = "loc_id", all.x = TRUE)
+  # Merge circular variance back into localization_data
+  localization_data <- merge(localization_data, circular_stats[, .(loc_id, circ_variance)], by = "loc_id", all.x = TRUE)
   
   # Remove helper column
-  localizations_data[, loc_id := NULL]
+  localization_data[, loc_id := NULL]
   
   # Return as data.frame
-  return(as.data.frame(localizations_data))
+  return(as.data.frame(localization_data))
 }

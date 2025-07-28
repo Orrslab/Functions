@@ -5,7 +5,7 @@ library(data.table)
 #' Generates a table listing all base stations that participated in the calculation of each ATLAS location point,
 #' along with their distances to the estimated location, based on `TAG` and rounded `TIME`.
 #'
-#' @param localizations_data A `data.frame` or `data.table` containing localization data with columns `TAG`, `TIME` (in milliseconds since epoch),
+#' @param localization_data A `data.frame` or `data.table` containing localization data with columns `TAG`, `TIME` (in milliseconds since epoch),
 #'        and optionally `roundTIME` (in seconds since epoch). If `roundTIME` is missing, it will be computed as `round(TIME / 1000)`.
 #' @param matched_detections_with_dist A `data.frame` or `data.table` containing detection data with columns `TAG`, `roundTIME` (in seconds),
 #'        `BS` (base station ID), and `dist` (distance in meters between the localization and the base station).
@@ -20,7 +20,7 @@ library(data.table)
 #'
 #' @details
 #' \itemize{
-#'   \item If `roundTIME` is not present in `localizations_data`, it is computed from `TIME`.
+#'   \item If `roundTIME` is not present in `localization_data`, it is computed from `TIME`.
 #'   \item Base stations are grouped per `(TAG, roundTIME)` from the detection data, and matched to localization times.
 #'   \item The result expands the list of base stations and distances into individual rows for analysis.
 #' }
@@ -29,23 +29,23 @@ library(data.table)
 #'
 #' @examples
 #' \dontrun{
-#' participating_bs <- create_participating_base_stations_table(localizations_data, matched_detections_with_dist)
+#' participating_bs <- create_participating_base_stations_table(localization_data, matched_detections_with_dist)
 #' }
 #'
 #' @export
 
-create_participating_base_stations_table <- function(localizations_data, matched_detections_with_dist) {
+create_participating_base_stations_table <- function(localization_data, matched_detections_with_dist) {
   # Ensure both inputs are data.tables
-  localizations_data <- as.data.table(localizations_data)
+  localization_data <- as.data.table(localization_data)
   matched_detections_with_dist <- as.data.table(matched_detections_with_dist)
   
-  # Add roundTIME to localizations_data if missing
-  if (!"roundTIME" %in% names(localizations_data)) {
-    localizations_data[, roundTIME := round(TIME / 1000)]
+  # Add roundTIME to localization_data if missing
+  if (!"roundTIME" %in% names(localization_data)) {
+    localization_data[, roundTIME := round(TIME / 1000)]
   }
   
-  # Merge with TIME from localizations_data (one TIME per TAG & roundTIME is guaranteed)
-  time_lookup <- unique(localizations_data[, .(TAG, roundTIME, TIME)])
+  # Merge with TIME from localization_data (one TIME per TAG & roundTIME is guaranteed)
+  time_lookup <- unique(localization_data[, .(TAG, roundTIME, TIME)])
   
   # Group by TAG and roundTIME, and collect BS and dist together
   bs_grouped <- matched_detections_with_dist[
@@ -54,7 +54,7 @@ create_participating_base_stations_table <- function(localizations_data, matched
     by = .(TAG, roundTIME)
   ]
   
-  # Ensure that the roundTIME column in localizations_data and matched_detections_with_dist have the same format
+  # Ensure that the roundTIME column in localization_data and matched_detections_with_dist have the same format
   bs_grouped[, roundTIME := as.numeric(roundTIME)]
   
   # Merge to add TIME

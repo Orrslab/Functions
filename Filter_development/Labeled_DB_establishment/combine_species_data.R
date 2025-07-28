@@ -12,7 +12,7 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 library(DBI)
 library(RSQLite)
 
-# source(file.path(getwd(), "load_localizations_data_from_sqlite_file.R"))
+# source(file.path(getwd(), "load_localization_data_from_sqlite_file.R"))
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 source(file.path(getwd(), "save_ATLAS_data_to_sqlite.R"))
 
@@ -52,6 +52,6 @@ for (sqlite_file in sqlite_files) {
   
 }
 
-save_ATLAS_data_to_sqlite(localizations_data = all_data_localizations,
+save_ATLAS_data_to_sqlite(localization_data = all_data_localizations,
                           detections_data = all_data_detections,
                           fullpath = file.path(db_folder, "labeled_data_db.sqlite"))

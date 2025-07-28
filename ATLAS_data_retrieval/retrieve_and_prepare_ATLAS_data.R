@@ -63,7 +63,7 @@ raw_detection_data <- raw_atlas_data$DETECTIONS
 
 # # Save the raw data with the DAY column to sqlite
 # source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
-# save_ATLAS_data_to_sqlite(localizations_data = raw_location_data, 
+# save_ATLAS_data_to_sqlite(localization_data = raw_location_data, 
 #                           tag_number = 972006000836, 
 #                           start_time = '2023-12-24 00:00:01',
 #                           end_time = '2023-12-25 00:00:01')

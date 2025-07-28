@@ -46,8 +46,8 @@ for (i in 1:nrow(species_metadata)) {
   # TODO Add DETECITIONS to the combined data
   # source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
   # species_data <- load_atlas_data_from_sqlite(species_data_path)
-  source(file.path(getwd(), "load_localizations_data_from_sqlite_file.R"))
-  species_data <- load_localizations_data_from_sqlite_file(species_data_path)
+  source(file.path(getwd(), "load_localization_data_from_sqlite_file.R"))
+  species_data <- load_localization_data_from_sqlite_file(species_data_path)
   
   ### Feature Engineering
   source(file.path(getwd(), "atlas_metrics.R"))
@@ -59,7 +59,7 @@ for (i in 1:nrow(species_metadata)) {
   # ### Save into sqlite the labeled data with all the added features
   # source(paste0(path_to_functions, "save_ATLAS_data_to_sqlite.R"))
   # fullpath <- paste0(data_folder, "/labeled_data_with_features.sqlite")
-  # save_ATLAS_data_to_sqlite(localizations_data=location_data_labeled, 
+  # save_ATLAS_data_to_sqlite(localization_data=location_data_labeled, 
   #                           fullpath = fullpath)
   
   ### Evaluate outliers proportion

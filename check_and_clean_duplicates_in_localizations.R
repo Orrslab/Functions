@@ -15,10 +15,10 @@
 #'
 #' @examples
 #' # Detect duplicates without cleaning
-#' cleaned_data <- check_and_clean_duplicates_in_localizations(localizations_data, clean_duplicates = FALSE)
+#' cleaned_data <- check_and_clean_duplicates_in_localizations(localization_data, clean_duplicates = FALSE)
 #'
 #' # Detect and clean duplicates
-#' cleaned_data <- check_and_clean_duplicates_in_localizations(localizations_data, clean_duplicates = TRUE)
+#' cleaned_data <- check_and_clean_duplicates_in_localizations(localization_data, clean_duplicates = TRUE)
 #'
 #' @export
 check_and_clean_duplicates_in_localizations <- function(localization_data, clean_duplicates = FALSE) {

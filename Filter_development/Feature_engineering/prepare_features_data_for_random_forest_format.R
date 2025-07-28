@@ -1,4 +1,4 @@
-# This script gets the localizations_data with all the features,
+# This script gets the localization_data with all the features,
 # cleans, and formats the data to match the input format of the Random Forest function.
 # It will also be used for the feature analyses, such as AUC calculation.
 # The script unites the data of all species
@@ -12,6 +12,7 @@ library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
+source(file.path(getwd(), "Filter_development/Stops_filter/apply_stops_rule_to_data.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
 ## USER INPUT BEGINNING 
@@ -20,6 +21,19 @@ path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labe
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
 cleaned_feature_data_all_species_filename <- "Features_data_for_RF_all_species.sqlite"
+
+identify_stops <- TRUE
+
+stop_filter_rules <- list(
+  # list(column = "distance_triangle_ratio", type = ">", value = 3, logic = "AND"),
+  list(column = "Speed_m_s", type = "<", value = 3, logic = "AND"),
+  list(column = "Speed_window_mean", type = "<", value = 2.5, logic = "AND"),
+  list(column = "avg_dist_from_points_in_window", type = "<", value = 14, logic = "AND")
+  # list(column = "var_x_window", type = "<", value = 56, logic = "AND"),
+  # list(column = "var_y_window", type = "<", value = 124, logic = "AND"),
+  # list(column = "diff_dist_mean_median", type = "<", value = 4, logic = "AND"),
+  # list(column = "speed_diff_from_median", type = "<", value = 1.5, logic = "AND")
+)
 
 ### USER INPUT END
 
@@ -33,7 +47,7 @@ tables_to_load <- c("LOCALIZATIONS",
 species_metadata <- read_excel(path_to_species_metadata)
 
 # Initialize a data frames for the combined data of all species
-combined_localizations_data <- data.frame()
+combined_localization_data <- data.frame()
 combined_detections_data <- data.frame()
 combined_participating_bs_data <- data.frame()
 combined_missed_bs_data <- data.frame()
@@ -80,6 +94,11 @@ for (species_id in species_metadata$Species_ID) {
   # Delete all rows with Outliers == 2 or Outliers == NA
   localization_data <- localization_data %>%
     filter(!(Outliers == 2 | is.na(Outliers)))
+  
+  # Identify stops in the data
+  if (identify_stops) {
+    localization_data <- apply_stops_rule_to_data(localization_data, stop_filter_rules)
+  }
 
   # Convert the Outliers column to factor type- required for the Random Forest function
   localization_data$Outliers <- factor(localization_data$Outliers, levels = c(0, 1), labels = c("valid", "outlier"))
@@ -89,14 +108,14 @@ for (species_id in species_metadata$Species_ID) {
     dplyr::select(-Outliers, Outliers)
   
   # Append the prepared species data to the combined dataframe
-  combined_localizations_data <- bind_rows(combined_localizations_data, localization_data)
+  combined_localization_data <- bind_rows(combined_localization_data, localization_data)
   combined_detections_data <- bind_rows(combined_detections_data, detections_data)
   combined_participating_bs_data <- bind_rows(combined_participating_bs_data, participating_base_stations)
   combined_missed_bs_data <- bind_rows(combined_missed_bs_data, missed_base_stations)
   
 }
 
-save_ATLAS_data_with_features_to_sqlite(localizations_data = combined_localizations_data,
+save_ATLAS_data_with_features_to_sqlite(localization_data = combined_localization_data,
                                         detections_data = combined_detections_data,
                                         participating_base_stations = combined_participating_bs_data,
                                         missed_base_stations = combined_missed_bs_data,

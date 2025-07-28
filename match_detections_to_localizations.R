@@ -5,7 +5,7 @@ library(data.table)
 #' This function matches each localization to its corresponding detections based on `TAG` and a rounded `TIME` value.
 #' The time is rounded to the nearest second (in milliseconds) to allow robust matching.
 #'
-#' @param localizations_data A data frame or data.table containing the localization data, with columns `TAG` and `TIME` (Unix Timestamp in milliseconds).
+#' @param localization_data A data frame or data.table containing the localization data, with columns `TAG` and `TIME` (Unix Timestamp in milliseconds).
 #' @param detections_data A data frame or data.table containing the detection data, also with columns `TAG` and `TIME` (Unix Timestamp in milliseconds).
 #'
 #' @return A data.table containing the matched detections for each localization. Only pairs that match on both `TAG` and rounded `TIME` are included.
@@ -21,14 +21,14 @@ library(data.table)
 #'
 #' @examples
 #' \dontrun{
-#' matched_detections <- match_detections_to_localizations(localizations_data, detections_data)
+#' matched_detections <- match_detections_to_localizations(localization_data, detections_data)
 #' }
 #'
 #' @import data.table
 #' @export
 
-match_detections_to_localizations <- function(localizations_data, detections_data) {
-  loc <- copy(as.data.table(localizations_data))
+match_detections_to_localizations <- function(localization_data, detections_data) {
+  loc <- copy(as.data.table(localization_data))
   det <- copy(as.data.table(detections_data))
   
   # Round time

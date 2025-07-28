@@ -41,7 +41,7 @@ location_data_labeled$cos_turning_angle <- calculate_cosine_turning_angle(X_colu
 ### Save into sqlite the labeled data with all the added features
 source(paste0(path_to_functions, "save_ATLAS_data_to_sqlite.R"))
 fullpath <- paste0(data_folder, "/labeled_data_with_features.sqlite")
-save_ATLAS_data_to_sqlite(localizations_data=location_data_labeled, 
+save_ATLAS_data_to_sqlite(localization_data=location_data_labeled, 
                           fullpath = fullpath)
 
 

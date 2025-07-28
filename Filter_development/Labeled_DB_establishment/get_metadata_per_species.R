@@ -3,7 +3,8 @@ library(dplyr)
 # Get the metadata per species from the metadata_per_tag.csv file
 
 ### USER'S INPUT BEGIN ###
-combined_species_data_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB/Combined_species_data"
+# combined_species_data_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB/Combined_species_data"
+combined_species_data_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB/Combined_species_data"
 ### USER'S INPUT END
 
 # Open the metadata per tag file

@@ -27,19 +27,19 @@ tables_to_load <- c("LOCALIZATIONS")
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 
 # Ensure data is a data.table
-localizations_data <- as.data.table(localizations_data)
+localization_data <- as.data.table(localization_data)
 
 # Ensure Outliers is a factor
-localizations_data[, Outliers := as.factor(Outliers)]
+localization_data[, Outliers := as.factor(Outliers)]
 
 # Loop over each species and create a faceted histogram
-species_list <- unique(localizations_data$Species_id)
+species_list <- unique(localization_data$Species_id)
 
 for (species in species_list) {
-  species_data <- localizations_data[Species_id == species & !is.na(avg_abs_elevation_diff)]
+  species_data <- localization_data[Species_id == species & !is.na(avg_abs_elevation_diff)]
   
   if (nrow(species_data) == 0) next  # Skip empty subsets
   

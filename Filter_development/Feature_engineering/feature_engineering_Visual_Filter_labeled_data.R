@@ -24,6 +24,14 @@ filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
 filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
+# For the Stops Filter
+# path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB"
+# path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+# folder_of_beacons_info_tables <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/Feature_engineering"
+# filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
+# filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
+# folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_analysis/Monivg_vs_stopping_barn_owls"
+
 # # Define the time gap between tracks in seconds. 
 # # This is the time gap that most likely distinguished between different trakectories of the same animal.
 # gap_between_tracks_sec <- 600 
@@ -67,6 +75,10 @@ for (species_id in species_metadata$Species_ID) {
   localization_data <- data$LOCALIZATIONS
   detection_data <- data$DETECTIONS
   
+  ### DEBUGGING
+  # localization_data <- localization_data[1:50000, ]
+  ###
+  
   # Delete duplicates from the localizations data- in case there are duplicates
   localization_data <- check_and_clean_duplicates_in_localizations(
     localization_data = localization_data,
@@ -86,12 +98,12 @@ for (species_id in species_metadata$Species_ID) {
                                             low_beacon_detection_fraction)
   
   # Extract the results
-  localization_data <- results$localizations_data
+  localization_data <- results$localization_data
   participating_base_stations <- results$participating_base_stations
   missed_base_stations <- results$missed_base_stations
 
   # Calculate the time-window-based features
-  localization_data <- calculate_time_window_based_features(localizations_data = localization_data,
+  localization_data <- calculate_time_window_based_features(localization_data = localization_data,
                                                             half_window_size_sec = half_time_window_size_sec)
 
   # Calculate features that require values of other point-based and window-based features
@@ -108,10 +120,12 @@ for (species_id in species_metadata$Species_ID) {
   # print(colnames(localization_data))
   # print(head(localization_data, 20))
   
+  print(colnames(localization_data))
+  
   ## Save the data as sqlite
   output_file_name <- paste0(species_id, "_features_eng.sqlite")
   save_ATLAS_data_with_features_to_sqlite(
-    localizations_data = localization_data,
+    localization_data = localization_data,
     detections_data = detection_data,
     participating_base_stations = participating_base_stations,
     missed_base_stations = missed_base_stations,

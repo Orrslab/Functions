@@ -35,14 +35,14 @@ for (species_id in species_metadata$Species_ID) {
     sqlite_filepath = file.path(path_to_combined_species_data, sqlite_file_name), 
     tables = "LOCALIZATIONS")
   
-  localizations_data <- data$LOCALIZATIONS
+  localization_data <- data$LOCALIZATIONS
   
   # Total before removing NAs
-  num_total_points <- nrow(localizations_data)
-  num_na_outliers <- sum(is.na(localizations_data$Outliers))
+  num_total_points <- nrow(localization_data)
+  num_na_outliers <- sum(is.na(localization_data$Outliers))
   
   # Remove NA in Outliers for analysis
-  localizations_clean <- localizations_data[!is.na(localizations_data$Outliers), ]
+  localizations_clean <- localization_data[!is.na(localization_data$Outliers), ]
   
   # Count values
   num_valid <- sum(localizations_clean$Outliers == 0)

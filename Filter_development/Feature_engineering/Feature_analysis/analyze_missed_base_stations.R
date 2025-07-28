@@ -25,13 +25,13 @@ tables_to_load <- c("LOCALIZATIONS",
 # Load the features data
 features_data <- load_data_with_features(tables_to_load)
 
-localizations_data <- features_data$LOCALIZATIONS
+localization_data <- features_data$LOCALIZATIONS
 missed_bs <- features_data$MISSED_BASE_STATIONS
 
 #### Outliers proportion in the locations with missed base stations
 
 # Filter only the rows where num_missed_bs > 0
-loc_with_missed_bs <- localizations_data[localizations_data$num_missed_bs > 0, ]
+loc_with_missed_bs <- localization_data[localization_data$num_missed_bs > 0, ]
 
 # Count how many of them are Outliers == "valid" (valid points)
 valid_points <- sum(loc_with_missed_bs$Outliers == "valid")
@@ -67,7 +67,7 @@ dev.off()
 ## Outliers
 
 # Filter data: only outliers with num_missed_bs > 0
-outlier_data <- localizations_data[localizations_data$Outliers == "outlier" & localizations_data$num_missed_bs > 0, ]
+outlier_data <- localization_data[localization_data$Outliers == "outlier" & localization_data$num_missed_bs > 0, ]
 
 # Create a frequency table of num_missed_bs
 outlier_counts <- table(outlier_data$num_missed_bs)
@@ -87,7 +87,7 @@ dev.off()
 ## Valid Points
 
 # Filter data: only outliers with num_missed_bs > 0
-valid_data <- localizations_data[localizations_data$Outliers == "valid" & localizations_data$num_missed_bs > 0, ]
+valid_data <- localization_data[localization_data$Outliers == "valid" & localization_data$num_missed_bs > 0, ]
 
 # Create a frequency table of num_missed_bs
 valid_counts <- table(valid_data$num_missed_bs)
@@ -132,10 +132,10 @@ dev.off()
 
 # Make sure TIME columns are the same type
 missed_bs$TIME <- as.POSIXct(missed_bs$TIME)
-localizations_data$TIME <- as.POSIXct(localizations_data$TIME)
+localization_data$TIME <- as.POSIXct(localization_data$TIME)
 
 # Merge data to get Outliers info
-missed_bs_merged <- merge(missed_bs, localizations_data[, c("TAG", "TIME", "Outliers")],
+missed_bs_merged <- merge(missed_bs, localization_data[, c("TAG", "TIME", "Outliers")],
                           by = c("TAG", "TIME"), all.x = TRUE)
 
 # Keep only outliers
