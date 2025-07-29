@@ -38,6 +38,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beac
 
 calculate_point_based_features <- function(localization_data, 
                                            detection_data, 
+                                           base_stations_info_path,
                                            beacons_detection_ratio_per_hour, 
                                            base_stations_summary_per_beacon,
                                            low_beacon_detection_fraction) {
@@ -98,7 +99,6 @@ calculate_point_based_features <- function(localization_data,
   # SNR- Signal to Noise Ratio and other detection-based features
   
   # Load the base stations info
-  base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
   base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
   
   # Calculate the detection-based features

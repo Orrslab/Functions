@@ -19,6 +19,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
 folder_of_beacons_info_tables <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/Feature_engineering"
 filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
 filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
@@ -57,7 +58,7 @@ beacons_detection_ratio_per_hour <- readRDS(file.path(folder_of_beacons_info_tab
 for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
-  # species_id <- "LD"
+  species_id <- "LD"
   # species_id <- "CB"
   # species_id <- "RW"
   # species_id <- "GJ"
@@ -90,6 +91,7 @@ for (species_id in species_metadata$Species_ID) {
   # Calculate the point-based_features
   results <- calculate_point_based_features(localization_data, 
                                             detection_data, 
+                                            base_stations_info_path,
                                             beacons_detection_ratio_per_hour,
                                             base_stations_summary_per_beacon,
                                             low_beacon_detection_fraction)
