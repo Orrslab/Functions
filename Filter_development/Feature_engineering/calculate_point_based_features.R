@@ -47,15 +47,14 @@ calculate_point_based_features <- function(localization_data,
     stop("Error: 'TAG' column is missing from the dataframe.")
   }
   
-  if (!"time_diff_sec" %in% colnames(localization_data)) {
-    stop("Error: 'time_diff_sec' column is missing from the dataframe.")
-  }
-  
   if (!all(c("VARX", "VARY", "COVXY") %in% colnames(localization_data))) {
     stop("Error: 'VARX', 'VARY' and 'COVXY' columns are missing from the dataframe.")
   }
   
   ### 1. Movement-Based Features (Time-Dependent)- to capture unrealistic movement patterns
+  
+  # Calculate the time difference between consecutive points
+  localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
   # Distance between consecutive points
   localization_data$dist_m <- calculate_distance(localization_data$X, 
