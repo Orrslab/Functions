@@ -1,4 +1,4 @@
-# This script gets the localizations_data with all the features,
+# This script gets the localization_data with all the features,
 # and formats the data to prepare it for analysis.
 
 # clean the data and set some preferences
@@ -14,10 +14,10 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 ## USER INPUT BEGINNING 
 
-path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB/Nesting_Barn_Owls"
-path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_analysis/Nesting_barn_owls"
+path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB"
+path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_analysis/Monivg_vs_stopping_barn_owls"
 path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
-prepared_feature_data_filename <- "Prepared_data_with_features_nesting_barn_owls.sqlite"
+prepared_feature_data_filename <- "Prepared_data_with_features_BO.sqlite"
 
 ### USER INPUT END
 
@@ -31,7 +31,7 @@ tables_to_load <- c("LOCALIZATIONS",
 species_metadata <- read_excel(path_to_species_metadata)
 
 # Initialize a data frames for the combined data of all species
-combined_localizations_data <- data.frame()
+combined_localization_data <- data.frame()
 combined_detections_data <- data.frame()
 combined_participating_bs_data <- data.frame()
 combined_missed_bs_data <- data.frame()
@@ -95,14 +95,14 @@ for (species_id in species_metadata$Species_ID) {
     dplyr::select(-Is_stop, Is_stop)
   
   # Append the prepared species data to the combined dataframe
-  combined_localizations_data <- bind_rows(combined_localizations_data, localization_data)
+  combined_localization_data <- bind_rows(combined_localization_data, localization_data)
   combined_detections_data <- bind_rows(combined_detections_data, detections_data)
   combined_participating_bs_data <- bind_rows(combined_participating_bs_data, participating_base_stations)
   combined_missed_bs_data <- bind_rows(combined_missed_bs_data, missed_base_stations)
   
 }
 
-save_ATLAS_data_with_features_to_sqlite(localizations_data = combined_localizations_data,
+save_ATLAS_data_with_features_to_sqlite(localization_data = combined_localization_data,
                                         detections_data = combined_detections_data,
                                         participating_base_stations = combined_participating_bs_data,
                                         missed_base_stations = combined_missed_bs_data,
