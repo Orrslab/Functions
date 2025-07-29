@@ -6,24 +6,51 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 
 library(ranger)
 library(ggplot2)
-library(readr)
 library(precrec)   # For PR and ROC curves
 library(pROC)      # For ROC AUC
 library(caret)     # For confusion matrix
+library(dplyr)
 
 # USER'S INPUT BEGIN
-random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/All_species"
+random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/GJ_29-07-25"
+rf_model_filename <- "rf_model_final_trained_on_full_training_set.rds"
+
+# Remove Stops flag
+remove_stops_from_test_set <- FALSE
+
+# Define the columns that are not considered as features and should be excluded from the training set
+non_feature_column_names <- c("TAG", "X", "Y", "Z", "lat", "lon",
+                              "TIME", "dateTime", "DAY", "geometry",
+                              "Species_id", "X_mean", "Y_mean", "X_median", "Y_median", "Is_stop")
+
+# Set threshold for the labels prediction
+threshold <- 0.9
+
 # USER'S INPUT END
 
 # Load trained model and test set
-rf_model_final <- readRDS(file.path(random_forest_results_folder, "rf_model_final_trained_on_full_training_set.rds"))
+rf_model_final <- readRDS(file.path(random_forest_results_folder, rf_model_filename))
 test_data <- readRDS(file.path(random_forest_results_folder, "test_set.rds"))
+
+# To make the results reproducible across runs
+set.seed(42)
+
+# Remove stops from the test set
+if (remove_stops_from_test_set) {
+  if ("Is_stop" %in% colnames(test_data)) {
+    test_data <- test_data[test_data$Is_stop != 1, ]
+  }
+}
+
+# Remove the non-feature columns from the training set
+features_only <- test_data %>%
+  dplyr::select(-all_of(non_feature_column_names))
 
 # Ensure label is a factor with correct levels
 test_data$Outliers <- factor(test_data$Outliers, levels = rf_model_final$forest$levels)
 
 # Predict class probabilities
-pred_probs <- predict(rf_model_final, data = test_data, type = "response")$predictions
+pred_probs <- predict(rf_model_final, data = features_only, type = "response")$predictions
 
 # If label has two levels, extract probability for the "positive" class ("outlier")
 positive_class <- levels(test_data$Outliers)[1]
@@ -53,9 +80,6 @@ plot(roc_obj, main = "ROC Curve (pROC)")
 dev.off()
 
 cat("ROC AUC:", auc(roc_obj), "\n")
-
-# Set threshold for the confusion table
-threshold <- 0.9
 
 # If the probability for "outlier" class is larger than the threshold, set the class as "outlier"
 pred_classes <- ifelse(pred_probs[, "outlier"] > threshold, "outlier", "valid")
