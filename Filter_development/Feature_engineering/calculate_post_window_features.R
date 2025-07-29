@@ -54,10 +54,21 @@ calculate_post_window_features <- function(localization_data) {
   
   ## Ratio between the distance from the mean and median locations
   localization_data$ratio_dist_mean_median <- ifelse(
-    localization_data$dist_from_meadian == 0,
-    NA,
-    localization_data$dist_from_mean / localization_data$dist_from_meadian
+    abs(localization_data$dist_from_mean - localization_data$dist_from_meadian) < 1e-2,
+    1,
+    ifelse(
+      localization_data$dist_from_meadian == 0,
+      NA,
+      localization_data$dist_from_mean / localization_data$dist_from_meadian
+    )
   )
+  
+  # ## Ratio between the distance from the mean and median locations
+  # localization_data$ratio_dist_mean_median <- ifelse(
+  #   localization_data$dist_from_meadian == 0,
+  #   NA,
+  #   localization_data$dist_from_mean / localization_data$dist_from_meadian
+  # )
   
   ## Difference between the speed of the observed point to the mean speed in window
   localization_data$speed_diff_from_mean <- abs(localization_data$Speed_m_s - localization_data$Speed_window_mean)
