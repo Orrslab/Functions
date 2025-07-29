@@ -25,8 +25,19 @@ calculate_base_stations_convex_hull_polygon <- function(matched, localization_da
   matched <- as.data.table(matched)
   localization_data <- as.data.table(localization_data)
   
+  # Convert matched to miliseconds to match the time units in localization_data.
+  matched[, TIME := TIME * 1000]
+  
+  # Add rounded time column to the localizations if not present
+  if (!"roundTIME" %in% names(localization_data)) {
+    localization_data[, roundTIME := round(TIME / 1000) * 1000]
+  }
+  
+  # Convert the matched$roundTIME format to be the same as the format of localization_data$roundTIME
+  matched[, roundTIME := as.numeric(round(TIME / 1000) * 1000)]
+    
   # Add unique ID to group by location
-  matched[, loc_id := .GRP, by = .(TAG, TIME)]
+  matched[, loc_id := .GRP, by = .(TAG, roundTIME)]
   
   #### Calculate the area of the polygon generated from the coordinates 
   #### of the participating base stations of each location, 
@@ -107,12 +118,9 @@ calculate_base_stations_convex_hull_polygon <- function(matched, localization_da
   
   ################
   
-  # Convert matched to miliseconds to match the time units in localization_data.
-  matched[, TIME := TIME * 1000]
-  
   # Merge results back to localization_data using loc_id
-  loc_ids <- unique(matched[, .(TAG, TIME, loc_id)])
-  localization_data <- merge(localization_data, loc_ids, by = c("TAG", "TIME"), all.x = TRUE)
+  loc_ids <- unique(matched[, .(TAG, roundTIME, loc_id)])
+  localization_data <- merge(localization_data, loc_ids, by = c("TAG", "roundTIME"), all.x = TRUE)
   localization_data <- merge(localization_data, results, by = "loc_id", all.x = TRUE)
   
   # Clean up
