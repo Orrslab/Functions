@@ -52,11 +52,15 @@ create_list_of_sqlite_filepaths <- function(data_requests, folder_path_to_sqlite
     start_time = request$start_time
     end_time = request$end_time
     
-    filepaths[[length(filepaths) + 1]] <- create_sqlite_filepath(animal_name_code,
-                                                                 tag_numbers,
-                                                                 start_time,
-                                                                 end_time,
-                                                                 folder_path_to_sqlite_files)
+    file_path_plain <- create_sqlite_filepath(animal_name_code,
+                                              tag_numbers,
+                                              start_time,
+                                              end_time,
+                                              folder_path_to_sqlite_files)
+    
+    file_path_with_extension <- paste0(file_path_plain, ".sqlite")
+    
+    filepaths[[length(filepaths) + 1]] <- file_path_with_extension
     
   }
   return(filepaths)
