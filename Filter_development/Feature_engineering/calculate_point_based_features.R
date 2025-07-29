@@ -52,6 +52,10 @@ calculate_point_based_features <- function(localization_data,
     stop("Error: 'VARX', 'VARY' and 'COVXY' columns are missing from the dataframe.")
   }
   
+  if (!all(c("lat", "lon") %in% colnames(localization_data))) {
+    stop("Error: 'lat' and 'lon' columns are missing from the dataframe.")
+  }
+  
   ### 1. Movement-Based Features (Time-Dependent)- to capture unrealistic movement patterns
   
   # Calculate the time difference between consecutive points
