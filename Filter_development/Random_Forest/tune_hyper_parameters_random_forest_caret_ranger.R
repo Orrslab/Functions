@@ -12,7 +12,7 @@ library(ggplot2)
 # USER INPUT BEGIN
 
 # Folder to save the model results
-RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/All_species_08-06-25"
+RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/All_species_28-07-25"
 
 training_set_filename <- "training_set.rds"
 
@@ -35,10 +35,13 @@ train_control <- trainControl(
 
 # Set a grid of hyperparameters to try
 tune_grid <- expand.grid(
-  mtry = c(10, 20, 30, 40, 48),       # number of features to consider at each split
+  mtry = c(5, 10, 15),       # number of features to consider at each split
   splitrule = "gini",       # or "extratrees" if using ranger
   min.node.size = 1         # minimal node size
 )
+
+# To make the results reproducible across runs
+set.seed(42)
 
 # Train Random Forest with cross-validation
 rf_model <- train(
@@ -67,10 +70,14 @@ vip_plot <- ggplot(vip, top = 20)
 # Save the plot as a PNG using base graphics device
 ggsave(filename = file.path(RF_results_folder, "variable_importance_plot.png"),
        plot = vip_plot,
-       width = 8, height = 6, dpi = 300)
+       width = 8, height = 6, dpi = 300, bg = "white")
 
-# Load the saved model
-rf_model <- readRDS(file.path(RF_results_folder, "rf_model.rds"))
+# Save the feature importance results as a csv
+vip_df <- vip$importance
+vip_df$Feature <- rownames(vip_df)
+write.csv(vip_df[order(-vip_df$Overall), ], 
+          file.path(RF_results_folder, "feature_importance.csv"), 
+          row.names = FALSE)
 
 # Plot the model
 RF_plot <- ggplot(rf_model)
@@ -88,3 +95,6 @@ write.csv(rf_model$results, file.path(RF_results_folder, "cv_results_summary.csv
 
 # Save the model
 saveRDS(rf_model, file.path(RF_results_folder, "rf_model.rds"))
+
+# # Load the saved model
+# rf_model <- readRDS(file.path(RF_results_folder, "rf_model.rds"))
