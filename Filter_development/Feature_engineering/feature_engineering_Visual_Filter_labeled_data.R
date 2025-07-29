@@ -76,7 +76,7 @@ for (species_id in species_metadata$Species_ID) {
   detection_data <- data$DETECTIONS
   
   ### DEBUGGING
-  # localization_data <- localization_data[1:50000, ]
+  # localization_data <- localization_data[1:5000, ]
   ###
   
   # Delete duplicates from the localizations data- in case there are duplicates
@@ -86,9 +86,6 @@ for (species_id in species_metadata$Species_ID) {
   
   # Convert dateTime to a human-readable format
   localization_data$dateTime <- as.POSIXct(localization_data$dateTime, origin = "1970-01-01", tz = "UTC")
-  
-  # Calculate the time difference between consecutive points
-  localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
   # Calculate the point-based_features
   results <- calculate_point_based_features(localization_data, 
@@ -119,8 +116,8 @@ for (species_id in species_metadata$Species_ID) {
   # print("Final LOCALIZATIONS with features:")
   # print(colnames(localization_data))
   # print(head(localization_data, 20))
-  
-  print(colnames(localization_data))
+  # print(localization_data)
+  print(colSums(is.na(localization_data)))
   
   ## Save the data as sqlite
   output_file_name <- paste0(species_id, "_features_eng.sqlite")
