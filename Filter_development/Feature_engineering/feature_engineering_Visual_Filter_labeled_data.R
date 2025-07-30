@@ -57,7 +57,7 @@ beacons_detection_ratio_per_hour <- readRDS(file.path(folder_of_beacons_info_tab
 for (species_id in species_metadata$Species_ID) {
   
   # For debug purposes
-  species_id <- "LD"
+  # species_id <- "LD"
   # species_id <- "CB"
   # species_id <- "RW"
   # species_id <- "GJ"
@@ -119,6 +119,7 @@ for (species_id in species_metadata$Species_ID) {
   # print(head(localization_data, 20))
   # print(localization_data)
   print(colSums(is.na(localization_data)))
+  # print(ncol(localization_data))
   
   ## Save the data as sqlite
   output_file_name <- paste0(species_id, "_features_eng.sqlite")
