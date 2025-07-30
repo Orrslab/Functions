@@ -35,6 +35,8 @@
 #'
 load_atlas_data_from_sqlite <- function(sqlite_filepath) {
   
+  message("Loading ATLAS data from sqlite.")
+  
   # Load required packages
   required_packages <- c("RSQLite", "DBI")
   invisible(lapply(required_packages, library, character.only = TRUE))

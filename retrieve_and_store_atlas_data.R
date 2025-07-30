@@ -104,8 +104,12 @@ retrieve_and_store_atlas_data <- function(data_requests,
         
         if (save_data_to_sqlite_file) {
           
-          # Add .sqlite extension to the file names
-          full_paths_to_store_sqlite_files <- paste0(full_paths_to_store_data_files, ".sqlite")
+          # Add .sqlite extension only if not already present
+          full_paths_to_store_sqlite_files <- ifelse(
+            grepl("\\.sqlite$", full_paths_to_store_data_files, ignore.case = TRUE),
+            full_paths_to_store_data_files,
+            paste0(full_paths_to_store_data_files, ".sqlite")
+          )
           
           # Save the data as sqlite
           source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
@@ -117,19 +121,25 @@ retrieve_and_store_atlas_data <- function(data_requests,
         
         if (save_data_to_csv_file) {
           
-          # Add .csv extension to the file names
-          full_paths_to_store_csv_files <- paste0(full_paths_to_store_data_files, ".csv")
+          # Add .csv extension only if not already present
+          full_paths_to_store_csv_files <- ifelse(
+            grepl("\\.csv$", full_paths_to_store_data_files, ignore.case = TRUE),
+            full_paths_to_store_data_files,
+            paste0(full_paths_to_store_data_files, ".csv")
+          )
           
-          # Save the localizations data as csv- only if it has rows
+          # Build filenames with suffix before the extension
+          loc_file <- sub("\\.csv$", "_Localizations.csv", full_paths_to_store_csv_files, ignore.case = TRUE)
+          det_file <- sub("\\.csv$", "_Detections.csv", full_paths_to_store_csv_files, ignore.case = TRUE)
+          
+          # Save the data if non-empty
           if (nrow(RawLoc0) > 0) {
-            write.csv(RawLoc0, paste0(full_paths_to_store_csv_files, "_Localizations.csv"), row.names = FALSE)
+            write.csv(RawLoc0, loc_file, row.names = FALSE)
           }
           
-          # Save the localizations data as csv- only if it has rows
           if (nrow(RawDet0) > 0) {
-            write.csv(RawDet0, paste0(full_paths_to_store_csv_files, "_Detections.csv"), row.names = FALSE)
-          }
-          
+            write.csv(RawDet0, det_file, row.names = FALSE)
+          }          
         }
       }
     }
