@@ -24,22 +24,27 @@ data <- load_tables_from_sqlite_file(
   sqlite_filepath = features_filepath,
   tables = "LOCALIZATIONS")
 
-localizations_data <- data$LOCALIZATIONS
+localization_data <- data$LOCALIZATIONS
 
 # Ensure Outliers is a factor and define level order
-localizations_data$Outliers <- factor(localizations_data$Outliers, levels = c("valid", "outlier"))
+localization_data$Outliers <- factor(localization_data$Outliers, levels = c("valid", "outlier"))
 
 # Print the order of levels of Outliers in order to interpret correctly the results of Cohen's d
-print(paste0("Level of the Outleirs column are: ", levels(localizations_data$Outliers)))
+print(paste0("Level of the Outleirs column are: ", levels(localization_data$Outliers)))
+
+# Remove the TIME column
+localization_data <- localization_data %>% select(-TIME)
+# Remove the TAG column
+localization_data <- localization_data %>% select(-TAG)
 
 # Calculate Cohen's d per feature
-cohens_d_per_feature <- calculate_cohens_d_per_feature(df = localizations_data)
+cohens_d_per_feature <- calculate_cohens_d_per_feature(df = localization_data)
 
 # Save the cohen's d per feature as csv
 fwrite(cohens_d_per_feature, file.path(cohens_d_analysis_folder, cohens_d_per_feature_filename))
 
 # Calculate Cohen's d per feature and per species
-cohens_d_per_feature_per_species <- calculate_cohens_d_per_feature_per_species(df = localizations_data)
+cohens_d_per_feature_per_species <- calculate_cohens_d_per_feature_per_species(df = localization_data)
 
 # Save the Cohen's d per feature and per species as csv
 fwrite(cohens_d_per_feature_per_species, file.path(cohens_d_analysis_folder, cohens_d_per_feature_per_species_filename))

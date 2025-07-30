@@ -24,10 +24,15 @@ data <- load_tables_from_sqlite_file(
   sqlite_filepath = features_filepath,
   tables = "LOCALIZATIONS")
 
-localizations_data <- data$LOCALIZATIONS
+localization_data <- data$LOCALIZATIONS
+
+# Remove the TIME column
+localization_data <- localization_data %>% select(-TIME)
+# Remove the TAG column
+localization_data <- localization_data %>% select(-TAG)
 
 # Calculate the AUC value per feature
-auc_per_feature <- calculate_auc_per_feature(df = localizations_data)
+auc_per_feature <- calculate_auc_per_feature(df = localization_data)
 
 # Order the features in ascending order
 setorder(auc_per_feature, AUC)
@@ -36,7 +41,7 @@ setorder(auc_per_feature, AUC)
 fwrite(auc_per_feature, file.path(auc_analysis_folder, auc_per_feature_filename))
 
 # Calculate the AUC value of each feature per species
-auc_per_feature_per_species <- calculate_auc_per_feature_per_species(df = localizations_data)
+auc_per_feature_per_species <- calculate_auc_per_feature_per_species(df = localization_data)
 
 # Save the AUC per feature per species as csv
 fwrite(auc_per_feature_per_species, file.path(auc_analysis_folder, auc_per_feature_per_species_filename))

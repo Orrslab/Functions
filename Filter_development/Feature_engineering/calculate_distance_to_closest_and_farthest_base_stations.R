@@ -1,92 +1,65 @@
 library(data.table)
 library(geosphere)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/get_bs_coordinates_from_matched_detections.R"))
-
-
-#' Calculate distances to closest and farthest base stations
+#' Calculate Distances to Closest and Farthest Base Stations
 #'
-#' For each localization point, this function computes the distances to all detected base stations
-#' and identifies the closest and farthest base stations using the Haversine formula.
+#' Computes the distances from each localization point to all matched base stations and identifies
+#' the closest and farthest base stations based on geodesic distance.
 #'
-#' @param localizations_data A `data.frame` or `data.table` containing localization records with at least `TAG`, `TIME`, `lat`, and `lon` columns.
-#' @param matched_detections A `data.frame` or `data.table` of detection records that were matched to localizations, including `TIME`, `BS`, `SNR`, and location coordinates.
-#' @param base_stations_info A `data.table` containing base station metadata with coordinates and activation times.
-#'
-#' @return A `data.frame` of the original localization data with four new columns:
+#' @param localization_data A `data.frame` or `data.table` with localization data, including:
 #' \describe{
-#'   \item{Min_distance_to_BS}{Distance in meters to the closest base station}
-#'   \item{Closest_BS}{Base station ID of the closest base station}
-#'   \item{Max_distance_to_BS}{Distance in meters to the farthest base station}
-#'   \item{Farthest_BS}{Base station ID of the farthest base station}
+#'   \item{TAG}{Animal's tag ID}
+#'   \item{TIME}{Timestamp of localization (in milliseconds since epoch)}
+#'   \item{lat, lon}{Latitude and longitude of the localization point}
+#' }
+#' @param matched_detections_with_dist A `data.frame` or `data.table` of detection records that include:
+#' \describe{
+#'   \item{TAG, roundTIME, BS}{Tag ID, rounded time, and base station ID}
+#'   \item{dist}{Distance from the localization point to the base station (in meters)}
+#' }
+#' @param base_stations_info A `data.table` containing metadata on base stations (not used directly in this function, but required in upstream calculations).
+#'
+#' @return A `data.frame` with the original localization data plus four new columns:
+#' \describe{
+#'   \item{Min_distance_to_BS}{Minimum distance (m) to any participating base station}
+#'   \item{Closest_BS}{Base station ID with the minimum distance}
+#'   \item{Max_distance_to_BS}{Maximum distance (m) to any participating base station}
+#'   \item{Farthest_BS}{Base station ID with the maximum distance}
 #' }
 #'
 #' @details
 #' \itemize{
-#'   \item Converts times to Unix seconds and aligns timestamps between localizations and detections
-#'   \item Retrieves base station coordinates for each detection using \code{\link{get_bs_coordinates_from_matched_detections}}
-#'   \item Computes geodesic distances using the Haversine formula via \code{\link[geosphere]{distHaversine}}
-#'   \item Merges distance information back into the original localization data
+#'   \item Uses `dist` column in `matched_detections_with_dist`, assumed to be precomputed with \code{geosphere::distHaversine}.
+#'   \item `roundTIME` in `localization_data` is computed from `TIME` if not already present, rounding to nearest second.
+#'   \item Finds closest and farthest base stations per `(TAG, roundTIME)` group and merges the result into the localization data.
+#'   \item Removes `roundTIME` after merging.
 #' }
 #'
 #' @import data.table
-#' @import geosphere
-#' @seealso \code{\link{get_bs_coordinates_from_matched_detections}}
+#' @seealso \code{\link{calculate_distance_to_matched_base_stations}}
 #'
 #' @examples
 #' \dontrun{
-#' result <- calculate_distance_to_closest_and_farthest_base_stations(localizations_data, matched_detections, base_stations_info)
+#' distances_df <- calculate_distance_to_closest_and_farthest_base_stations(localization_data, matched_detections_with_dist, base_stations_info)
 #' }
 #'
 #' @export
 
-calculate_distance_to_closest_and_farthest_base_stations <- function(localizations_data, matched_detections, base_stations_info) {
-  message("Calculating the distance to the closest base station.")
-  
-  # --- Prepare matched detections ---
-  matched <- as.data.table(matched_detections)
-  
-  # Convert TIME to seconds
-  matched[, TIME := TIME / 1000]
-  
-  # Make sure roundTIME is in POSIXct
-  matched[, roundTIME := as.POSIXct(roundTIME / 1000, origin = "1970-01-01", tz = "UTC")]
-  
-  # Make sure that BS is numeric
-  matched[, BS := as.numeric(BS)]
-  
-  # Rename localization coords for clarity- to distinguish them from the base stations' coordinates
-  setnames(matched, old = c("lat", "lon"), new = c("loc_lat", "loc_lon"))
-  
-  # For each detection, assign the coordinates of the corresponding base station
-  matched <- get_bs_coordinates_from_matched_detections(matched, base_stations_info)
-  
-  # FOR DEBUGGING PURPOSES
-  # print(head(loc_with_bs[loc_with_bs$Radio_serial_number == 972006002, c("dateTime", "BS", "bs_lat", "bs_lon")], 100))
-  # print(matched[matched$BS == 972006004, c("dateTime", "BS", "bs_lat", "bs_lon")])
-  
-  # --- Check/convert all coordinate columns to numeric ---
-  matched[, c("bs_lat", "bs_lon", "loc_lat", "loc_lon") := lapply(.SD, as.numeric),
-          .SDcols = c("bs_lat", "bs_lon", "loc_lat", "loc_lon")]
-
-  # --- Compute distance from each localization to each base station ---
-  matched[, dist := mapply(function(lat1, lon1, lat2, lon2) {
-    distHaversine(c(lon1, lat1), c(lon2, lat2))
-  }, loc_lat, loc_lon, bs_lat, bs_lon)]
+calculate_distance_to_closest_and_farthest_base_stations <- function(localization_data, matched_detections_with_dist) {
 
   # --- Find the closest base station per point ---
-  closest <- matched[, .SD[which.min(dist)], by = .(TAG, roundTIME)]
+  closest <- matched_detections_with_dist[, .SD[which.min(dist)], by = .(TAG, roundTIME)]
   closest <- closest[, .(TAG, roundTIME, Min_distance_to_BS = dist, Closest_BS = BS)]
 
   # --- Find the farthest base station per point ---
-  farthest <- matched[, .SD[which.max(dist)], by = .(TAG, roundTIME)]
+  farthest <- matched_detections_with_dist[, .SD[which.max(dist)], by = .(TAG, roundTIME)]
   farthest <- farthest[, .(TAG, roundTIME, Max_distance_to_BS = dist, Farthest_BS = BS)]
 
   # --- Merge back into full localization dataset ---
-  localizations_data <- as.data.table(localizations_data)
-  localizations_data[, roundTIME := as.POSIXct(round(TIME / 1000), origin = "1970-01-01", tz = "UTC")]
+  localization_data <- as.data.table(localization_data)
+  localization_data[, roundTIME := as.POSIXct(round(TIME / 1000), origin = "1970-01-01", tz = "UTC")]
   
-  result <- merge(localizations_data, closest, by = c("TAG", "roundTIME"), all.x = TRUE)
+  result <- merge(localization_data, closest, by = c("TAG", "roundTIME"), all.x = TRUE)
   result <- merge(result, farthest, by = c("TAG", "roundTIME"), all.x = TRUE)
   
   # Remove the roundTIME column from the Localizations table

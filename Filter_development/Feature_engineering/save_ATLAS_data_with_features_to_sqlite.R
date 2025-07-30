@@ -2,7 +2,7 @@
 #'
 #' Saves one or more ATLAS-related datasets to an SQLite database file using the \code{RSQLite} and \code{DBI} packages.
 #'
-#' @param localizations_data A `data.frame` or `data.table` of localization data (optional).
+#' @param localization_data A `data.frame` or `data.table` of localization data (optional).
 #' @param detections_data A `data.frame` or `data.table` of detection data (optional).
 #' @param participating_base_stations A `data.frame` of base stations that participated in detections (optional).
 #' @param missed_base_stations A `data.frame` of base stations that were expected but did not participate in the localization (optional).
@@ -30,7 +30,7 @@
 #' @examples
 #' \dontrun{
 #' save_ATLAS_data_with_features_to_sqlite(
-#'   localizations_data = locs_df,
+#'   localization_data = locs_df,
 #'   detections_data = det_df,
 #'   fullpath = "path/to/database.sqlite"
 #' )
@@ -39,7 +39,7 @@
 #' @export
 
 save_ATLAS_data_with_features_to_sqlite <- function(
-    localizations_data = NULL, 
+    localization_data = NULL, 
     detections_data = NULL, 
     participating_base_stations = NULL,
     missed_base_stations = NULL,
@@ -54,9 +54,9 @@ save_ATLAS_data_with_features_to_sqlite <- function(
   # Connect to the SQLite database
   conn <- dbConnect(RSQLite::SQLite(), dbname = fullpath)
   
-  # Save localizations_data if given
-  if (!is.null(localizations_data)) {
-    dbWriteTable(conn, "LOCALIZATIONS", localizations_data, overwrite = TRUE)
+  # Save localization_data if given
+  if (!is.null(localization_data)) {
+    dbWriteTable(conn, "LOCALIZATIONS", localization_data, overwrite = TRUE)
     message("Localizations data saved.")
   }
   

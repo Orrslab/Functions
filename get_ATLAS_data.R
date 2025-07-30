@@ -1,3 +1,6 @@
+source(file.path(getwd(), "retrieve_and_store_atlas_data.R"))
+source(file.path(getwd(), "load_atlas_data_from_multiple_sqlite_files.R"))
+
 #' Retrieve ATLAS Data from the Server or Local SQLite Files
 #'
 #' This function retrieves ATLAS data either by downloading it from the TAU server 
@@ -58,11 +61,11 @@ get_ATLAS_data <- function(data_requests,
     # Download ATLAS data directly from the server
     # This requires a VPN connection to the TAU server
     
-    source(paste0(getwd(), "/retrieve_and_store_atlas_data.R"))
     raw_atlas_data <- retrieve_and_store_atlas_data(data_requests = data_requests, 
                                                     atlas_db_credentials = atlas_db_credentials,
                                                     save_data_to_sqlite_file = save_data_to_sqlite_file,
-                                                    full_paths_to_store_sqlite_files= full_paths_to_sqlite_files)
+                                                    full_paths_to_store_data_files= full_paths_to_sqlite_files,
+                                                    save_data_to_csv_file = save_data_to_csv_file)
     
   } else {
     
@@ -73,7 +76,6 @@ get_ATLAS_data <- function(data_requests,
       
     } else {
       
-      source(paste0(getwd(), "/load_atlas_data_from_multiple_sqlite_files.R"))
       raw_atlas_data <- load_atlas_data_from_multiple_sqlite_files(full_paths_to_sqlite_files)
       
     }

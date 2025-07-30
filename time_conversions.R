@@ -35,7 +35,7 @@ time_str_to_utc_timestamp <- function(timestring, time_format = atlas_time_forma
 #' convert_to_POSIXct(c(1703376004071, 1703377004071))
 #'
 #' @export
-convert_to_POSIXct <- function(timestamp_ms, time_zone = atlas_time_zone) {
+convert_to_POSIXct <- function(timestamp_ms, time_zone = "UTC") {
   # Check if input is numeric
   if (!is.numeric(timestamp_ms)) {
     stop("The input must be a numeric vector representing Unix timestamps in milliseconds.")
@@ -60,7 +60,7 @@ convert_to_POSIXct <- function(timestamp_ms, time_zone = atlas_time_zone) {
 #' @return A character vector of formatted date and time strings in the ATLAS format. 
 #' If the input is a single value, the return will be a single string.
 #' 
-unix_timestamp_to_human_date <- function(unix_timestamp, time_format = atlas_time_format) {
+unix_timestamp_to_human_date <- function(unix_timestamp, time_format = "%Y-%m-%d %H:%M:%S") {
   # Convert to POSIXct object
   converted_atlas_time <- convert_to_POSIXct(unix_timestamp)
   # Format the POSIXct object to the desired format

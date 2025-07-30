@@ -4,7 +4,7 @@
 #' The user can specify the file path and whether to overwrite existing files. 
 #' Data is saved into separate tables named `LOCALIZATIONS` and `DETECTIONS`.
 #'
-#' @param localizations_data A data frame containing localization data. 
+#' @param localization_data A data frame containing localization data. 
 #'   Default is `NULL`. If `NULL`, the localization data table will not be created.
 #' @param detections_data A data frame containing detection data. 
 #'   Default is `NULL`. If `NULL`, the detection data table will not be created.
@@ -19,13 +19,13 @@
 #'     to confirm whether to overwrite it. If the user chooses not to overwrite, 
 #'     the function exits without saving the data.
 #'   - The database tables `LOCALIZATIONS` and `DETECTIONS` are created only if 
-#'     the corresponding data frames (`localizations_data` or `detections_data`) 
+#'     the corresponding data frames (`localization_data` or `detections_data`) 
 #'     are provided.
 #'   - The database connection is automatically closed after the operation is complete.
 #'
 #' @examples
 #' # Example data
-#' localizations_data <- data.frame(
+#' localization_data <- data.frame(
 #'   tag = c("972006000430", "972006000431"),
 #'   time = c("2024-01-01 12:00:00", "2024-01-01 12:05:00"),
 #'   x = c(1.234, 2.345),
@@ -40,7 +40,7 @@
 #'
 #' # Save data to SQLite
 #' save_ATLAS_data_to_sqlite(
-#'   localizations_data = localizations_data,
+#'   localization_data = localization_data,
 #'   detections_data = detections_data,
 #'   fullpath = "atlas_data.sqlite"
 #' )
@@ -48,7 +48,7 @@
 #' @seealso \code{\link{dbConnect}} and \code{\link{dbWriteTable}} from the 
 #'   `RSQLite` package for database operations.
 #'          
-save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=NULL, fullpath = getwd())
+save_ATLAS_data_to_sqlite <- function(localization_data=NULL, detections_data=NULL, fullpath = getwd())
 {
   # Load required packages
   required_packages <- c("RSQLite", "DBI", "dplyr", "crayon")
@@ -81,9 +81,9 @@ save_ATLAS_data_to_sqlite <- function(localizations_data=NULL, detections_data=N
   conn <- dbConnect(RSQLite::SQLite(), dbname = fullpath)
   
   # Write localizations data to the database, if provided
-  if (!is.null(localizations_data)) {
+  if (!is.null(localization_data)) {
     
-    dbWriteTable(conn, "LOCALIZATIONS", localizations_data, overwrite=TRUE)
+    dbWriteTable(conn, "LOCALIZATIONS", localization_data, overwrite=TRUE)
     message("Localizations data saved.")
     
   }

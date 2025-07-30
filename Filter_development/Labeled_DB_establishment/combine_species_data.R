@@ -1,4 +1,9 @@
 
+# This script loads all the labeled data of each species and combines
+# the data of all species into one file called labeled_data_db.sqlite.
+
+# More details are in README.md
+
 # clean the data and set some preferences
 rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
@@ -7,11 +12,11 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 library(DBI)
 library(RSQLite)
 
-# source(file.path(getwd(), "load_localizations_data_from_sqlite_file.R"))
+# source(file.path(getwd(), "load_localization_data_from_sqlite_file.R"))
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 source(file.path(getwd(), "save_ATLAS_data_to_sqlite.R"))
 
-db_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
+db_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 combined_species_data_folder <- file.path(db_folder, "Combined_species_data")
 
 # Open all the sqlite files in the combined species folder
@@ -47,6 +52,6 @@ for (sqlite_file in sqlite_files) {
   
 }
 
-save_ATLAS_data_to_sqlite(localizations_data = all_data_localizations,
+save_ATLAS_data_to_sqlite(localization_data = all_data_localizations,
                           detections_data = all_data_detections,
                           fullpath = file.path(db_folder, "labeled_data_db.sqlite"))

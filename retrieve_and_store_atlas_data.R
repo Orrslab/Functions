@@ -26,11 +26,6 @@
 #' @param save_data_to_csv_file Logical. If `TRUE`, saves the retrieved 
 #'   localization data to CSV files. Defaults to `FALSE`.
 #'
-#' @param fullpath_to_csv_files A character string specifying the full path for 
-#'   the CSV files to store the data, including a file name (e.g., 
-#'   `paste0(getwd(), "/atlas_data.csv")`). Defaults to 
-#'   `paste0(getwd(), "/atlas_data.csv")`.
-#'
 #' @return A data frame containing the combined localization data retrieved 
 #'   from the ATLAS system for all specified requests. The data frame includes 
 #'   localization data for all specified tags and time periods.
@@ -62,9 +57,8 @@
 retrieve_and_store_atlas_data <- function(data_requests, 
                                           atlas_db_credentials,
                                           save_data_to_sqlite_file = TRUE,
-                                          full_paths_to_store_sqlite_files = paste0(getwd(), "atlas_data.sqlite"),
-                                          save_data_to_csv_file = FALSE,
-                                          fullpath_to_csv_files = paste0(getwd(), "/atlas_data.csv")) {
+                                          full_paths_to_store_data_files = paste0(getwd(), "atlas_data.sqlite"),
+                                          save_data_to_csv_file = FALSE) {
   
   library("dplyr")
   
@@ -86,7 +80,7 @@ retrieve_and_store_atlas_data <- function(data_requests,
                                       end_time,
                                       tag_numbers,
                                       includeLoc = TRUE,
-                                      includeDet=TRUE,
+                                      includeDet = TRUE,
                                       db_conn)
     
     RawLoc0 <- AllData$LOCALIZATIONS
@@ -101,23 +95,53 @@ retrieve_and_store_atlas_data <- function(data_requests,
     
     if (save_data_to_sqlite_file) {
       
-      if (is.null(full_paths_to_store_sqlite_files)) {
+      if (is.null(full_paths_to_store_data_files)) {
         
         warning("No folder to save the SQLite data was provided. Exiting the script.")
         stop("Run aborted due to missing folder path.")
         
       } else {
         
-        # Save the data as sqlite
-        source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
-        save_ATLAS_data_to_sqlite(localizations_data = RawLoc0,
-                                  detections_data = RawDet0,
-                                  fullpath=full_paths_to_store_sqlite_files)
+        if (save_data_to_sqlite_file) {
+          
+          # Add .sqlite extension only if not already present
+          full_paths_to_store_sqlite_files <- ifelse(
+            grepl("\\.sqlite$", full_paths_to_store_data_files, ignore.case = TRUE),
+            full_paths_to_store_data_files,
+            paste0(full_paths_to_store_data_files, ".sqlite")
+          )
+          
+          # Save the data as sqlite
+          source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
+          save_ATLAS_data_to_sqlite(localization_data = RawLoc0,
+                                    detections_data = RawDet0,
+                                    fullpath=full_paths_to_store_sqlite_files)
+          
+        }
+        
+        if (save_data_to_csv_file) {
+          
+          # Add .csv extension only if not already present
+          full_paths_to_store_csv_files <- ifelse(
+            grepl("\\.csv$", full_paths_to_store_data_files, ignore.case = TRUE),
+            full_paths_to_store_data_files,
+            paste0(full_paths_to_store_data_files, ".csv")
+          )
+          
+          # Build filenames with suffix before the extension
+          loc_file <- sub("\\.csv$", "_Localizations.csv", full_paths_to_store_csv_files, ignore.case = TRUE)
+          det_file <- sub("\\.csv$", "_Detections.csv", full_paths_to_store_csv_files, ignore.case = TRUE)
+          
+          # Save the data if non-empty
+          if (nrow(RawLoc0) > 0) {
+            write.csv(RawLoc0, loc_file, row.names = FALSE)
+          }
+          
+          if (nrow(RawDet0) > 0) {
+            write.csv(RawDet0, det_file, row.names = FALSE)
+          }          
+        }
       }
-    }
-    
-    if (save_data_to_csv_file) {
-      write.csv(RawLoc0, fullpath_to_csv_files, row.names = FALSE)
     }
   }
   

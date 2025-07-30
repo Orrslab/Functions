@@ -55,5 +55,5 @@ for (time_val in only_outliers$TIME) {
 # Save the data frame with the valid points and outliers into sqlite
 source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
 sqlite_fullpath <- paste0(path_to_shlomo_data, filename, ".sqlite")
-save_ATLAS_data_to_sqlite(localizations_data = raw_location_data, fullpath = sqlite_fullpath)
+save_ATLAS_data_to_sqlite(localization_data = raw_location_data, fullpath = sqlite_fullpath)
 

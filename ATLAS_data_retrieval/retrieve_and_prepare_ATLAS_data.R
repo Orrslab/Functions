@@ -8,11 +8,11 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 # Get the required paths from the config file config.R
 source(file.path(getwd(), "/ATLAS_data_retrieval/config.R"))
 
-# Install the required R packages- in not yet installed
-source(paste0(path_to_scripts,"install_required_R_packages.R"))
+# Install the required R packages- if not yet installed
+source(file.path(path_to_scripts,"install_required_R_packages.R"))
 
 # Get the desired tag numbers and date ranges for the data retrieval
-source(paste0(path_to_scripts, data_requests_file_name))
+source(file.path(path_to_scripts, data_requests_file_name))
 
 # Set the folder path to save or retrieve the atlas data sqlite files 
 if (retrieve_data_from_server) {
@@ -22,7 +22,7 @@ if (retrieve_data_from_server) {
 }
 
 # Generate the file names from the tag numbers and dates
-source(paste0(path_to_atlas_data_analysis_repo, "create_list_of_sqlite_filepaths.R"))
+source(file.path(getwd(), "create_list_of_sqlite_filepaths.R"))
 fullpaths_to_sqlite_files <- create_list_of_sqlite_filepaths(data_requests, 
                                                              folder_path_to_sqlite_files)
 
@@ -37,7 +37,7 @@ harod_db_credentials <- list(
 )
 
 # Get the ATLAS data- either from the server, or from an SQLite file
-source(paste0(path_to_atlas_data_analysis_repo,"get_ATLAS_data.R"))
+source(file.path(getwd(),"get_ATLAS_data.R"))
 raw_atlas_data = get_ATLAS_data(data_requests = data_requests, 
                                 atlas_db_credentials = harod_db_credentials,
                                 retrieve_data_from_server = retrieve_data_from_server,
@@ -63,20 +63,20 @@ raw_detection_data <- raw_atlas_data$DETECTIONS
 
 # # Save the raw data with the DAY column to sqlite
 # source(paste0(path_to_atlas_data_analysis_repo, "save_ATLAS_data_to_sqlite.R"))
-# save_ATLAS_data_to_sqlite(localizations_data = raw_location_data, 
+# save_ATLAS_data_to_sqlite(localization_data = raw_location_data, 
 #                           tag_number = 972006000836, 
 #                           start_time = '2023-12-24 00:00:01',
 #                           end_time = '2023-12-25 00:00:01')
 
-# # Assign day numbers to the data
-source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
-# convert the time column to the POSIXct format- required for using AssignDayNumber.R
-raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
-source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
-raw_location_data <- AssignDayNumber(data=raw_location_data,
-                                     DayStartTime = "23:00:00",
-                                     DayEndTime = "18:00:00",
-                                     TimeColName = "dateTime")
+# # # Assign day numbers to the data
+# source(paste0(path_to_atlas_data_analysis_repo, "time_conversions.R"))
+# # convert the time column to the POSIXct format- required for using AssignDayNumber.R
+# raw_location_data$dateTime <- convert_to_POSIXct(raw_location_data$TIME)
+# source(paste0(path_to_atlas_data_analysis_repo, "AssignDayNumber.R"))
+# raw_location_data <- AssignDayNumber(data=raw_location_data,
+#                                      DayStartTime = "23:00:00",
+#                                      DayEndTime = "18:00:00",
+#                                      TimeColName = "dateTime")
 
 # raw_location_data <- AssignDayNumber(data=raw_location_data,
 #                                      DayEndTime = "10:00:00",

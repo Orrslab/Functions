@@ -2,7 +2,10 @@ library(dplyr)
 
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "calculate_elevation_per_location.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beacon_derived_features.R"))
 
 #' Calculate point-based movement, location, and signal-based features for the outliers filtering algorithm
 #'
@@ -15,7 +18,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_dete
 #'
 #' @return A list with the following elements:
 #' \describe{
-#'   \item{localizations_data}{A data frame with the original localizations and newly added features such as distance, acceleration, turning angle, and elevation.}
+#'   \item{localization_data}{A data frame with the original localizations and newly added features such as distance, acceleration, turning angle, and elevation.}
 #'   \item{participating_base_stations}{A data frame with the id numbers of the participating base stations per localization.}
 #'   \item{missed_base_stations}{A data frame with the expected but missing base stations id numbers per localization.}
 #' }
@@ -33,18 +36,30 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_dete
 #' @import dplyr
 #' @export
 
-calculate_point_based_features <- function(localization_data, detection_data) {
+calculate_point_based_features <- function(localization_data, 
+                                           detection_data, 
+                                           base_stations_info_path,
+                                           beacons_detection_ratio_per_hour, 
+                                           base_stations_summary_per_beacon,
+                                           low_beacon_detection_fraction) {
   
   # Verify that the data frame has the columns TAG and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
     stop("Error: 'TAG' column is missing from the dataframe.")
   }
   
-  if (!"time_diff_sec" %in% colnames(localization_data)) {
-    stop("Error: 'time_diff_sec' column is missing from the dataframe.")
+  if (!all(c("VARX", "VARY", "COVXY") %in% colnames(localization_data))) {
+    stop("Error: 'VARX', 'VARY' and 'COVXY' columns are missing from the dataframe.")
+  }
+  
+  if (!all(c("lat", "lon") %in% colnames(localization_data))) {
+    stop("Error: 'lat' and 'lon' columns are missing from the dataframe.")
   }
   
   ### 1. Movement-Based Features (Time-Dependent)- to capture unrealistic movement patterns
+  
+  # Calculate the time difference between consecutive points
+  localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
   
   # Distance between consecutive points
   localization_data$dist_m <- calculate_distance(localization_data$X, 
@@ -55,15 +70,24 @@ calculate_point_based_features <- function(localization_data, detection_data) {
                                                                                  localization_data$Y)
   
   # Speed [m/s]
-  # was already calculated by the Visual Filter App
+  localization_data$Speed_m_s <- calculate_speed(localization_data$dist_m, 
+                                                 localization_data$time_diff_sec)
   
   # Acceleration [m/s^2]
   localization_data$Acceleration_m_s_2 <- calculate_acceleration(localization_data$Speed_m_s, 
                                                                  localization_data$time_diff_sec)
+  # STD of the ATLAS localizations
+  localization_data$STD <- calculate_std(localization_data$VARX,
+                                         localization_data$VARY,
+                                         localization_data$COVXY)
   
   # Cosine of the turning angle
-  localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X, 
-                                                                        localization_data$Y)   
+  localization_data$cos_turning_angle <- calculate_cosine_turning_angle(localization_data$X,
+                                                                        localization_data$Y)
+  
+  # Turning angle between each location and its' previous and next consecutive points
+  localization_data$turning_angle <- calculate_directional_turning_angle(localization_data$X, 
+                                                                         localization_data$Y)
 
   ### 2. Location-Based Features
   # Currently I calculate these features only within a time window
@@ -78,12 +102,37 @@ calculate_point_based_features <- function(localization_data, detection_data) {
 
   # SNR- Signal to Noise Ratio and other detection-based features
   
-  results <- calculate_detection_based_features(localization_data, detection_data)
+  # Load the base stations info
+  base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
+  
+  # Calculate the detection-based features
+  results <- calculate_detection_based_features(localization_data, 
+                                                detection_data,
+                                                base_stations_info)
+  
+  localization_data <- results$localization_data
+  participating_base_stations <- results$participating_base_stations
+  missed_base_stations <- results$missed_base_stations
+  
+  # Calculate the absolute value of the average difference between the location's elevation 
+  # and the elevation of each participating base station
+  localization_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
+    localization_data,
+    participating_base_stations,
+    base_stations_info
+  )
+  
+  # Calculate beacons' features
+  localization_data <- calculate_beacon_derived_features(localization_data, 
+                                                         participating_base_stations, 
+                                                         beacons_detection_ratio_per_hour,
+                                                         base_stations_summary_per_beacon,
+                                                         low_beacon_detection_fraction) 
   
   return(list(
-    localizations_data = results$localizations_data,
-    participating_base_stations = results$participating_base_stations,
-    missed_base_stations = results$missed_base_stations
+    localization_data = localization_data,
+    participating_base_stations = participating_base_stations,
+    missed_base_stations = missed_base_stations
   ))
   
 }

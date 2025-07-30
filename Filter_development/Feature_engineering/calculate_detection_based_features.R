@@ -1,79 +1,99 @@
 source(file.path(getwd(), "match_detections_to_localizations.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
 source(file.path(getwd(), "create_participating_base_stations_table.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_and_farthest_base_stations.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_matched_base_stations.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_missed_base_stations_features.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_base_stations_convex_hull_polygon.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circular_variance_of_participating_base_stations.R"))
 
-#' Calculate detection-based features for each localization point
+#' Calculate Detection-Based Features for Each Localization
 #'
-#' This function enriches each localization in the dataset with features derived from the corresponding detections.
-#' These features include signal-to-noise ratio (SNR) metrics, distance to the closest and farthest base stations, and metrics
-#' related to missed base stations. It also returns a table of participating base stations for each localization.
+#' Enriches each localization point with detection-based features derived from matched detections, including:
+#' signal quality, spatial distribution of base stations, and identification of missed base stations.
 #'
-#' @param localizations_data A data frame containing the localizations, typically with columns such as `TAG`, `TIME`, `lon`, `lat`, etc.
-#' @param detections_data A data frame containing the detection data, including all raw detections to be matched to localizations- this should be the raw detections data from the ATLAS database.
+#' @param localization_data A `data.frame` or `data.table` containing localization data with columns such as `TAG`, `TIME`, `lat`, and `lon`.
+#' @param detections_data A `data.frame` or `data.table` of raw ATLAS detections, including detection times and base station IDs.
+#' @param base_stations_info A `data.frame` or `data.table` containing metadata about base stations, including location and identifiers.
 #'
-#' @return A list with the following elements:
+#' @return A named list with the following components:
 #' \describe{
-#'   \item{localizations_data}{A data frame containing the original localization data enriched with the detection-based features.}
-#'   \item{participating_base_stations}{A data frame indicating which base stations contributed to each localization.}
-#'   \item{missed_base_stations}{A data frame or list indicating which base stations were expected but did not contribute to the localization.}
+#'   \item{localization_data}{The input localization data augmented with detection-based features.}
+#'   \item{participating_base_stations}{A `data.table` with the base stations that contributed to each localization.}
+#'   \item{missed_base_stations}{A `data.table` or list of base stations that were expected to contribute but did not detect the beacon.}
 #' }
 #'
-#' @details
-#' This function depends on multiple helper functions for:
+#' @details This function coordinates several processing steps:
 #' \itemize{
-#'   \item Matching detections to localizations
-#'   \item Calculating SNR-related features
-#'   \item Loading and formatting base station metadata
-#'   \item Computing distance to the closest base station
-#'   \item Identifying and analyzing missed base stations
+#'   \item Matching detections to localization timestamps.
+#'   \item Calculating signal-to-noise ratio (SNR) features.
+#'   \item Computing distances to all matched base stations.
+#'   \item Calculating convex hull geometry and circular variance of base stations.
+#'   \item Identifying closest and farthest base stations.
+#'   \item Detecting and analyzing missed base stations.
 #' }
-#' These helper functions must be sourced before calling this function.
+#' 
+#' Helper functions must be sourced in advance:
+#' \itemize{
+#'   \item \code{\link{match_detections_to_localizations}}
+#'   \item \code{\link{calculate_SNR_features}}
+#'   \item \code{\link{calculate_distance_to_matched_base_stations}}
+#'   \item \code{\link{calculate_distance_to_closest_and_farthest_base_stations}}
+#'   \item \code{\link{calculate_base_stations_convex_hull_polygon}}
+#'   \item \code{\link{calculate_circular_variance_of_participating_base_stations}}
+#'   \item \code{\link{create_participating_base_stations_table}}
+#'   \item \code{\link{calculate_missed_base_stations_features}}
+#' }
 #'
 #' @examples
 #' \dontrun{
-#' results <- calculate_detection_based_features(localizations_data, detections_data)
-#' enriched_localization_data <- results$localizations_data
-#' bs_table <- results$participating_base_stations
-#' missed_bs <- results$missed_base_stations
+#' result <- calculate_detection_based_features(localization_data, detections_data, base_stations_info)
+#' enriched_data <- result$localization_data
+#' bs_participation <- result$participating_base_stations
+#' missed_bs <- result$missed_base_stations
 #' }
 #'
+#' @import data.table
 #' @export
 
 # Features per location, that reqire knowing the detections that correspond to each location
-calculate_detection_based_features <- function(localizations_data, detections_data) {
+calculate_detection_based_features <- function(localization_data, 
+                                               detections_data,
+                                               base_stations_info) {
   
   # Get the detections corresponding to each location
-  matched_detections <- match_detections_to_localizations(localizations_data, detections_data)
+  matched_detections <- match_detections_to_localizations(localization_data, detections_data)
   
   # Calculate the SNR features
-  localizations_data_with_features <- calculate_SNR_features(matched_detections, localizations_data)
+  localization_data <- calculate_SNR_features(matched_detections, localization_data)
   
-  # Load the base stations info
-  base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
-  base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
-  
-  # Calculate the distance of each location from the closest base station
-  localizations_data_with_features <- calculate_distance_to_closest_and_farthest_base_stations(
-    localizations_data_with_features,
-    matched_detections,
-    base_stations_info)
+  # Calculate the distance to all matched base stations
+  matched_with_dist <- calculate_distance_to_matched_base_stations(matched_detections, base_stations_info)
   
   # Create a table with the participating base stations in each localization
-  participating_base_stations <- create_participating_base_stations_table(localizations_data, matched_detections)
+  participating_base_stations <- create_participating_base_stations_table(localization_data, matched_with_dist)
+  
+  # Calculate the distribution of the base stations, relative to the convex hull polygon --- #
+  localization_data <- calculate_base_stations_convex_hull_polygon(matched_with_dist, localization_data)
+  
+  # Calculate the circular variance of the participating base stations
+  localization_data <- calculate_circular_variance_of_participating_base_stations(localization_data, matched_with_dist)
+  
+  # Calculate the distance of each location from the closest base station
+  localization_data <- calculate_distance_to_closest_and_farthest_base_stations(
+    localization_data,
+    matched_with_dist)
   
   # Get the base stations that were excluded from each localization 
   # and evaluated features that are related to these base stations
-  results <- calculate_missed_base_stations_features(localizations_data_with_features,
+  results <- calculate_missed_base_stations_features(localization_data,
                                                      base_stations_info)
   
-  localizations_data_with_features <- results$localizations_data
+  localization_data <- results$localization_data
   missed_base_stations <- results$missed_base_stations
   
   return(list(
-    localizations_data = localizations_data_with_features,
+    localization_data = localization_data,
     participating_base_stations = participating_base_stations,
     missed_base_stations = missed_base_stations
   ))
