@@ -6,6 +6,7 @@ ATLAS_data_retrieval/retrieve_ATLAS_data_algorithm_scheme.drawio
 ATLAS_data_retrieval/config.R
 ATLAS_data_retrieval/config_beacons.R
 ATLAS_data_retrieval/config_atlasRF.R
+ATLAS_data_retrieval/config_nesting_barn_owls.R
 Visual_Filter_App/config_visual_filter.R
 ATLAS_data_retrieval/ATLAS_data_requests.R
 Mapping_tools/t_map/Israel_map.png
