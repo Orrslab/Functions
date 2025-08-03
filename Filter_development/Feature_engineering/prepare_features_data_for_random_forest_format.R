@@ -73,6 +73,31 @@ for (species_id in species_metadata$Species_ID) {
   participating_base_stations <- data$PARTICIPATING_BASE_STATIONS
   missed_base_stations <- data$MISSED_BASE_STATIONS
   
+  ######### Add Nesting Barn Owls data ###############
+  
+  if (species_id == "BO") {
+    
+    # Add the labeled data of the nesting barn owls
+    nesting_BO_data <- readRDS("C:/Users/netat/Documents/Movement_Ecology/Filter_development/Outliers_characterization/Nesting_barn_owls/Nesting_BO_DB/Nesting_BO_labeled_data/BO_0856_from_2024-03-31_00-01-00_to_2024-04-01_23-59-00_labeled.rds")
+    
+    # Add empty columns dateTime and DAY to nesting_BO data to match the structure of localization_data
+    nesting_BO_data$dateTime <- 0
+    nesting_BO_data$DAY <- 0
+        
+    # Reorder nesting_box_data to match localization_data column order
+    nesting_BO_data <- nesting_BO_data[, names(localization_data)]
+    
+    # Drop the geometry column before binding of the dataframes due to format problems
+    localization_data$geometry <- NULL
+    nesting_BO_data$geometry <- NULL
+    
+    # Combine the two data frames
+    localization_data <- rbind(localization_data, nesting_BO_data)
+    
+  }
+  
+  #############
+  
   ##  Handle columns with structural NA values- random forest does not accept NA values
 
   # "closest_missed_bs_distance"
