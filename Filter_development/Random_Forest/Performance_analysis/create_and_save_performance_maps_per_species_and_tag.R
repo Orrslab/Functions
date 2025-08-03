@@ -5,7 +5,7 @@ library(htmlwidgets)
 source(file.path(getwd(), "Mapping_tools/interactive_map_single_atlas_dataset_color_by_vector.R"))
 
 # Wrapper function to create and save maps per species and TAG
-create_and_save_performance_maps <- function(data, 
+create_and_save_performance_maps_per_species_and_tag <- function(data, 
                                  color_column = "Outliers", 
                                  output_dir = "ATLAS_maps") {
   

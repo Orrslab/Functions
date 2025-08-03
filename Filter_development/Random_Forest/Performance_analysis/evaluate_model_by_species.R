@@ -4,11 +4,11 @@ library(dplyr)
 library(caret)
 
 # USER'S INPUT BEGIN
-random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/GJ_29-07-25"
+random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/Species_models/WB"
 rf_model_filename <- "rf_model_final_trained_on_full_training_set.rds"
 
 # Set threshold for the labels prediction
-threshold <- 0.9
+threshold <- 0.6
 
 # USER'S INPUT END
 

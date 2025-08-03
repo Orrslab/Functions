@@ -12,7 +12,7 @@ library(ggplot2)
 # USER INPUT BEGIN
 
 # Folder to save the model results
-RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/All_species_28-07-25"
+RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/Species_models/GJ"
 
 training_set_filename <- "training_set.rds"
 

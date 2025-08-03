@@ -29,10 +29,12 @@ non_feature_column_names <- c("TAG", "X", "Y", "Z", "lat", "lon",
                               "Species_id", "X_mean", "Y_mean", "X_median", "Y_median", "Is_stop")
 
 # Folder to save the model results
-RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/GJ_29-07-25"
+RF_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/Species_models/GJ"
 
 training_set_filename <- "training_set.rds"
 test_set_filename <- "test_set.rds"
+
+species_code <- "GJ"
 
 ### USER INPUT END
 
@@ -45,8 +47,8 @@ features_data <- load_tables_from_sqlite_file(
 
 localization_data <- features_data$LOCALIZATIONS
 
-#### EXTRACT THE DATA OF ONLY THE JACKALS
-localization_data <- localization_data[localization_data$Species_id == "GJ", ]
+#### EXTRACT THE DATA OF ONLY THE DESIRED SPECIES
+localization_data <- localization_data[localization_data$Species_id == species_code, ]
 ####
 
 # Split the data into a training set and a test set- stratify by Outliers

@@ -5,9 +5,11 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 
 library(ranger)
 
-# USER'S INPUT BEGIN
-random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/GJ_29-07-25"
-# USER'S INPUT END
+### USER'S INPUT BEGIN
+random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/Species_models/GJ"
+# Assign weights: Give more weight to outliers (class "1")
+outlier_weight <- 1
+### USER'S INPUT END
 
 # Load the training dataset
 train_data <- readRDS(file.path(random_forest_results_folder, "training_set.rds"))
@@ -28,6 +30,9 @@ best_mtry <- 10
 best_splitrule <- "gini"
 best_min_node_size <- 1
 
+# Create a vector of weights for the outliers
+weights <- ifelse(train_data$Outliers == "1", outlier_weight, 1)
+
 # Train the final model on the full training dataset
 rf_model_final <- ranger(
   formula = Outliers ~ .,
@@ -37,7 +42,8 @@ rf_model_final <- ranger(
   min.node.size = best_min_node_size,
   probability = TRUE,
   importance = "impurity",
-  seed = 42
+  seed = 42,
+  case.weights = weights
 )
 
 
