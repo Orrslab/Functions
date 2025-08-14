@@ -79,6 +79,8 @@ analyze_model_performance <- function(rf_model, test_tata) {
   write.csv(metrics_df, file = file.path(random_forest_results_folder, "classification_metrics.csv"), row.names = FALSE)
   
   # Generate perormance maps per tag
-  performance_mapping_pipeline(data_with_label_predictions = test_data)
+  performance_mapping_pipeline(data_with_label_predictions = test_data,
+                               reference_label_col = "Outliers",
+                               predicted_label_col = "predicted_outlier")
   
 }
