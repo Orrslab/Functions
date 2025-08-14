@@ -7,11 +7,13 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 source(file.path(getwd(), "ATLAS_data_retrieval/config_atlasRF.R"))
-source(file.path(getwd(), "ATLAS_data_retrieval", data_requests_file_name))
+# source(file.path(getwd(), "ATLAS_data_retrieval", data_requests_file_name))
 source(file.path(getwd(), "create_filename_without_extension.R"))
 source(file.path(getwd(), "calculate_lat_lon_coordinates.R"))
 source(file.path(getwd(), "ATLAS_data_retrieval/calculate_features_in_data.R"))
 source(file.path(getwd(), "ATLAS_data_retrieval/run_rf_on_localization_data.R"))
+source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/evaluate_model_performance_vs_other_filter.R"))
+source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
 
 ###
 
@@ -28,6 +30,16 @@ beacons_detection_ratio_per_hour <- readRDS(file.path(folder_of_beacons_info_tab
 
 # Load the atlasRF model
 rf_model <- readRDS(file.path(random_forest_model_folder, random_forest_model_filename))
+
+### Create required folders ###
+if (!dir.exists(folder_to_save_labeled_data)) {
+  dir.create(folder_to_save_labeled_data, recursive = TRUE)
+}
+
+maps_folder <- file.path(folder_to_save_labeled_data, "Performance_maps")
+if (!dir.exists(maps_folder)) {
+  dir.create(maps_folder, recursive = TRUE)
+}
 
 ### Load ATLAS data ###
 
@@ -106,19 +118,26 @@ localization_data_with_outliers <- run_rf_on_localization_data(localization_data
                                                                rf_model,
                                                                rf_prediction_threshold)
 
+message("Removing rows with Outliers == NA")
+localization_data_with_outliers <- localization_data_with_outliers[!is.na(localization_data_with_outliers$Outliers), ]
+
 # Convert Outliers column from factor to binary to use on the Visual Filter App
-localization_data_with_outliers$Outliers <- ifelse(localization_data_with_outliers$Outliers == "outlier", 1, 0)
+# localization_data_with_outliers$Outliers <- ifelse(localization_data_with_outliers$Outliers == "outlier", 1, 0)
+localization_data_with_outliers$Outliers_atlasRF <- ifelse(
+  as.character(localization_data_with_outliers$Outliers) == "outlier", 1, 0
+)
+localization_data_with_outliers$Outliers <- NULL
 
-# Save the localization data with the Outliers predictions as rds
-saveRDS(localization_data_with_outliers, file = file.path(folder_to_save_labeled_data, paste0(filename_without_extension, "_with_outlier_labels.rds")))
-
-message("Saved localization data with Outlier labels.")
+# # Save the localization data with the Outliers predictions as rds
+# saveRDS(localization_data_with_outliers, file = file.path(folder_to_save_labeled_data, paste0(filename_without_extension, "_with_outlier_labels_atlasRF.rds")))
+# 
+# message("Saved localization data with Outlier labels.")
 
 ### Apply the Confidence Filter ###
 
 # Calculate the confidence of each location point
 source(file.path(getwd(),"Track_cpp.R"))
-localization_data_with_outliers <- TrackConfidenceLevelcpp(raw_localization_data,
+localization_data_with_outliers <- TrackConfidenceLevelcpp(localization_data_with_outliers,
                                                            conectedVel=13,
                                                            conectedDist=NA,
                                                            stdlim=80,
@@ -127,14 +146,54 @@ localization_data_with_outliers <- TrackConfidenceLevelcpp(raw_localization_data
                                                            Nconf1forConf2=5)
 
 # If Conf == 2 then Outliers = 0, else Outliers = 1
-localization_data_with_outliers$Outliers <- ifelse(localization_data_with_outliers$Conf == 2, 0, 1)
+localization_data_with_outliers$Outliers_Conf <- ifelse(localization_data_with_outliers$Conf == 2, 0, 1)
 
-# Save the localization data with the Outliers predictions as rds
-saveRDS(localization_data_with_outliers, file = file.path(folder_to_save_labeled_data, paste0(filename_without_extension, "_with_outlier_labels_confidence.rds")))
+# # Save the localization data with the Outliers predictions as rds
+# saveRDS(localization_data_with_outliers, file = file.path(folder_to_save_labeled_data, paste0(filename_without_extension, "_with_outlier_labels_confidence.rds")))
+# 
+# message("Saved localization data with Outlier labels.")
+
+### Save data with atlasRF and Confidence Filter labels ###
+
+saveRDS(localization_data_with_outliers, file = file.path(folder_to_save_labeled_data, paste0(filename_without_extension, "_with_atlas_RF_and_confidence_labels.rds")))
 
 message("Saved localization data with Outlier labels.")
 
-###
 
-# Activate the shiny Visual Filter
-# source(paste0(path_to_atlas_data_analysis_repo, "visual_filter_shiny_app.R"))
+### Calculate confusion matrix and metrics of atlasRF versus Confidence Filter ###
+
+# Convert the label columns to factor
+localization_data_with_outliers$Outliers_atlasRF <- factor(
+  localization_data_with_outliers$Outliers_atlasRF,
+  levels = c(0, 1),
+  labels = c("valid", "outlier")
+)
+
+localization_data_with_outliers$Outliers_Conf <- factor(
+  localization_data_with_outliers$Outliers_Conf,
+  levels = c(0, 1),
+  labels = c("valid", "outlier")
+)
+
+path_to_save_performance_results <- file.path(folder_to_save_labeled_data, filename_without_extension)
+
+# Evaluate the confusion metrix and comparison metrics between atlasRF and the Confidence Filter
+evaluate_model_performance_vs_other_filter(data = localization_data_with_outliers,
+                                           reference_label_col = "Outliers_Conf",
+                                           predicted_label_col = "Outliers_atlasRF",
+                                           positive_class = "outlier",
+                                           output_dir = path_to_save_performance_results)
+
+### Generate and save Performance map ###
+
+# Get the specied id
+species_id <- data_requests[[1]]$animal_name_code
+
+# Add the species id to the data to match the format of the performance maps function
+localization_data_with_outliers$Species_id <- species_id
+
+performance_mapping_pipeline(localization_data_with_outliers,
+                             reference_label_col = "Outliers_Conf",
+                             predicted_label_col = "Outliers_atlasRF",
+                             output_dir = maps_folder)
+
