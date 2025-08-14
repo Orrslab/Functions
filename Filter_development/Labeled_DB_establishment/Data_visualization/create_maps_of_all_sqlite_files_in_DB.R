@@ -13,6 +13,7 @@ source(paste0(getwd(), "/create_sqlite_filepath.R"))
 source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/Data_visualization/plot_visual_filter_data.R"))
 source(paste0(getwd(), "/load_atlas_data_from_sqlite.R"))
 
+###   USER'S INPUT BEGIN ###
 species_id <- "BO"
 
 # Specify the necessary paths
@@ -29,6 +30,8 @@ harod_db_credentials <- list(
   db_port_number = db_port_number_harod,   # port number
   db_name = db_name_harod                  # database name
 )
+
+### USER'S INPUT END
 
 # Create the output folder if it does not exist
 if (!dir.exists(folder_to_save_the_maps )) {
