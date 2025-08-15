@@ -37,7 +37,11 @@
 #' @export
 #' 
 generate_metadata_per_tag_from_species_localization_data <- function(localization_data,
-                                                                      combined_species_data_folder) {
+                                                                     combined_species_data_folder,
+                                                                     species_id,
+                                                                     reviewer_name,
+                                                                     data_source,
+                                                                     filter_applied) {
   
   # Create a dataframe with the metadata of the file
   metadata_per_tag <- localization_data %>%

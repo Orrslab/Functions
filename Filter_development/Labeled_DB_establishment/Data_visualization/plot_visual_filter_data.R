@@ -1,3 +1,11 @@
+
+library(dplyr)
+library(leaflet)
+
+source(file.path(getwd(), "Mapping_tools/interactive_map_single_atlas_dataset.R"))
+source(file.path(getwd(), "Mapping_tools/interactive_map_two_atlas_datasets.R"))
+source(file.path(getwd(), "Mapping_tools/interactive_map_three_atlas_datasets.R"))
+
 #' Plot the data from the Visual Filter App on a Leaflet Map
 #'
 #' This function creates an interactive Leaflet map to visualize valid points, outliers, 
@@ -22,10 +30,6 @@
 #' - Uses external mapping functions from sourced scripts.
 #'
 #' @export
-
-library(dplyr)
-library(leaflet)
-
 plot_visual_filter_data <- function(data, 
                                     color_valid_points = "#5D3A9B",
                                     color_outliers = "#E66100",
@@ -40,11 +44,6 @@ plot_visual_filter_data <- function(data,
   valid_points <- data %>% filter(Outliers == 0)
   outliers <- data %>% filter(Outliers == 1)
   uncertain_points <- data %>% filter(Outliers == 2)
-  
-  # Source the plotting functions
-  source(paste0(getwd(), "/Mapping_tools/interactive_map_single_atlas_dataset.R"))
-  source(paste0(getwd(), "/Mapping_tools/interactive_map_two_atlas_datasets.R"))
-  source(paste0(getwd(), "/Mapping_tools/interactive_map_three_atlas_datasets.R"))
   
   # Plot the valid points versus outliers on a leaflet map
   if (nrow(uncertain_points) > 0) {
