@@ -1,52 +1,65 @@
 
 library(dplyr)
 
-#' Get metadata per species from metadata_per_tag.csv
+#' Generate Metadata per Species
 #'
-#' This function reads the `metadata_per_tag.csv` file from the specified
-#' combined species data folder, processes the start and end times, 
-#' aggregates metadata at the species level, and writes the results to
-#' `metadata_per_species.csv`.
+#' This function aggregates metadata across tags to the species level, 
+#' using input metadata from individual tags and the species labeling metadata.
+#' It computes summary statistics (number of tags, total records, and time span) 
+#' for each species, adds species names, and writes the result to a CSV file.
 #'
-#' @param combined_species_data_folder Character string.  
-#'   Path to the folder containing the `metadata_per_tag.csv` file and where 
-#'   the output `metadata_per_species.csv` will be saved.
+#' @param metadata_per_tag Data frame.  
+#'   Metadata aggregated at the tag level. Must contain columns:
+#'   \code{Species_id}, \code{TAG}, \code{Start_time}, \code{End_time}, 
+#'   and \code{Num_records}.
+#' 
+#' @param labeling_metadata Data frame.  
+#'   Species labeling metadata. Must contain columns \code{Species_id} and 
+#'   \code{Species_name}, which are merged into the output.
+#' 
+#' @param species_metadata_file_path Character string.  
+#'   Path where the resulting CSV file \code{metadata_per_species.csv} 
+#'   will be written.
 #'
 #' @details
 #' The function performs the following steps:
 #' \enumerate{
-#'   \item Reads the `metadata_per_tag.csv` file.
-#'   \item Converts `Start_time` and `End_time` columns to POSIXct in UTC.
-#'   \item Groups data by `Species_ID` and calculates:
+#'   \item Converts \code{Start_time} and \code{End_time} columns to POSIXct (UTC).
+#'   \item Groups data by \code{Species_id} and computes:
 #'     \itemize{
-#'       \item Number of unique tags (`Num_tags`)
-#'       \item Earliest start time (`Start_time`)
-#'       \item Latest end time (`End_time`)
-#'       \item Total number of records (`Num_records`)
+#'       \item \code{Num_tags} — Number of unique tags.
+#'       \item \code{Start_time} — Earliest start time.
+#'       \item \code{End_time} — Latest end time.
+#'       \item \code{Num_records} — Total number of records.
 #'     }
-#'   \item Saves the aggregated table as `metadata_per_species.csv`.
+#'   \item Merges species names from \code{labeling_metadata}.
+#'   \item Reorders columns to place \code{Species_name} directly after \code{Species_id}.
+#'   \item Saves the resulting table as a CSV file.
 #' }
 #'
-#' @return
+#' @return 
 #' This function is called for its side effects.  
-#' It saves `metadata_per_species.csv` to `combined_species_data_folder` 
-#' and prints a message with the file path.  
+#' It saves the file specified by \code{species_metadata_file_path} and prints 
+#' a message with the file path.  
 #' No value is returned.
 #'
 #' @examples
 #' \dontrun{
-#' get_metadata_per_species("path/to/combined_species_data")
+#' metadata_per_tag <- read.csv("path/to/metadata_per_tag.csv")
+#' labeling_metadata <- read.csv("path/to/labeling_metadata.csv")
+#' get_metadata_per_species(
+#'   metadata_per_tag,
+#'   labeling_metadata,
+#'   "path/to/metadata_per_species.csv"
+#' )
 #' }
 #'
 #' @import dplyr
 #' @export
-get_metadata_per_species <- function(combined_species_data_folder) {
+get_metadata_per_species <- function(metadata_per_tag,
+                                     labeling_metadata,
+                                     species_metadata_file_path) {
   
-  # Open the metadata per tag file
-  metadata_file_path <- file.path(combined_species_data_folder, "metadata_per_tag.csv")
-  if (file.exists(metadata_file_path)) {
-    metadata_per_tag <- read.csv(metadata_file_path)
-    
     # Convert the Start and End times to POSIXct format
     metadata_per_tag <- metadata_per_tag %>%
       mutate(
@@ -56,7 +69,7 @@ get_metadata_per_species <- function(combined_species_data_folder) {
     
     # Summarize metadata per species
     metadata_per_species <- metadata_per_tag %>%
-      group_by(Species_ID) %>%
+      group_by(Species_id) %>%
       summarise(
         Num_tags = n_distinct(TAG),
         Start_time = min(Start_time, na.rm = TRUE),
@@ -65,15 +78,22 @@ get_metadata_per_species <- function(combined_species_data_folder) {
       ) %>%
       ungroup()
     
+    # Add the species names to the species metadata
+    metadata_per_species <- merge(
+      metadata_per_species,
+      labeling_metadata[, c("Species_id", "Species_name")],
+      by = "Species_id",
+      all.x = TRUE
+    )
+    
+    # Reorder columns to put Species_name right after Species_id
+    id_col <- which(names(metadata_per_species) == "Species_id")
+    metadata_per_species <- metadata_per_species[, 
+                                                 c(1:id_col, ncol(metadata_per_species), (id_col+1):(ncol(metadata_per_species)-1))]
+    
     # Save the dataframe as metadata_per_species.csv
-    output_file_path <- file.path(combined_species_data_folder, "metadata_per_species.csv")
-    write.csv(metadata_per_species, output_file_path, row.names = FALSE)
+    write.csv(metadata_per_species, species_metadata_file_path, row.names = FALSE)
     
-    message("Metadata per species saved to: ", output_file_path)
-    
-  } else {
-    stop(paste("Error: File", metadata_file_path, "does not exist."))
-  }
-  
+    message("Metadata per species saved to: ", species_metadata_file_path)
 }
 

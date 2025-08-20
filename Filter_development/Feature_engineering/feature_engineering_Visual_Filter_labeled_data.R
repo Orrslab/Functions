@@ -3,7 +3,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 library(data.table)
 
@@ -17,25 +16,13 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 ## USER INPUT BEGINNING 
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 base_stations_info_path <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info/Base_stations_info.csv"
 folder_of_beacons_info_tables <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/Feature_engineering"
 filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
 filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
-# For the Stops Filter
-# path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB"
-# path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
-# folder_of_beacons_info_tables <- "C:/Users/netat/Documents/Movement_Ecology/R_Projects/Functions/Filter_development/Feature_engineering"
-# filename_beacons_detection_ratio_table <- "beacons_detection_ratio_per_hour.Rds"
-# filename_base_stations_summary_per_beacon <- "base_stations_summary_per_beacon.Rds"
-# folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_analysis/Monivg_vs_stopping_barn_owls"
-
-# # Define the time gap between tracks in seconds. 
-# # This is the time gap that most likely distinguished between different trakectories of the same animal.
-# gap_between_tracks_sec <- 600 
-# 
 half_time_window_size_sec <- 25
 
 low_beacon_detection_fraction <- 0.6
@@ -54,7 +41,7 @@ beacons_detection_ratio_per_hour <- readRDS(file.path(folder_of_beacons_info_tab
 # all_data <- load_atlas_data_from_sqlite(file.path(path_to_db, "labeled_data_db.sqlite"))
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
   
   # For debug purposes
   # species_id <- "LD"

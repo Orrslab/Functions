@@ -6,7 +6,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
@@ -16,7 +15,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_DB"
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Stops_Filter/Stops_analysis/Monivg_vs_stopping_barn_owls"
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 prepared_feature_data_filename <- "Prepared_data_with_features_BO.sqlite"
 
 ### USER INPUT END
@@ -37,7 +36,7 @@ combined_participating_bs_data <- data.frame()
 combined_missed_bs_data <- data.frame()
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
  
   # For debug purposes
   # species_id <- "LD"

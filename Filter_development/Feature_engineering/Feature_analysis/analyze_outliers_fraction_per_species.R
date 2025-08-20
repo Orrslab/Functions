@@ -4,7 +4,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
@@ -12,18 +11,18 @@ source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
 ### USER'S INPUT BEGIN ###
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/lABELED_data_DB/Visual_Filter_DB"
 path_to_combined_species_data <- file.path(path_to_db, "Combined_species_data")
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_combined_species_data, "metadata_per_species.csv")
 output_filepath <- file.path("C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Features_analysis", "species_outlier_summary.csv")
 ### USER'S INPUT'S END ###
 
 # Load species metadata
-species_metadata <- read_excel(path_to_species_metadata)
+species_metadata <- read.csv(path_to_species_metadata)
 
 # Initialize an empty list to store results
 summary_list <- list()
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
   
   print(species_id)
   

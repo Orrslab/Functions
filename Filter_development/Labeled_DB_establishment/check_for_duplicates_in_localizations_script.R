@@ -3,7 +3,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
@@ -11,7 +10,7 @@ source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 ## USER INPUT BEGINNING 
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 folder_to_save_results <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
 
 clean_duplicates <- TRUE
@@ -19,12 +18,12 @@ clean_duplicates <- TRUE
 ### USER INPUT END
 
 # Load species metadata
-species_metadata <- read_excel(path_to_species_metadata)
+species_metadata <- read.csv(path_to_species_metadata)
 
 # all_data <- load_atlas_data_from_sqlite(file.path(path_to_db, "labeled_data_db.sqlite"))
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
   
   print(species_id)
   

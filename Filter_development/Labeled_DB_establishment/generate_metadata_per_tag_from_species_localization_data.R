@@ -57,7 +57,7 @@ generate_metadata_per_tag_from_species_localization_data <- function(localizatio
   # Add the Species ID, Reviewer and data source
   metadata_per_tag <- metadata_per_tag %>%
     mutate(
-      Species_ID = species_id,    # Assuming species_id is a single value for all rows
+      Species_id = species_id,    # Assuming species_id is a single value for all rows
       Reviewer = reviewer_name,         # Assuming Reviewer is a single value for all rows
       Data_source = data_source,
       Filter_applied = filter_applied
@@ -65,7 +65,7 @@ generate_metadata_per_tag_from_species_localization_data <- function(localizatio
   
   # Re-order the column names
   metadata_per_tag <- metadata_per_tag %>%
-    dplyr::select(Species_ID, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
+    dplyr::select(Species_id, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
   
   # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
   metadata_file_path <- file.path(combined_species_data_folder, "metadata_per_tag.csv")
@@ -81,7 +81,7 @@ generate_metadata_per_tag_from_species_localization_data <- function(localizatio
     
     # Remove existing records of the same Species_ID before adding new ones
     updated_metadata_per_tag <- existing_metadata_per_tag %>%
-      filter(Species_ID != species_id) %>%  # Keep all except the species being updated
+      filter(Species_id != species_id) %>%  # Keep all except the species being updated
       bind_rows(metadata_per_tag)  # Add the new data
     
   } else {

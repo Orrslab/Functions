@@ -7,7 +7,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 library(data.table)
 
@@ -17,7 +16,7 @@ source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 output_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/NBS_matched_bs_comparison"
 
 ### USER INPUT END
@@ -26,14 +25,14 @@ output_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/F
 tables_to_load <- c("LOCALIZATIONS", "PARTICIPATING_BASE_STATIONS")
 
 # Load species metadata
-species_metadata <- read_excel(path_to_species_metadata)
+species_metadata <- read.csv(path_to_species_metadata)
 
 # Initialize tables which will be saved as files at the end of this script
 all_discrepancies <- data.table()
 error_summary <- data.table()
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
   
   # For debug purposes
   # species_id <- "LD"

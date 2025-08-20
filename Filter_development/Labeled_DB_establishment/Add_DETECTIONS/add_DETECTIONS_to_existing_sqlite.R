@@ -5,8 +5,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
-library(readxl)
-
 source(paste0(getwd(), "/ATLAS_data_retrieval/config.R"))
 source(paste0(getwd(), "/connect_to_atlas_db.R"))
 source(paste0(getwd(), "/Data_from_ATLAS_server.R"))
@@ -16,13 +14,13 @@ source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/Add_D
 
 # Specify the necessary paths
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"
-path_to_species_metadata <- paste0(path_to_db, "/Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 
 # Read the species data from the species metadata file
-species_data <- read_excel(path_to_species_metadata)
+species_data <- read.csv(path_to_species_metadata)
 
 # Get the species names list
-species_id_codes <- species_data$Species_ID
+species_id_codes <- species_data$Species_id
 
 # Get the ATLAS database credentials from the configuration file
 harod_db_credentials <- list(

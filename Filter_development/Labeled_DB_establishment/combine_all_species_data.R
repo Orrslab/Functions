@@ -8,51 +8,60 @@ source(file.path(getwd(), "save_ATLAS_data_to_sqlite.R"))
 #' Combine labeled data of all species into a single SQLite database
 #'
 #' This function loads all labeled data from per-species SQLite files in the
-#' `Combined_species_data` subfolder of the specified database path, and
-#' combines them into one SQLite file called `labeled_data_db.sqlite`.
+#' specified combined species data folder and merges them into a single
+#' SQLite database called `labeled_data_db.sqlite` saved in the root database path.
 #'
 #' @param path_to_db Character string.  
-#'   Path to the root labeled data database folder. This folder must contain a
-#'   subfolder called `Combined_species_data` with per-species `.sqlite` files.
+#'   Path to the root labeled data database folder where the combined SQLite
+#'   database `labeled_data_db.sqlite` will be created.
+#'
+#' @param combined_species_data_folder Character string.  
+#'   Path to the folder containing per-species `.sqlite` files (typically
+#'   the `Combined_species_data` subfolder of `path_to_db`).
 #'
 #' @details
 #' The function performs the following steps:
 #' \enumerate{
-#'   \item Lists all `.sqlite` files in `Combined_species_data`.
+#'   \item Lists all `.sqlite` files in \code{combined_species_data_folder}.
 #'   \item Loads localization and detection data from each file using
 #'         \code{load_atlas_data_from_sqlite()}.
-#'   \item Adds a `species_id` column (first two characters of the file name)
-#'         to each dataset.
-#'   \item Combines all localizations into one dataframe and all detections
+#'   \item Extracts a \code{species_id} from the first two characters of each file name.
+#'   \item Adds the \code{species_id} column to both localization and detection datasets.
+#'   \item Combines all species' localizations into one dataframe and all detections
 #'         into another.
-#'   \item Saves the combined data into `labeled_data_db.sqlite` using
+#'   \item Saves the combined datasets into a single SQLite file called
+#'         \code{labeled_data_db.sqlite} in \code{path_to_db}, using
 #'         \code{save_ATLAS_data_to_sqlite()}.
 #' }
 #'
 #' @return
-#' This function is called for its side effects. It writes
-#' `labeled_data_db.sqlite` to `path_to_db` and prints a confirmation message.
-#' No value is returned.
+#' This function is called for its side effects.  
+#' It writes `labeled_data_db.sqlite` to `path_to_db` and prints confirmation
+#' messages. No value is returned.
 #'
 #' @note
 #' This function depends on:
 #' \itemize{
-#'   \item \code{load_atlas_data_from_sqlite()} — for reading data.
-#'   \item \code{save_ATLAS_data_to_sqlite()} — for writing combined data.
+#'   \item \code{load_atlas_data_from_sqlite()} — for reading individual species data.
+#'   \item \code{save_ATLAS_data_to_sqlite()} — for writing the combined database.
 #' }
-#' Both must be available in the environment (via \code{source()} or a package).
+#' Ensure both functions are available in the environment (e.g., via \code{source()}).
 #'
 #' @examples
 #' \dontrun{
-#' combine_all_species_data("C:/path/to/Labeled_data_DB")
+#' combine_all_species_data(
+#'   path_to_db = "C:/path/to/Labeled_data_DB",
+#'   combined_species_data_folder = "C:/path/to/Labeled_data_DB/Combined_species_data"
+#' )
 #' }
 #'
 #' @import DBI
 #' @import RSQLite
 #' @export
-combine_all_species_data <- function(path_to_db) {
+combine_all_species_data <- function(path_to_db,
+                                     combined_species_data_folder) {
   
-  combined_species_data_folder <- file.path(path_to_db, "Combined_species_data")
+  message("Combining the labeled data of all species into one file.")
   
   # Open all the sqlite files in the combined species folder
   # List all sqlite files in the folder

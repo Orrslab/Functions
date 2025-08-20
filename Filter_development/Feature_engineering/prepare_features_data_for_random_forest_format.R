@@ -8,7 +8,6 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-library(readxl)
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
@@ -19,7 +18,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Labeled_data_DB/Visual_Filter_DB"
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"
-path_to_species_metadata <- file.path(path_to_db, "Species_metadata.xlsx")
+path_to_species_metadata <- file.path(path_to_db, "Combined_species_data", "metadata_per_species.csv")
 cleaned_feature_data_all_species_filename <- "Features_data_for_RF_all_species.sqlite"
 
 identify_stops <- TRUE
@@ -44,7 +43,7 @@ tables_to_load <- c("LOCALIZATIONS",
                     "MISSED_BASE_STATIONS")
 
 # Load species metadata
-species_metadata <- read_excel(path_to_species_metadata)
+species_metadata <- read.csv(path_to_species_metadata)
 
 # Initialize a data frames for the combined data of all species
 combined_localization_data <- data.frame()
@@ -53,7 +52,7 @@ combined_participating_bs_data <- data.frame()
 combined_missed_bs_data <- data.frame()
 
 # Run on the species
-for (species_id in species_metadata$Species_ID) {
+for (species_id in species_metadata$Species_id) {
  
   # For debug purposes
   # species_id <- "LD"

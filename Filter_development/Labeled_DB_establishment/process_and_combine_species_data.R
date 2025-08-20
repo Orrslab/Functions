@@ -1,8 +1,3 @@
-# This function creates metadata for all the tag's data files sent by 
-# the reviewers who labeled the data for a particular species.
-# It also plots the time ranges of the data of the data's time ranges,
-# combines all the species' data, checks and removes duplicates,
-# and creates a metadata file that summarizes the data per tag.
 
 library(DBI)
 library(dplyr)
@@ -17,6 +12,33 @@ source(file.path(getwd(), "check_and_clean_duplicates_in_localizations.R"))
 source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/generate_metadata_per_tag_from_species_localization_data.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 
+#' Process and Combine Species Data
+#'
+#' This function creates metadata for all the labeled data segment files of a given species,
+#' plots the time ranges of the labeled data, combines all the localization data of the species,
+#' removes duplicates, saves the cleaned data into an SQLite database,
+#' and generates metadata per tag of this species.
+#'
+#' @param species_id Character. Identifier of the species being processed.
+#' @param reviewer_name Character. Name of the reviewer who labeled the data.
+#' @param data_source Character. Source of the data (e.g., project name or repository).
+#' @param filter_applied Character. Filter applied to the data during labeling.
+#' @param plot_resolution Character. Resolution for plotting time ranges
+#'   (default = "1 month").
+#' @param path_to_db Character. Path to the main database directory.
+#' @param combined_species_data_folder Character. Path to the folder where
+#'   combined species-level SQLite files should be saved.
+#'
+#' @return This function does not return a value; it produces side effects:
+#'   \itemize{
+#'     \item Saves a CSV file with metadata for the species' tag files.
+#'     \item Plots the time ranges of the labeled data.
+#'     \item Creates and saves an SQLite database with cleaned localizations and detections.
+#'     \item Generates a per-tag metadata file summarizing the labeled data.
+#'   }
+#'
+#' @import DBI dplyr scales stringr lubridate
+#' @export
 process_and_combine_species_data <- function(species_id, reviewer_name, 
                                              data_source, filter_applied,
                                              plot_resolution = "1 month",
