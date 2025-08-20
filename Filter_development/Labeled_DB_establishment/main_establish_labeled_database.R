@@ -99,7 +99,7 @@ main_establish_labeled_database <- function(config) {
   if (file.exists(config$paths$tags_metadata_file_path)) {
     metadata_per_tag <- read.csv(config$paths$tags_metadata_file_path)
   } else {
-    stop(paste("Error: The file does not exist at path:", 
+    stop(paste("Error: The file does not exist at path:",
                config$paths$tags_metadata_file_path))
   }
 
@@ -111,7 +111,7 @@ main_establish_labeled_database <- function(config) {
   # Combine all the data from the species' data files to one file and save it
   combine_all_species_data(config$paths$path_to_db,
                            config$paths$combined_species_data_folder)
-  
+
   # Create interactive maps of the data segments from the Visual Filter App
   species_id_column <- unique(labeling_metadata$Species_id)
   create_maps_of_all_sqlite_files_in_DB(config$paths$path_to_db, species_id_column)

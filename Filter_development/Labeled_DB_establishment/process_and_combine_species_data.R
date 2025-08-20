@@ -50,8 +50,8 @@ process_and_combine_species_data <- function(species_id, reviewer_name,
   # Generate tag files metadata
   tag_files_metadata <- generate_metadata_for_tag_files(path_to_species,
                                                         species_id,
-                                                        reviewer_name,
                                                         data_source,
+                                                        reviewer_name,
                                                         filter_applied)
   
   # Save the files' metadata
@@ -84,8 +84,6 @@ process_and_combine_species_data <- function(species_id, reviewer_name,
     localization_data = species_localization_data,
     combined_species_data_folder = combined_species_data_folder,
     species_id = species_id,
-    reviewer_name = reviewer_name,
-    data_source = data_source,
-    filter_applied = filter_applied
+    data_source = data_source
   )
 }

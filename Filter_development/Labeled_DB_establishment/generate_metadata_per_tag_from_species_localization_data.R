@@ -1,47 +1,52 @@
-#' Generate and update metadata summary per TAG for a given species
+#' Generate or Update Metadata Summary per TAG for a Species
 #'
-#' This function generates a metadata summary per `TAG` from a localization dataset, 
-#' including start and end times and the number of records per tag. It then appends or updates 
-#' this metadata in a `metadata_per_tag.csv` file located in the species data folder.
+#' This function generates a metadata summary for each `TAG` from a species'
+#' localization dataset, including start and end times and the number of records.
+#' It then appends or updates this metadata in a `metadata_per_tag.csv` file located
+#' in the species data folder.
 #'
-#' The function assumes that species-level variables such as `species_id`, `reviewer_name`, 
-#' `data_source`, and `filter_applied` are available in the global environment.
+#' @param localization_data Data frame containing localization records. Must include
+#'   at least the `TAG` and `dateTime` columns.
+#' @param combined_species_data_folder Character. Path to the species data folder
+#'   where the metadata CSV file will be stored or updated.
+#' @param species_id Character. Identifier of the species.
+#' @param data_source Character. Source of the data (e.g., project name or repository).
 #'
-#' @param localization_data A data frame containing localization records. Must include at least `TAG` and `dateTime` columns.
-#' @param combined_species_data_folder A string specifying the path to the species data folder where the metadata CSV file will be stored.
+#' @return Returns the updated metadata dataframe invisibly.  
+#'   As a side effect, writes (and optionally updates) a `metadata_per_tag.csv` file
+#'   in the specified folder and prints a confirmation message.
 #'
-#' @return Writes (and optionally updates) a `metadata_per_tag.csv` file in the specified folder.
-#' Also prints a message confirming that the metadata has been updated.
-#'
-#' @details The metadata per tag includes:
+#' @details
+#' The metadata per tag includes:
 #' \itemize{
-#'   \item \code{Species_ID} – The species identifier (from global variable \code{species_id}).
-#'   \item \code{TAG} – The identifier for each tagged animal.
-#'   \item \code{Start_time} – The first dateTime entry for each TAG.
-#'   \item \code{End_time} – The last dateTime entry for each TAG.
-#'   \item \code{Num_records} – The number of rows/records for each TAG.
-#'   \item \code{Data_source}, \code{Reviewer}, \code{Filter_applied} – Additional metadata assumed to be defined in the global environment.
+#'   \item \code{Species_id} — Species identifier.
+#'   \item \code{TAG} — Tag identifier.
+#'   \item \code{Start_time} — First timestamp for the tag.
+#'   \item \code{End_time} — Last timestamp for the tag.
+#'   \item \code{Num_records} — Number of records for the tag.
+#'   \item \code{Data_source} — Source of the data.
 #' }
 #'
-#' If a `metadata_per_tag.csv` file already exists, the function removes all rows related to the same `Species_ID` and appends the new metadata.
+#' If a `metadata_per_tag.csv` file already exists, the function removes all rows
+#' related to the same `Species_id` and appends the new metadata. Otherwise, it
+#' creates a new file.
 #'
 #' @examples
 #' \dontrun{
 #' species_id <- "Lapwing"
-#' reviewer_name <- "NT"
 #' data_source <- "ATLAS"
-#' filter_applied <- "Visual Filter App"
-#' generate_metadata_per_tag_from_species_localization_data(localization_data, "data/Lapwing")
+#' generate_metadata_per_tag_from_species_localization_data(localization_data,
+#'                                                          "data/Lapwing",
+#'                                                          species_id,
+#'                                                          data_source)
 #' }
 #'
-#' @export
-#' 
+#' @import dplyr
+#' @export 
 generate_metadata_per_tag_from_species_localization_data <- function(localization_data,
                                                                      combined_species_data_folder,
                                                                      species_id,
-                                                                     reviewer_name,
-                                                                     data_source,
-                                                                     filter_applied) {
+                                                                     data_source) {
   
   # Create a dataframe with the metadata of the file
   metadata_per_tag <- localization_data %>%
@@ -54,18 +59,16 @@ generate_metadata_per_tag_from_species_localization_data <- function(localizatio
     ) %>%
     ungroup()
   
-  # Add the Species ID, Reviewer and data source
+  # Add the Species ID and data source
   metadata_per_tag <- metadata_per_tag %>%
     mutate(
       Species_id = species_id,    # Assuming species_id is a single value for all rows
-      Reviewer = reviewer_name,         # Assuming Reviewer is a single value for all rows
-      Data_source = data_source,
-      Filter_applied = filter_applied
+      Data_source = data_source
     )
   
   # Re-order the column names
   metadata_per_tag <- metadata_per_tag %>%
-    dplyr::select(Species_id, TAG, Start_time, End_time, Num_records, Data_source, Reviewer, Filter_applied)
+    dplyr::select(Species_id, TAG, Start_time, End_time, Num_records, Data_source)
   
   # If the metadata file exists add the current metadata to the file and replace the relevant row if exists
   metadata_file_path <- file.path(combined_species_data_folder, "metadata_per_tag.csv")
