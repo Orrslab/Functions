@@ -2,46 +2,53 @@ library(dplyr)
 
 source(file.path(getwd(), "atlas_metrics.R"))
 source(file.path(getwd(), "calculate_elevation_per_location.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beacon_derived_features.R"))
 
-#' Calculate point-based movement, location, and signal-based features for the outliers filtering algorithm
+#' Calculate point-based movement, location, and error-based features
 #'
-#' Computes a set of point-based features for each localization point to characterize movement, 
-#' location, and signal quality. This function supports the identification of biologically implausible 
-#' movement patterns and helps in feature engineering for filtering or modeling.
+#' This function computes a set of point-based features for each localization 
+#' record to characterize movement dynamics, positional uncertainty, and 
+#' topography. These features are intended to support the identification 
+#' of biologically implausible movements and assist in feature engineering 
+#' for filtering or modeling with the atlasRF framework.
 #'
-#' @param localization_data A data frame containing localization records. Must include columns `TAG`, `X`, `Y`, `Speed_m_s`, and `time_diff_sec`.
-#' @param detection_data A data frame containing detection information for calculating signal-based features- the raw data retrieved from the ATLAS database.
-#'
-#' @return A list with the following elements:
-#' \describe{
-#'   \item{localization_data}{A data frame with the original localizations and newly added features such as distance, acceleration, turning angle, and elevation.}
-#'   \item{participating_base_stations}{A data frame with the id numbers of the participating base stations per localization.}
-#'   \item{missed_base_stations}{A data frame with the expected but missing base stations id numbers per localization.}
+#' @param localization_data A data frame containing ATLAS localization records. 
+#' Must include the following columns:
+#' \itemize{
+#'   \item `TAG` – the tag identifier
+#'   \item `TIME` – timestamp of the localization
+#'   \item `X`, `Y` – projected coordinates
+#'   \item `VARX`, `VARY`, `COVXY` – error variance–covariance estimates
+#'   \item `lat`, `lon` – geographic coordinates
 #' }
 #'
-#' @details The function calculates:
+#' @return A data frame identical to the input \code{localization_data}, 
+#' but with the following additional columns:
 #' \itemize{
-#'   \item \strong{Distance} between consecutive points.
-#'   \item \strong{Distance triangle ratio} to identify outlier movements.
-#'   \item \strong{Acceleration} based on speed and time difference.
-#'   \item \strong{Cosine of turning angle} to measure path angularity.
-#'   \item \strong{Elevation} using a digital elevation model (`DEM_Harod.tif`- you need to have a DEM file for your data's region, saved in your working directory).
-#'   \item Signal-related features based on detection data (e.g., SNR).
+#'   \item `time_diff_sec` – time difference from previous fix [s]
+#'   \item `dist_m` – distance from previous fix [m]
+#'   \item `distance_triangle_ratio` – ratio of consecutive distances, 
+#'         useful for detecting geometric outliers
+#'   \item `Speed_m_s` – speed between consecutive points [m/s]
+#'   \item `Acceleration_m_s_2` – acceleration [m/s²]
+#'   \item `STD` – standard deviation of ATLAS localization error, 
+#'         derived from variance–covariance terms
+#'   \item `cos_turning_angle` – cosine of the turning angle at each point
+#'   \item `turning_angle` – turning angle between consecutive movement segments [rad]
+#'   \item `Elevation` – elevation above sea level from a Digital Elevation Model 
+#'         (requires \code{DEM_Harod.tif} in the working directory)
+#' }
+#'
+#' @details 
+#' The function integrates several metrics:
+#' \itemize{
+#'   \item Movement features: distance, speed, acceleration, turning angles.
+#'   \item Error features: standard deviation of ATLAS localization uncertainty.
+#'   \item Spatial features: elevation extracted from a DEM.
 #' }
 #'
 #' @import dplyr
 #' @export
-
-calculate_point_based_features <- function(localization_data, 
-                                           detection_data, 
-                                           base_stations_info_path,
-                                           beacons_detection_ratio_per_hour, 
-                                           base_stations_summary_per_beacon,
-                                           low_beacon_detection_fraction) {
+calculate_point_based_features <- function(localization_data) {
   
   # Verify that the data frame has the columns TAG and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
@@ -55,8 +62,6 @@ calculate_point_based_features <- function(localization_data,
   if (!all(c("lat", "lon") %in% colnames(localization_data))) {
     stop("Error: 'lat' and 'lon' columns are missing from the dataframe.")
   }
-  
-  ### 1. Movement-Based Features (Time-Dependent)- to capture unrealistic movement patterns
   
   # Calculate the time difference between consecutive points
   localization_data$time_diff_sec <- calculate_time_diff(localization_data$TIME)
@@ -88,51 +93,10 @@ calculate_point_based_features <- function(localization_data,
   # Turning angle between each location and its' previous and next consecutive points
   localization_data$turning_angle <- calculate_directional_turning_angle(localization_data$X, 
                                                                          localization_data$Y)
-
-  ### 2. Location-Based Features
-  # Currently I calculate these features only within a time window
-  
-  ### 3. Signal-Based Features
   
   # Elevation above sea level from Digital Elevation Model (DEM)
   localization_data <- calculate_elevation_per_location(localization_data,
                                                         dem_file = "DEM_Harod.tif")
   
-  # NBS- Number of participation Base Stations- already included in the raw data from the ATLAS database
-
-  # SNR- Signal to Noise Ratio and other detection-based features
-  
-  # Load the base stations info
-  base_stations_info <- load_and_format_base_stations_info(base_stations_info_path)
-  
-  # Calculate the detection-based features
-  results <- calculate_detection_based_features(localization_data, 
-                                                detection_data,
-                                                base_stations_info)
-  
-  localization_data <- results$localization_data
-  participating_base_stations <- results$participating_base_stations
-  missed_base_stations <- results$missed_base_stations
-  
-  # Calculate the absolute value of the average difference between the location's elevation 
-  # and the elevation of each participating base station
-  localization_data <- calculate_abs_avg_elevation_diff_between_location_and_participating_bs(
-    localization_data,
-    participating_base_stations,
-    base_stations_info
-  )
-  
-  # Calculate beacons' features
-  localization_data <- calculate_beacon_derived_features(localization_data, 
-                                                         participating_base_stations, 
-                                                         beacons_detection_ratio_per_hour,
-                                                         base_stations_summary_per_beacon,
-                                                         low_beacon_detection_fraction) 
-  
-  return(list(
-    localization_data = localization_data,
-    participating_base_stations = participating_base_stations,
-    missed_base_stations = missed_base_stations
-  ))
-  
+  return(localization_data)
 }

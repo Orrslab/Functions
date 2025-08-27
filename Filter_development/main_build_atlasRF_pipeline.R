@@ -9,8 +9,13 @@ source(file.path(getwd(), "Filter_development/config_build_atlasRF.R"))
 
 # Load the other functions that do each steps of building the atlasRF
 source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/main_establish_labeled_database.R"))
+source(file.path(getwd(), "Filter_development/Feature_engineering/main_calculate_features.R"))
 
 # Run the selected steps based on their flags from the config
 if (config$workflow_steps_to_run$establish_labeled_db){
   main_establish_labeled_database(config)
+}
+
+if (config$workflow_steps_to_run$calculate_deatures) {
+  main_calculate_features(config)
 }
