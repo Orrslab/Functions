@@ -73,6 +73,8 @@ source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/Data_visu
 #' @export
 main_establish_labeled_database <- function(config) {
   
+  message("### STARTED THE MAIN SCRIPT OF THE LABELED DATABASE ESTABLISHMENT. ###")
+  
   # Read the Excel config table of the labeled data metadata
   labeling_metadata <- read_excel(config$paths$labeling_info_path, sheet = "Sheet1")
   
