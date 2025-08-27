@@ -30,10 +30,6 @@ low_detection_fraction = 0.6
 
 ### USER'S INPUT END
 
-####DELETE!!!!!!!!!#######################
-path_to_atlas_info <- "C:/Users/netat/Documents/Movement_Ecology/ATLAS/Base_stations_beacons_info"
-###########################
-
 # Upload the hourly detections of each beacon by each base station
 base_stations_summary_per_tag <- readRDS(file.path(folder_to_save_the_beacons_data, "base_stations_summary_per_beacon.Rds"))
 
