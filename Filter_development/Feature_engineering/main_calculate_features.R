@@ -30,7 +30,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 #'     \code{filename_base_stations_summary_per_beacon},
 #'     \code{filename_beacons_detection_ratio_table},
 #'     \code{combined_species_data_folder},
-#'     \code{folder_to_save_features_results}.}
+#'     \code{folder_of_feature_results}.}
 #'   \item{feature_settings}{A list of feature calculation parameters, 
 #'     including: 
 #'     \code{low_beacon_detection_fraction} (numeric threshold for 
@@ -55,7 +55,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_dat
 #'
 #' @return 
 #' The function has no direct return value. It produces SQLite databases in 
-#' \code{config$paths$folder_to_save_features_results}, one per species, 
+#' \code{config$paths$folder_of_feature_results}, one per species, 
 #' with enriched localization, detection, and metadata tables.
 #'
 #' @note 
@@ -168,7 +168,7 @@ main_calculate_features <- function(config) {
       detections_data = detection_data,
       participating_base_stations = participating_base_stations,
       missed_base_stations = missed_base_stations,
-      fullpath = file.path(config$paths$folder_to_save_features_results, output_file_name))
+      fullpath = file.path(config$paths$folder_of_feature_results, output_file_name))
   }
   
 }
