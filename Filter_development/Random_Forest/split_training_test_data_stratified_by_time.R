@@ -1,5 +1,63 @@
 library(dplyr)
 
+#' @title Split Data into Training and Test Sets Stratified by Time
+#'
+#' @description
+#' This function splits the cleaned localization data with the features into training and test sets 
+#' while preserving temporal order within each species and tag. 
+#' For each tag (nested within species), the data is ordered by the time column 
+#' and split according to a specified training fraction. 
+#' This ensures that the training set contains earlier observations and the 
+#' test set contains later observations, avoiding temporal leakage.
+#'
+#' @param data A data frame containing at least the specified species, tag, time, and outlier columns.
+#' @param train_frac Numeric (default = 0.8). Fraction of the data to allocate to the training set 
+#'   (the remaining fraction goes to the test set).
+#' @param species_col Character (default = `"Species_id"`). Name of the column containing species identifiers.
+#' @param tag_col Character (default = `"TAG"`). Name of the column containing individual tag identifiers.
+#' @param time_col Character (default = `"TIME"`). Name of the column containing temporal information 
+#'   (must be sortable, e.g., POSIXct, numeric, or ordered factor).
+#' @param outlier_col Character (default = `"Outliers"`). Name of the column containing outlier labels.
+#' @param seed Integer (default = 42). Random seed for reproducibility. Note: affects only the reproducibility 
+#'   of split order if stochasticity is introduced in preprocessing, though in this implementation 
+#'   the split is deterministic given ordered times.
+#'
+#' @details
+#' The function:
+#' \itemize{
+#'   \item Checks that all required columns exist in the dataset.
+#'   \item Iterates over each species and within each species, over each tag.
+#'   \item Sorts the data by the specified time column.
+#'   \item Splits the ordered data into a training portion (first \code{train_frac} fraction) 
+#'         and a test portion (remaining rows).
+#'   \item Binds together the split data across all species and tags.
+#' }
+#'
+#' This design ensures that training always uses earlier observations 
+#' and test sets use later ones, minimizing the risk of temporal leakage in modeling.
+#'
+#' @return A list with two data frames:
+#'   \item{training_set}{The training subset of the data.}
+#'   \item{test_set}{The test subset of the data.}
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage
+#' split_sets <- split_training_test_data_stratified_by_time(
+#'   data = my_data,
+#'   train_frac = 0.7,
+#'   species_col = "Species_id",
+#'   tag_col = "TAG",
+#'   time_col = "Timestamp",
+#'   outlier_col = "Outliers"
+#' )
+#'
+#' training <- split_sets$training_set
+#' testing  <- split_sets$test_set
+#' }
+#'
+#' @seealso \code{\link{split_training_test_data_stratified_by_Outliers}}
+#'
 split_training_test_data_stratified_by_time <- function(
     data,
     train_frac = 0.8,
