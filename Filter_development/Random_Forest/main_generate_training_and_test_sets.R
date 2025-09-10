@@ -91,12 +91,12 @@ main_generate_training_and_test_sets <- function(config) {
   ####
   
   # Split the data into a training set and a test set- stratify by column "Outliers"
-  data_sets <- split_training_test_data_stratified_by_time(
+  data_sets <- split_training_test_data_stratified_by_Outliers(
     data = localization_data,
     train_frac = config$training_and_test_settings$training_data_fraction)
   
   # # Split the data into a training set and a test set- stratify by column "TIME"
-  # data_sets <- split_training_test_temporal_stratified_species_stratified_by_time(
+  # data_sets <- split_training_test_data_stratified_by_time(
   #   data = localization_data,
   #   train_frac = config$training_and_test_settings$training_data_fraction)
   
