@@ -11,8 +11,10 @@ source(file.path(getwd(), "Filter_development/config_build_atlasRF.R"))
 source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/main_establish_labeled_database.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_calculate_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_clean_features_data.R"))
+source(file.path(getwd(), "Filter_development/Random_Forest/main_generate_training_and_test_sets.R"))
 
-# Run the selected steps based on their flags from the config
+## Run the selected steps based on their flags from the config
+
 if (config$workflow_steps_to_run$establish_labeled_db){
   main_establish_labeled_database(config)
 }
@@ -24,3 +26,8 @@ if (config$workflow_steps_to_run$calculate_features) {
 if (config$workflow_steps_to_run$clean_features_data) {
   main_clean_features_data(config)
 }
+
+if (config$workflow_steps_to_run$split_data_to_training_and_test) {
+  main_generate_training_and_test_sets(config)
+}
+
