@@ -12,6 +12,7 @@ source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/main_esta
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_calculate_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_clean_features_data.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/main_generate_training_and_test_sets.R"))
+source(file.path(getwd(), "Filter_development/Random_Forest/main_tune_hyper_parameters_of_random_forest.R"))
 
 ## Run the selected steps based on their flags from the config
 
@@ -29,5 +30,9 @@ if (config$workflow_steps_to_run$clean_features_data) {
 
 if (config$workflow_steps_to_run$split_data_to_training_and_test) {
   main_generate_training_and_test_sets(config)
+}
+
+if (config$workflow_steps_to_run$tune_hyper_parameters) {
+  main_tune_hyper_parameters_of_random_forest(config)
 }
 
