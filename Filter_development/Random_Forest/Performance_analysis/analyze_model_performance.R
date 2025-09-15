@@ -2,17 +2,76 @@
 source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/threshold_analysis.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
 
-analyze_model_performance <- function(rf_model, test_tata) {
+#' Analyze Random Forest Model Performance on a Test Set
+#'
+#' This function evaluates a trained Random Forest model on a test dataset. It predicts
+#' class probabilities, selects an optimal classification threshold, computes performance
+#' metrics, generates ROC and Precision-Recall curves, produces confusion matrices, and
+#' creates per-species performance maps.
+#'
+#' @param rf_model A trained Random Forest model object (from the \code{ranger} package).
+#' @param test_data A data frame containing test features and labels. Must include a column
+#'   named \code{Outliers} with factor levels \code{"outlier"} and \code{"valid"}.
+#' @param tree_vote_optional_thresholds Numeric vector of thresholds to evaluate for converting
+#'   predicted probabilities into class labels.
+#' @param random_forest_results_folder Path to a folder where all outputs (plots, CSVs, maps)
+#'   will be saved.
+#'
+#' @details
+#' The function performs the following steps:
+#' 1. Predicts class probabilities on the test dataset using the trained Random Forest.
+#' 2. Extracts probabilities for the "outlier" class and runs \code{threshold_analysis_from_probs()} 
+#'    to select the optimal classification threshold.
+#' 3. Computes and plots Precision-Recall and ROC curves using \code{precrec} and \code{pROC}, 
+#'    saving the plots as PNG files.
+#' 4. Assigns predicted labels based on the chosen threshold.
+#' 5. Computes a confusion matrix using \code{caret::confusionMatrix} and saves the raw table 
+#'    and summary metrics as CSV files.
+#' 6. Generates per-species and per-TAG performance maps using \code{performance_mapping_pipeline()}.
+#'
+#' @return
+#' The function does not return an R object. All results are saved in the specified 
+#' \code{random_forest_results_folder}, including:
+#' \itemize{
+#'   \item Precision-Recall curve PNG
+#'   \item ROC curve PNG
+#'   \item Confusion matrix CSV
+#'   \item Classification metrics CSV
+#'   \item Per-species and per-TAG performance maps
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' analyze_model_performance(
+#'   rf_model = trained_rf_model,
+#'   test_data = test_dataset,
+#'   tree_vote_optional_thresholds = seq(0.1, 0.9, by = 0.05),
+#'   random_forest_results_folder = "results/"
+#' )
+#' }
+#'
+#' @import ranger
+#' @import ggplot2
+#' @import precrec
+#' @import pROC
+#' @import caret
+#' @import dplyr
+#' @export
+analyze_model_performance <- function(rf_model, 
+                                      test_data, 
+                                      tree_vote_optional_thresholds,
+                                      random_forest_results_folder) {
   
   # Predict class probabilities
-  pred_probs <- predict(rf_model_final, data = features_only, type = "response")$predictions
+  pred_probs <- predict(rf_model, data = test_data, type = "response")$predictions
   
   # If label has two levels, extract probability for the "positive" class ("outlier")
   positive_class <- levels(test_data$Outliers)[1]
   probs_positive <- pred_probs[, positive_class]
   
-  threshold <- threshold_analysis_from_probs(probs_positive = probs_positive, 
-                                             true_labels_vector = test_tata$Outliers,
+  threshold <- threshold_analysis_from_probs(probs_positive = probs_positive,
+                                             true_labels_vector = test_data$Outliers,
+                                             thresholds = tree_vote_optional_thresholds,
                                              random_forest_results_folder = random_forest_results_folder)
   
   print(paste0("Best threshold: ", threshold))
@@ -81,6 +140,7 @@ analyze_model_performance <- function(rf_model, test_tata) {
   # Generate perormance maps per tag
   performance_mapping_pipeline(data_with_label_predictions = test_data,
                                reference_label_col = "Outliers",
-                               predicted_label_col = "predicted_outlier")
+                               predicted_label_col = "predicted_outlier",
+                               output_dir = file.path(random_forest_results_folder, "Performance_maps"))
   
 }

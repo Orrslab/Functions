@@ -14,6 +14,7 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/main_clean_fea
 source(file.path(getwd(), "Filter_development/Random_Forest/main_generate_training_and_test_sets.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/main_tune_hyper_parameters_of_random_forest.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/main_train_random_forest_model.R"))
+source(file.path(getwd(), "Filter_development/Random_Forest/main_run_random_forest_on_test_set.R"))
 
 ## Run the selected steps based on their flags from the config
 
@@ -39,5 +40,9 @@ if (config$workflow_steps_to_run$tune_hyper_parameters) {
 
 if (config$workflow_steps_to_run$train_random_forest_model) {
   main_train_random_forest_model(config)
+}
+
+if (config$workflow_steps_to_run$run_random_forest_on_test_set) {
+  main_run_random_forest_on_test_set(config)
 }
 
