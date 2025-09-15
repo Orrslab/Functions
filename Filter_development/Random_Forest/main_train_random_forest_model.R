@@ -87,10 +87,12 @@ main_train_random_forest_model <- function(config) {
   )
   
   # Save the trained model to file
-  saveRDS(rf_model_final, file.path(config$paths$random_forest_results_folder, "rf_model_final_trained_on_full_training_set.rds"))
+  saveRDS(rf_model_final, file.path(config$paths$random_forest_results_folder, config$paths$filename_random_forest_model_trained))
   
   # Print model summary
   print(rf_model_final)
+  
+  message("atlasRF IS READY FOR USE!")
   
 }
 
