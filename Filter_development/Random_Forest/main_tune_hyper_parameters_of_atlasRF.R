@@ -3,7 +3,7 @@ library(caret)
 library(ranger)
 library(ggplot2)
 
-#' @title Hyperparameter Tuning of Random Forest for Outlier Detection
+#' @title Hyperparameter Tuning of atlasRF for Outlier Detection
 #'
 #' @description
 #' This function trains and tunes a Random Forest classifier using the 
@@ -51,7 +51,7 @@ library(ggplot2)
 #' @seealso \code{\link[caret]{train}}, \code{\link[ranger]{ranger}}, \code{\link[caret]{trainControl}}
 #'
 #' @export
-main_tune_hyper_parameters_of_random_forest <- function(config) {
+main_tune_hyper_parameters_of_atlasRF <- function(config) {
   
   message("### STARTED THE MAIN SCRIPT OF HYPER PARAMETER TUNNING FOR THE RANDOM FOREST MODEL. ###")
   

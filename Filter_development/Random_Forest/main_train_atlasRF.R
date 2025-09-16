@@ -1,9 +1,9 @@
 
 library(ranger)
 
-#' Train a Random Forest Model on the Full Training Dataset
+#' Train an atlasRF Model on the Full Training Dataset
 #'
-#' This function trains a Random Forest model using the `ranger` package on a pre-specified
+#' This function trains an ATLAS Random Forest model using the `ranger` package on a pre-specified
 #' training dataset. The model is trained to classify outliers, with optional weighting for
 #' outlier cases, and is saved to a file for downstream use.
 #'
@@ -52,7 +52,7 @@ library(ranger)
 #'
 #' @import ranger
 #' @export
-main_train_random_forest_model <- function(config) {
+main_train_atlasRF <- function(config) {
   
   message("### STARTED THE MAIN SCRIPT OF RANDOM FOREST TRAINING. ###")
   
@@ -83,7 +83,8 @@ main_train_random_forest_model <- function(config) {
     probability = TRUE,
     importance = "impurity",
     seed = 42,
-    case.weights = weights
+    case.weights = weights,
+    num.threads = 1
   )
   
   # Save the trained model to file
