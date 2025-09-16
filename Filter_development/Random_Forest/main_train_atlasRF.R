@@ -10,10 +10,10 @@ library(ranger)
 #' @param config A list containing configuration settings for paths and training parameters:
 #'   - \code{config$paths$atlasRF_results_folder}: Folder path to save/load model and datasets.
 #'   - \code{config$paths$training_set_filename}: Name of the training dataset file (RDS format).
-#'   - \code{config$random_forest_training_settings$mtry}: Number of variables to possibly split at each node.
-#'   - \code{config$random_forest_training_settings$splitrule}: Splitting rule for the Random Forest (e.g., "gini").
-#'   - \code{config$random_forest_training_settings$min_node_size}: Minimal node size for tree growth.
-#'   - \code{config$random_forest_training_settings$outlier_weight}: Optional weight to assign to outlier cases.
+#'   - \code{config$atlasRF_training_settings$mtry}: Number of variables to possibly split at each node.
+#'   - \code{config$atlasRF_training_settings$splitrule}: Splitting rule for the Random Forest (e.g., "gini").
+#'   - \code{config$atlasRF_training_settings$min_node_size}: Minimal node size for tree growth.
+#'   - \code{config$atlasRF_training_settings$outlier_weight}: Optional weight to assign to outlier cases.
 #'
 #' @details
 #' The function performs the following steps:
@@ -40,7 +40,7 @@ library(ranger)
 #'     atlasRF_results_folder = "results/",
 #'     training_set_filename = "train_data.rds"
 #'   ),
-#'   random_forest_training_settings = list(
+#'   atlasRF_training_settings = list(
 #'     mtry = 10,
 #'     splitrule = "gini",
 #'     min_node_size = 1,
@@ -71,15 +71,15 @@ main_train_atlasRF <- function(config) {
   # min_node_size_value <- caret_model$bestTune$min.node.size
   
   # Create a vector of weights for the outliers
-  weights <- ifelse(train_data$Outliers == "1", config$random_forest_training_settings$outlier_weight, 1)
+  weights <- ifelse(train_data$Outliers == "1", config$atlasRF_training_settings$outlier_weight, 1)
   
   # Train the final model on the full training dataset
   rf_model_final <- ranger(
     formula = Outliers ~ .,
     data = train_data,
-    mtry = config$random_forest_training_settings$mtry,
-    splitrule = config$random_forest_training_settings$splitrule,
-    min.node.size = config$random_forest_training_settings$min_node_size,
+    mtry = config$atlasRF_training_settings$mtry,
+    splitrule = config$atlasRF_training_settings$splitrule,
+    min.node.size = config$atlasRF_training_settings$min_node_size,
     probability = TRUE,
     importance = "impurity",
     seed = 42,

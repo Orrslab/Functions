@@ -49,7 +49,7 @@ source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis
 #'   training_and_test_settings = list(
 #'     non_feature_column_names = c("Species_id", "TAG", "Outliers")
 #'   ),
-#'   random_forest_test_settings = list(
+#'   arlasRF_test_settings = list(
 #'     tree_vote_optional_thresholds = seq(0.1, 0.9, by = 0.05)
 #'   )
 #' )
