@@ -27,7 +27,7 @@ source(file.path(getwd(), "Filter_development/Random_Forest/split_training_test_
 #'     \item \code{training_and_test_settings$non_feature_column_names} – 
 #'       Character vector of column names to exclude from the training set 
 #'       (e.g., metadata columns).
-#'     \item \code{paths$random_forest_results_folder} – Path to the folder 
+#'     \item \code{paths$atlasRF_results_folder} – Path to the folder 
 #'       where the training and test datasets should be saved.
 #'     \item \code{paths$training_set_filename} – Filename for saving the training dataset (RDS).
 #'     \item \code{paths$test_set_filename} – Filename for saving the test dataset (RDS).
@@ -62,7 +62,7 @@ source(file.path(getwd(), "Filter_development/Random_Forest/split_training_test_
 #'   paths = list(
 #'     folder_of_feature_results = "path/to/features",
 #'     filename_cleaned_feature_data_all_species = "cleaned_features.sqlite",
-#'     random_forest_results_folder = "path/to/results",
+#'     atlasRF_results_folder = "path/to/results",
 #'     training_set_filename = "training_set.rds",
 #'     test_set_filename = "test_set.rds"
 #'   ),
@@ -108,13 +108,13 @@ main_generate_training_and_test_sets <- function(config) {
     dplyr::select(-all_of(config$training_and_test_settings$non_feature_column_names))
   
   # Create the results folder if it does not yet exist
-  if (!dir.exists(config$paths$random_forest_results_folder)) {
-    dir.create(config$paths$random_forest_results_folder, recursive = TRUE)
+  if (!dir.exists(config$paths$atlasRF_results_folder)) {
+    dir.create(config$paths$atlasRF_results_folder, recursive = TRUE)
   }
   
   # save the datasets
-  saveRDS(training_set, file = file.path(config$paths$random_forest_results_folder, config$paths$training_set_filename))
-  saveRDS(test_set, file = file.path(config$paths$random_forest_results_folder, config$paths$test_set_filename))
+  saveRDS(training_set, file = file.path(config$paths$atlasRF_results_folder, config$paths$training_set_filename))
+  saveRDS(test_set, file = file.path(config$paths$atlasRF_results_folder, config$paths$test_set_filename))
   
 }
 

@@ -40,7 +40,7 @@ if (config$workflow_steps_to_run$split_data_to_training_and_test) {
 
 # Tune the atlasRF Hyperparameters
 if (config$workflow_steps_to_run$tune_hyper_parameters) {
-  main_tune_hyper_parameters_of_random_forest(config)
+  main_tune_hyper_parameters_of_atlasRF(config)
 }
 
 # Train the atlasRF Filter

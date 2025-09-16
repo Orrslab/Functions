@@ -14,7 +14,7 @@ library(ggplot2)
 #'
 #' @param config A list containing configuration parameters, including:
 #' \describe{
-#'   \item{config$paths$random_forest_results_folder}{Path to the folder where results will be saved.}
+#'   \item{config$paths$atlasRF_results_folder}{Path to the folder where results will be saved.}
 #'   \item{config$paths$training_set_filename}{Filename of the RDS file with the training dataset.}
 #' }
 #'
@@ -41,7 +41,7 @@ library(ggplot2)
 #' \dontrun{
 #'   config <- list(
 #'     paths = list(
-#'       random_forest_results_folder = "results/",
+#'       atlasRF_results_folder = "results/",
 #'       training_set_filename = "training_set.rds"
 #'     )
 #'   )
@@ -56,7 +56,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   message("### STARTED THE MAIN SCRIPT OF HYPER PARAMETER TUNNING FOR THE RANDOM FOREST MODEL. ###")
   
   # Load the training data from file
-  training_set <- readRDS(file.path(config$paths$random_forest_results_folder, config$paths$training_set_filename))
+  training_set <- readRDS(file.path(config$paths$atlasRF_results_folder, config$paths$training_set_filename))
   
   # Make sure that the Response Variable (Outliers) is of type factor
   training_set$Outliers <- as.factor(training_set$Outliers)
@@ -64,7 +64,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   # Define training control with 5-fold Cross-Validation (CV), stratified by class
   train_control <- trainControl(
     method = "cv", 
-    number = config$random_forest_hyperparameter_settings$number_of_cross_validation_folds, 
+    number = config$atlasRF_hyperparameter_settings$number_of_cross_validation_folds, 
     classProbs = TRUE,
     summaryFunction = twoClassSummary,
     savePredictions = "final"
@@ -72,7 +72,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   
   # Set a grid of hyperparameters to try
   tune_grid <- expand.grid(
-    mtry = config$random_forest_hyperparameter_settings$mtry_values,   # number of features to consider at each split
+    mtry = config$atlasRF_hyperparameter_settings$mtry_values,   # number of features to consider at each split
     splitrule = "gini",       # or "extratrees" if using ranger
     min.node.size = 1         # minimal node size
   )
@@ -105,7 +105,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   vip_plot <- ggplot(vip, top = 20)
   
   # Save the plot as a PNG using base graphics device
-  ggsave(filename = file.path(config$paths$random_forest_results_folder, "variable_importance_plot.png"),
+  ggsave(filename = file.path(config$paths$atlasRF_results_folder, "variable_importance_plot.png"),
          plot = vip_plot,
          width = 8, height = 6, dpi = 300, bg = "white")
   
@@ -113,7 +113,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   vip_df <- vip$importance
   vip_df$Feature <- rownames(vip_df)
   write.csv(vip_df[order(-vip_df$Overall), ], 
-            file.path(config$paths$random_forest_results_folder, "feature_importance.csv"), 
+            file.path(config$paths$atlasRF_results_folder, "feature_importance.csv"), 
             row.names = FALSE)
   
   # Plot the model
@@ -121,17 +121,17 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   print(RF_plot)
   
   # Save the plot
-  ggsave(file.path(config$paths$random_forest_results_folder, "RF_model_performance.png"), plot = RF_plot, width = 8, height = 6, dpi = 300, bg = "white")
+  ggsave(file.path(config$paths$atlasRF_results_folder, "RF_model_performance.png"), plot = RF_plot, width = 8, height = 6, dpi = 300, bg = "white")
   
   # CV predictions / performance metrics
-  saveRDS(rf_model$pred, file.path(config$paths$random_forest_results_folder, "cv_predictions.rds"))
-  write.csv(rf_model$pred, file.path(config$paths$random_forest_results_folder, "cv_predictions.csv"))
+  saveRDS(rf_model$pred, file.path(config$paths$atlasRF_results_folder, "cv_predictions.rds"))
+  write.csv(rf_model$pred, file.path(config$paths$atlasRF_results_folder, "cv_predictions.csv"))
   
   # Cross-validation summary results
-  write.csv(rf_model$results, file.path(config$paths$random_forest_results_folder, "cv_results_summary.csv"))
+  write.csv(rf_model$results, file.path(config$paths$atlasRF_results_folder, "cv_results_summary.csv"))
   
   # Save the model
-  saveRDS(rf_model, file.path(config$paths$random_forest_results_folder, config$paths$filename_random_forest_model_tuned))
+  saveRDS(rf_model, file.path(config$paths$atlasRF_results_folder, config$paths$filename_random_forest_model_tuned))
   
 }
 

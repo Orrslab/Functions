@@ -16,7 +16,7 @@ source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis
 #' per-species performance maps.
 #'
 #' @param config A list containing configuration settings for paths, model, and test data:
-#'   - \code{config$paths$random_forest_results_folder}: Folder path where model and datasets are stored.
+#'   - \code{config$paths$atlasRF_results_folder}: Folder path where model and datasets are stored.
 #'   - \code{config$paths$filename_random_forest_model_trained}: Filename of the trained Random Forest model (RDS format).
 #'   - \code{config$paths$test_set_filename}: Filename of the test dataset (RDS format).
 #'   - \code{config$training_and_test_settings$non_feature_column_names}: Character vector of columns to exclude from model features.
@@ -36,13 +36,13 @@ source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis
 #'
 #' @return
 #' The function does not return a value. All results, including plots, confusion matrices,
-#' metrics tables, and maps, are saved in the specified \code{random_forest_results_folder}.
+#' metrics tables, and maps, are saved in the specified \code{atlasRF_results_folder}.
 #'
 #' @examples
 #' \dontrun{
 #' config <- list(
 #'   paths = list(
-#'     random_forest_results_folder = "results/",
+#'     atlasRF_results_folder = "results/",
 #'     filename_random_forest_model_trained = "rf_model_final.rds",
 #'     test_set_filename = "test_data.rds"
 #'   ),
@@ -68,8 +68,8 @@ main_run_atlasRF_on_test_set <- function(config) {
   message("### RUNNING THE RANDOM FOREST MODEL ON THE TEST SET AND ANALYZING PERFORMANCE. ###")
   
   # Load trained model and test set
-  rf_model_final <- readRDS(file.path(config$paths$random_forest_results_folder, config$paths$filename_random_forest_model_trained))
-  test_data <- readRDS(file.path(config$paths$random_forest_results_folder, config$paths$test_set_filename))
+  rf_model_final <- readRDS(file.path(config$paths$atlasRF_results_folder, config$paths$filename_random_forest_model_trained))
+  test_data <- readRDS(file.path(config$paths$atlasRF_results_folder, config$paths$test_set_filename))
   
   # Ensure label is a factor with correct levels
   test_data$Outliers <- factor(test_data$Outliers, levels = rf_model_final$forest$levels)
@@ -79,7 +79,7 @@ main_run_atlasRF_on_test_set <- function(config) {
                             test_data = test_data,
                             non_feature_column_names = config$training_and_test_settings$non_feature_column_names,
                             tree_vote_optional_thresholds = config$atlasRF_test_settings$tree_vote_optional_thresholds,
-                            random_forest_results_folder = config$paths$random_forest_results_folder)
+                            random_forest_results_folder = config$paths$atlasRF_results_folder)
   
 }
 
