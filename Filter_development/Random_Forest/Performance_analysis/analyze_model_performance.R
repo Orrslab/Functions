@@ -58,26 +58,35 @@ source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis
 #' @import dplyr
 #' @export
 analyze_model_performance <- function(rf_model, 
-                                      test_data, 
+                                      test_data,
+                                      non_feature_column_names,
                                       tree_vote_optional_thresholds,
                                       random_forest_results_folder) {
   
+  # To make the results reproducible across runs
+  set.seed(42)
+  
+  # Remove the non-feature columns from the training set
+  features_only <- test_data %>%
+    dplyr::select(-all_of(non_feature_column_names))
+  
+  
   # Predict class probabilities
-  pred_probs <- predict(rf_model, data = test_data, type = "response")$predictions
+  pred_probs <- predict(rf_model, data = features_only, type = "response")$predictions
   
   # If label has two levels, extract probability for the "positive" class ("outlier")
-  positive_class <- levels(test_data$Outliers)[1]
+  positive_class <- levels(features_only$Outliers)[1]
   probs_positive <- pred_probs[, positive_class]
   
   threshold <- threshold_analysis_from_probs(probs_positive = probs_positive,
-                                             true_labels_vector = test_data$Outliers,
+                                             true_labels_vector = features_only$Outliers,
                                              thresholds = tree_vote_optional_thresholds,
                                              random_forest_results_folder = random_forest_results_folder)
   
   print(paste0("Best threshold: ", threshold))
   
   # Create a precrec object to evaluate both PR and ROC curves
-  eval <- evalmod(scores = probs_positive, labels = test_data$Outliers)
+  eval <- evalmod(scores = probs_positive, labels = features_only$Outliers)
   
   # Plot and show the curves
   autoplot(eval)
@@ -86,7 +95,7 @@ analyze_model_performance <- function(rf_model,
   ggsave(file.path(random_forest_results_folder, "Precision-Recall_curve.png"), width = 8, height = 6, dpi = 300)
   
   # Compute and plot ROC manually with pROC for extra control
-  roc_obj <- roc(response = test_data$Outliers,
+  roc_obj <- roc(response = features_only$Outliers,
                  predictor = pred_probs[, "outlier"],
                  levels = c("outlier", "valid"),
                  direction = ">")
@@ -111,7 +120,7 @@ analyze_model_performance <- function(rf_model,
   test_data$predicted_outlier <- factor(pred_classes, levels = c("outlier", "valid"))
   
   # Evaluate the confusion matrix of the predictions
-  conf_mat <- confusionMatrix(pred_classes, test_data$Outliers, positive = "outlier")
+  conf_mat <- confusionMatrix(pred_classes, features_only$Outliers, positive = "outlier")
   print(conf_mat)
   
   # Get the confusion table without all the metrics
@@ -136,6 +145,9 @@ analyze_model_performance <- function(rf_model,
   
   # Save to CSV
   write.csv(metrics_df, file = file.path(random_forest_results_folder, "classification_metrics.csv"), row.names = FALSE)
+  
+  # Add predicted labels to test_data
+  test_data$predicted_outlier <- factor(pred_classes, levels = c("outlier", "valid"))
   
   # Generate perormance maps per tag
   performance_mapping_pipeline(data_with_label_predictions = test_data,
