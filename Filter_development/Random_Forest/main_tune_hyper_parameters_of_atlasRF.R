@@ -131,7 +131,7 @@ main_tune_hyper_parameters_of_atlasRF <- function(config) {
   write.csv(rf_model$results, file.path(config$paths$atlasRF_results_folder, "cv_results_summary.csv"))
   
   # Save the model
-  saveRDS(rf_model, file.path(config$paths$atlasRF_results_folder, config$paths$filename_random_forest_model_tuned))
+  saveRDS(rf_model, file.path(config$paths$atlasRF_results_folder, config$paths$filename_atlasRF_model_tuned))
   
 }
 
