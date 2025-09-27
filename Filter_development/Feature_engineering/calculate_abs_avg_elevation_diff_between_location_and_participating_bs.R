@@ -23,6 +23,9 @@ calculate_abs_avg_elevation_diff_between_location_and_participating_bs <- functi
     participating_base_stations,
     base_stations_info
 ) {
+  
+  message("Calculating the average absolute elevation difference between localization and participating base stations.")
+  
   # Ensure data.table
   localization_data <- data.table::as.data.table(localization_data)
   participating_base_stations <- data.table::as.data.table(participating_base_stations)

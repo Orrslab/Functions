@@ -50,6 +50,8 @@ source(file.path(getwd(), "calculate_elevation_per_location.R"))
 #' @export
 calculate_point_based_features <- function(localization_data) {
   
+  message("Calculating point-based features.")
+  
   # Verify that the data frame has the columns TAG and time_diff_sec
   if (!"TAG" %in% colnames(localization_data)) {
     stop("Error: 'TAG' column is missing from the dataframe.")

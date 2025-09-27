@@ -42,6 +42,8 @@ source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_feat
 #' 
 calculate_time_window_based_features <- function(localization_data, half_window_size_sec = 20) {
   
+  message("Calculating time window-based features.")
+  
   # Convert to data.table
   loc_dt <- as.data.table(localization_data)
   

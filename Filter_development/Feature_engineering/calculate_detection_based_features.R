@@ -61,6 +61,8 @@ calculate_detection_based_features <- function(localization_data,
                                                detections_data,
                                                base_stations_info) {
   
+  message("Calculating detection-based features.")
+  
   # Get the detections corresponding to each location
   matched_detections <- match_detections_to_localizations(localization_data, detections_data)
   

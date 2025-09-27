@@ -8,6 +8,8 @@ calculate_beacon_derived_features <- function(localization_data,
                                               base_stations_summary_per_beacon,
                                               low_beacon_detection_fraction) {
   
+  message("Calculating beacon-derived features.")
+  
   # --- Calculate features for the closest three base stations
   
   beacon_features_3_closest_bs <- calculate_beacons_features(participating_base_stations,
