@@ -33,7 +33,7 @@ wrapper_add_lat_lon_coordinates_to_localization_data <- function(localization_da
   # Convert raw_localization_data from sf object back to a dataframe
   localization_data <- as.data.frame(localization_data)
   
-  message("Added latitude and longitude coordinates to the raw localization data.")
+  message("*** Added latitude and longitude coordinates to the raw localization data. ***")
   
   return(localization_data)
   
