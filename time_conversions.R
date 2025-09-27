@@ -12,7 +12,7 @@
 #' @examples
 #' utc_time <- time_str_to_utc_object("2024-09-19 12:00:00")
 #' 
-time_str_to_utc_timestamp <- function(timestring, time_format = atlas_time_format, time_zone = atlas_time_zone)
+time_str_to_utc_timestamp <- function(timestring, time_format = "%Y-%m-%d %H:%M:%S", time_zone = "UTC")
 {
   
   utc_timestamp <- as.numeric(as.POSIXct(timestring, time_format, tz=time_zone))*1000

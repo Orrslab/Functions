@@ -42,8 +42,13 @@ source(file.path(getwd(), "get_ATLAS_data.R"))
 #' 
 wrapper_retrieve_raw_atlas_data <- function(config) {
   
+  message("Retrieving the raw ATLAS data.")
+  
   # Get the global start and end times of all the data
-  global_times_data <- get_global_time_range_of_data_requests(config$data_requests)
+  global_times_data <- get_global_time_range_of_data_requests(
+    data_requests = config$data_requests,
+    data_time_zone = config$atlas_time_and_coordinates_info$atlas_time_zone,
+    data_time_format = config$atlas_time_and_coordinates_info$atlas_time_format)
 
   # Generate the file name without extension- to save the ATLAS data
   filename_without_extension <- create_filename_without_extension(

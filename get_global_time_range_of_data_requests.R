@@ -32,18 +32,18 @@
 #'
 #' @export
 #' 
-get_global_time_range_of_data_requests <- function(data_requests) {
+get_global_time_range_of_data_requests <- function(data_requests, data_time_zone, data_time_format) {
   # Extract start and end times
   start_times <- sapply(data_requests, function(x) x$start_time)
   end_times   <- sapply(data_requests, function(x) x$end_time)
   
   # Convert to POSIXct
-  start_times <- as.POSIXct(start_times, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
-  end_times   <- as.POSIXct(end_times, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+  start_times <- as.POSIXct(start_times, tz = data_time_zone, format = data_time_format)
+  end_times   <- as.POSIXct(end_times, tz = data_time_zone, format = data_time_format)
   
   # Find min/max and return as strings
   list(
-    start_time = format(min(start_times, na.rm = TRUE), "%Y-%m-%d %H:%M:%S"),
-    end_time   = format(max(end_times, na.rm = TRUE), "%Y-%m-%d %H:%M:%S")
+    start_time = format(min(start_times, na.rm = TRUE), data_time_format),
+    end_time   = format(max(end_times, na.rm = TRUE), data_time_format)
   )
 }
