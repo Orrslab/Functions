@@ -1,13 +1,6 @@
 # This script runs the entire routine to get the ATLAS data and filter them
 # ONE TAG AT A TIME- CAN BE EXTENDED FOR MULTIPLE TAGS IF NOT USED LATER WITH THE VISUAL FILTER APP
 
-# clean the data and set some preferences
-rm(list=ls()) # clean history
-options(digits = 14) # Makes sure long numbers are not abbreviated.
-rm(list = setdiff(ls(), lsf.str())) # removes data, not
-
-source(file.path(getwd(), "ATLAS_data_retrieval/config_atlasRF.R"))
-# source(file.path(getwd(), "ATLAS_data_retrieval", data_requests_file_name))
 source(file.path(getwd(), "create_filename_without_extension.R"))
 source(file.path(getwd(), "calculate_lat_lon_coordinates.R"))
 source(file.path(getwd(), "ATLAS_data_retrieval/calculate_features_in_data.R"))
@@ -15,10 +8,7 @@ source(file.path(getwd(), "ATLAS_data_retrieval/run_rf_on_localization_data.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/evaluate_model_performance_vs_other_filter.R"))
 source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
 
-###
 
-# # Install the required R packages- if not yet installed
-# source(file.path(getwd(),""ATLAS_data_retrieval/install_required_R_packages.R"))
 
 ### Load required files
 
@@ -177,7 +167,7 @@ localization_data_with_outliers$Outliers_Conf <- factor(
 
 path_to_save_performance_results <- file.path(folder_to_save_labeled_data, filename_without_extension)
 
-# Evaluate the confusion metrix and comparison metrics between atlasRF and the Confidence Filter
+# Evaluate the confusion matrix and comparison metrics between atlasRF and the Confidence Filter
 evaluate_model_performance_vs_other_filter(data = localization_data_with_outliers,
                                            reference_label_col = "Outliers_Conf",
                                            predicted_label_col = "Outliers_atlasRF",
