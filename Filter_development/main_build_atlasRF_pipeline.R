@@ -7,7 +7,7 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 # Load config
 source(file.path(getwd(), "Filter_development/config_build_atlasRF.R"))
 
-# Load the other functions that do each steps of building the atlasRF
+# Load the other functions that do each step of building the atlasRF
 source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/main_establish_labeled_database.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_calculate_features.R"))
 source(file.path(getwd(), "Filter_development/Feature_engineering/main_clean_features_data.R"))
