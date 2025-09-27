@@ -49,7 +49,7 @@ library(dplyr)
 #' 
 clean_feature_data <- function(localization_data, non_feature_column_names) {
   
-  message("*** Cleaning the feature data for atlasRF ***")
+  message("*** Cleaning the feature data for atlasRF. ***")
   
   # Create a copy for later restoration of non-feature columns
   original_localization_data <- localization_data
