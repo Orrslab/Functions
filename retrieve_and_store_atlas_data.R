@@ -136,9 +136,11 @@ retrieve_and_store_atlas_data <- function(data_requests,
           if (nrow(RawLoc0) > 0) {
             write.csv(RawLoc0, loc_file, row.names = FALSE)
           }
+          message("Localizations data saved as csv.")
           
           if (nrow(RawDet0) > 0) {
             write.csv(RawDet0, det_file, row.names = FALSE)
+            message("Detections data saved as csv.")
           }          
         }
       }

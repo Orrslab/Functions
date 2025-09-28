@@ -25,10 +25,10 @@
 #' @examples
 #' \dontrun{
 #' # Example for a single tag
-#' create_sqlite_filepath("BO", 972006000556, "2021-07-01 08:00:00", "2021-07-01 10:00:00")
+#' create_filename_without_extension("BO", 972006000556, "2021-07-01 08:00:00", "2021-07-01 10:00:00")
 #'
 #' # Example for multiple tags
-#' create_sqlite_filepath("BO", c(972006000556, 972006000430), "2021-07-01 08:00:00", "2021-07-01 10:00:00")
+#' create_filename_without_extension("BO", c(972006000556, 972006000430), "2021-07-01 08:00:00", "2021-07-01 10:00:00")
 #' }
 #'
 #' @export

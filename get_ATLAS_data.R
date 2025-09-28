@@ -55,6 +55,7 @@ get_ATLAS_data <- function(data_requests,
                            retrieve_data_from_server = TRUE,
                            atlas_db_credentials,
                            save_data_to_sqlite_file = TRUE,
+                           save_data_to_csv_file = FALSE,
                            full_paths_to_sqlite_files = paste0(getwd(), "atlas_data.sqlite")) {
   
   if (retrieve_data_from_server) {

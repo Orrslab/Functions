@@ -11,10 +11,16 @@ source(file.path(getwd(), "ATLAS_data_retrieval/config_beacons.R"))
 source(file.path(getwd(), "connect_to_atlas_db.R"))
 
 # ### USER'S INPUT BEGIN
-# tag_number <- 972006000008
-# start_hour <- "2025-Jan-08 11:00"
-# end_hour <- "Infinity"
-folder_to_save_the_beacons_data <- file.path(getwd(), "Build_atlasRF/Feature_engineering")
+path_to_beacons_info <- "PATH/TO/BEACONS/METADATA/FILE"
+
+atlas_system_name <- "your atlas system name"
+atlas_db_username <- "your atlas db username"
+atlas_db_pass <- "your atlas db password"
+atlas_db_host_ip <- "your atlas db host ip"
+atlas_db_port_number <- "your atlas db port number"
+atlas_db_name <- "your atlas db name"
+
+folder_to_save_the_beacons_data <- file.path(getwd(), "Build_atlasRF/Feature_engineering/Beacon_detections_data")
 # ### USER'S INPUT END
 
 # Load the beacon tag numbers and dates from the info file
@@ -24,17 +30,17 @@ beacons_info <- read_excel(path_to_beacons_info)
 Sys.setlocale("LC_TIME", "C")
 
 # Get the ATLAS database credentials from the config file
-harod_db_credentials <- list(
-  system_name = system_name_harod,         # System name
-  db_username = db_username_harod,         # username
-  db_pass = db_pass_harod,                 # password
-  db_host_ip = db_host_ip_harod,           # host IP address
-  db_port_number = db_port_number_harod,   # port number
-  db_name = db_name_harod                  # database name
+atlas_db_credentials <- list(
+  system_name = atlas_system_name,         # System name
+  db_username = atlas_db_username,         # username
+  db_pass = atlas_db_pass,                 # password
+  db_host_ip = atlas_db_host_ip,           # host IP address
+  db_port_number = atlas_db_port_number,   # port number
+  db_name = atlas_db_name                  # database name
 )
 
 # Connect to the ATLAS database (server)
-db_conn <- connect_to_atlas_db(atlas_db_credentials = harod_db_credentials)
+db_conn <- connect_to_atlas_db(atlas_db_credentials = atlas__db_credentials)
 
 # Initiate an empty list which will store all the base station summary data
 all_data_bs_summaries <- list()

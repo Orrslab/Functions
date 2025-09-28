@@ -5,11 +5,8 @@
 ATLAS_data_retrieval/retrieve_ATLAS_data_algorithm_scheme.drawio
 ATLAS_data_retrieval/config.R
 ATLAS_data_retrieval/config_beacons.R
-ATLAS_data_retrieval/config_atlasRF.R
-Visual_Filter_App/config_visual_filter.R
+Apply_atlasRF/config_apply_atlasRF.R
 ATLAS_data_retrieval/ATLAS_data_requests.R
 Mapping_tools/t_map/Israel_map.png
 Mapping_tools/t_map/pink_warbler_map.png
-Filter_development/Feature_engineering/beacons_detection_ratio_per_hour.Rds
-Filter_development/Feature_engineering/beacons_detection_ratio_per_bs.Rds
-Filter_development/Feature_engineering/base_stations_summary_per_beacon.Rds
+Build_atlasRF/config_build_atlasRF.R
