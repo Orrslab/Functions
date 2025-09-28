@@ -27,13 +27,13 @@ source(file.path(getwd(), "calculate_lat_lon_coordinates.R"))
 #' 
 wrapper_add_lat_lon_coordinates_to_localization_data <- function(localization_data, data_crs) {
   
+  message("*** Adding latitude and longitude coordinates to the raw localization data. ***")
+  
   # Calculate 'lat' and 'lon' coordinates
   localization_data <- calculate_lat_lon_coordinates(localization_data, data_crs)
   
   # Convert raw_localization_data from sf object back to a dataframe
   localization_data <- as.data.frame(localization_data)
-  
-  message("*** Added latitude and longitude coordinates to the raw localization data. ***")
   
   return(localization_data)
   
