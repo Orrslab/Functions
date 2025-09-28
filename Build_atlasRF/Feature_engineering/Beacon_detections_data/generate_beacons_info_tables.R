@@ -7,12 +7,12 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 
 library(readxl)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/generate_beacons_base_station_summary_table_over_time_periods.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/generate_bs_hour_detection_rate_table_from_beacons.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/generate_beacons_base_station_summary_table_over_time_periods.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/generate_bs_hour_detection_rate_table_from_beacons.R"))
 
 ### USER'S INPUT BEGIN
 
-folder_to_save_the_beacons_data <- file.path(getwd(), "Filter_development/Feature_engineering/Beacon_detections_data")
+folder_to_save_the_beacons_data <- file.path(getwd(), "Build_atlasRF/Feature_engineering/Beacon_detections_data")
 path_to_atlas_info <- "PATH/TO/BS/AND/BEACONS/METADATA"
 path_to_beacons_info <- file.path(path_to_atlas_info, "Beacons_info.xlsx")
 path_to_base_stations_info <- file.path(path_to_atlas_info, "Base_stations_info.csv")

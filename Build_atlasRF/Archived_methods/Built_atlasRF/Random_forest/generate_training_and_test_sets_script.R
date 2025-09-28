@@ -10,8 +10,8 @@ library(ranger)
 library(ggplot2)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/split_training_test_data_stratified_by_Outliers.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/split_training_test_data_stratified_by_time.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/split_training_test_data_stratified_by_Outliers.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/split_training_test_data_stratified_by_time.R"))
 
 ### USER INPUT BEGIN
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"

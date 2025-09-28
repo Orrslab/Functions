@@ -1,4 +1,4 @@
-source(file.path(getwd(), "Filter_development/Feature_engineering/get_base_station_coordinates.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/get_base_station_coordinates.R"))
 
 #' Calculate Average Absolute Elevation Difference Between Localization and Participating Base Stations
 #'

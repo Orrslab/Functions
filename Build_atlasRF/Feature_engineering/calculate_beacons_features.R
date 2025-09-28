@@ -2,8 +2,8 @@
 library(lubridate)
 library(data.table)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/get_closest_base_stations.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/merge_closest_bs_with_beacons_info.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/get_closest_base_stations.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/merge_closest_bs_with_beacons_info.R"))
 
 
 calculate_beacons_features <- function(participating_base_stations,

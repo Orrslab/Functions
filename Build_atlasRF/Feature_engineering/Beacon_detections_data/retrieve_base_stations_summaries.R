@@ -20,7 +20,7 @@ atlas_db_host_ip <- "your atlas db host ip"
 atlas_db_port_number <- "your atlas db port number"
 atlas_db_name <- "your atlas db name"
 
-folder_to_save_the_beacons_data <- file.path(getwd(), "Filter_development/Feature_engineering/Beacon_detections_data")
+folder_to_save_the_beacons_data <- file.path(getwd(), "Build_atlasRF/Feature_engineering/Beacon_detections_data")
 # ### USER'S INPUT END
 
 # Load the beacon tag numbers and dates from the info file

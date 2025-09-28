@@ -14,7 +14,7 @@ source(file.path(getwd(), "connect_to_atlas_db.R"))
 # tag_number <- 972006000008
 # start_hour <- "2025-Jan-08 11:00"
 # end_hour <- "Infinity"
-folder_to_save_the_beacons_data <- file.path(getwd(), "Filter_development/Feature_engineering")
+folder_to_save_the_beacons_data <- file.path(getwd(), "Build_atlasRF/Feature_engineering")
 # ### USER'S INPUT END
 
 # Load the beacon tag numbers and dates from the info file

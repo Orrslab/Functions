@@ -18,4 +18,4 @@ features_info <- list(
 )
 
 # Save the list as an RData file
-save(features_info, file = file.path(getwd(), "Filter_development", "Feature_engineering", "features_info.RData"))
+save(features_info, file = file.path(getwd(), "Build_atlasRF", "Feature_engineering", "features_info.RData"))

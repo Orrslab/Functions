@@ -5,7 +5,7 @@ rm(list=ls()) # clean history
 options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_data_with_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/load_data_with_features.R"))
 
 # USER'S INPUT BEGIN
 

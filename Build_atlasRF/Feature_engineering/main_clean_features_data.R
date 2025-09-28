@@ -2,7 +2,7 @@
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
 #' Clean and Prepare the Features' Data for Random Forest and Feature Analyses
 #'

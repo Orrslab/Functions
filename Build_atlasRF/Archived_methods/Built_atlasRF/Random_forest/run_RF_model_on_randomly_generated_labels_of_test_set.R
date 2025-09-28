@@ -11,7 +11,7 @@ library(pROC)      # For ROC AUC
 library(caret)     # For confusion matrix
 library(dplyr)
 
-source(file.path(getwd(), "Filter_development/Random_Forest/create_and_save_performance_maps.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/create_and_save_performance_maps.R"))
 
 # USER'S INPUT BEGIN
 random_forest_results_folder <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Random_Forest_Model/All_species_28-07-25"

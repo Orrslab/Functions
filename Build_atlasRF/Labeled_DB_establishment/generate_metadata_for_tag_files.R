@@ -1,5 +1,5 @@
 
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/get_metadata_from_all_sqlite_files_in_folder.R"))
 
 
 #' Generate Metadata for Tag Files of a Species

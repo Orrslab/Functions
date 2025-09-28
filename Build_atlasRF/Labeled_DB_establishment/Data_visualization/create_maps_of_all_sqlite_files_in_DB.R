@@ -4,7 +4,7 @@ library(htmlwidgets)
 library(webshot2)
 
 source(file.path(getwd(), "create_filename_without_extension.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/Data_visualization/plot_visual_filter_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/Data_visualization/plot_visual_filter_data.R"))
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
 
 #' Create Maps of All SQLite Files in the Database

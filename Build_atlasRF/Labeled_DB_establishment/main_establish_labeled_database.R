@@ -1,10 +1,10 @@
 
 library(readxl)
 
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/process_and_combine_species_data.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/get_metadata_per_species.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/combine_all_species_data.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/Data_visualization/create_maps_of_all_sqlite_files_in_DB.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/process_and_combine_species_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/get_metadata_per_species.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/combine_all_species_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/Data_visualization/create_maps_of_all_sqlite_files_in_DB.R"))
 
 #' Main Pipeline: Establish the Labeled Data Database
 #'

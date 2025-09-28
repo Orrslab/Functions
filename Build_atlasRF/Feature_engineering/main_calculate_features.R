@@ -3,14 +3,14 @@ library(dplyr)
 library(data.table)
 
 source(file.path(getwd(), "load_atlas_data_from_sqlite.R"))
-source(file.path(getwd(), "Filter_development", "Feature_engineering", "calculate_point_based_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_detection_based_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beacon_derived_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_time_window_based_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_post_window_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_point_based_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/load_and_format_base_stations_info.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_abs_avg_elevation_diff_between_location_and_participating_bs.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_detection_based_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_beacon_derived_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_time_window_based_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_post_window_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
 #' Main pipeline for calculating ATLAS localization features
 #'

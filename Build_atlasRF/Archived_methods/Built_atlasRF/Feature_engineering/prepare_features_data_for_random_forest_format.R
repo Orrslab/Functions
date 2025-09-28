@@ -11,8 +11,8 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 library(dplyr)
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
-source(file.path(getwd(), "Filter_development/Stops_filter/apply_stops_rule_to_data.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
+source(file.path(getwd(), "Build_atlasRF/Stops_filter/apply_stops_rule_to_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/save_ATLAS_data_with_features_to_sqlite.R"))
 
 ## USER INPUT BEGINNING 
 

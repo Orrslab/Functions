@@ -2,7 +2,7 @@ library(pROC)
 
 evaluate_roc_parameters <- function(feature_data, outliers_data){
   
-  path_to_roc_analysis <- paste0(getwd(), "Filter_development/ROC_analysis/")
+  path_to_roc_analysis <- paste0(getwd(), "Build_atlasRF/ROC_analysis/")
   
   # Remove NA values from feature_data and Outliers before calculating quantiles
   feature_data_clean <- na.omit(feature_data)

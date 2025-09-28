@@ -1,6 +1,6 @@
 
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/evaluate_model_performance_vs_other_filter.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/evaluate_model_performance_vs_other_filter.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
 
 #' Compare atlasRF Outlier Detection with the Confidence Filter
 #'

@@ -6,7 +6,7 @@ library(pROC)      # For ROC AUC
 library(caret)     # For confusion matrix
 library(dplyr)
 
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/analyze_model_performance.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/analyze_model_performance.R"))
 
 #' Run a Trained atlasRF model on the Test Set and Analyze Performance
 #'

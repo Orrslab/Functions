@@ -2,7 +2,7 @@
 source(paste0(getwd(), "/ATLAS_data_retrieval/config.R"))
 source(paste0(getwd(), "/connect_to_atlas_db.R"))
 source(paste0(getwd(), "/extract_sqlite_metadata_from_file_name.R"))
-source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/Add_DETECTIONS/add_detections_to_single_file.R"))
+source(paste0(getwd(), "/Build_atlasRF/Visual_Filter_DB_establishment/Add_DETECTIONS/add_detections_to_single_file.R"))
 
 # Define file names
 sqlite_file_names <- c(

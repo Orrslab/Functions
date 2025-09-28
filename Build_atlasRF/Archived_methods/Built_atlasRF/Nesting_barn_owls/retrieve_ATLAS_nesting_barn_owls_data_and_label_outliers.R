@@ -9,11 +9,11 @@ rm(list = setdiff(ls(), lsf.str())) # removes data, not
 library(dplyr)
 library(ggplot2)
 
-source(file.path(getwd(), "Filter_development/Nesting_barn_owls/config_nesting_barn_owls.R"))
+source(file.path(getwd(), "Build_atlasRF/Nesting_barn_owls/config_nesting_barn_owls.R"))
 source(file.path(getwd(), "create_filename_without_extension.R"))
 source(file.path(getwd(), "calculate_lat_lon_coordinates.R"))
 source(file.path(getwd(), "ATLAS_data_retrieval/calculate_features_in_data.R"))
-source(file.path(getwd(), "Filter_development/Nesting_barn_owls/label_outleirs_by_dist_from_nest_box.R"))
+source(file.path(getwd(), "Build_atlasRF/Nesting_barn_owls/label_outleirs_by_dist_from_nest_box.R"))
 
 ###
 

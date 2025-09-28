@@ -10,7 +10,7 @@ source(paste0(getwd(), "/connect_to_atlas_db.R"))
 source(paste0(getwd(), "/Data_from_ATLAS_server.R"))
 source(paste0(getwd(), "/create_sqlite_filepath.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
-source(paste0(getwd(), "/Filter_development/Visual_Filter_DB_establishment/Add_DETECTIONS/add_detections_to_single_file.R"))
+source(paste0(getwd(), "/Build_atlasRF/Visual_Filter_DB_establishment/Add_DETECTIONS/add_detections_to_single_file.R"))
 
 # Specify the necessary paths
 path_to_db <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Annotated_data_DB/Visual_Filter_DB"

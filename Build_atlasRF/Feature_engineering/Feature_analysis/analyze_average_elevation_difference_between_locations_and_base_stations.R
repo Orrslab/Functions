@@ -8,7 +8,7 @@ rm(list = setdiff(ls(), lsf.str())) # removes data
 library(ggplot2)
 library(data.table)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_data_with_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/load_data_with_features.R"))
 
 # USER'S INPUT BEGIN
 

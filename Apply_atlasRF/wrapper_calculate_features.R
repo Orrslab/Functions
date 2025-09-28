@@ -1,7 +1,7 @@
 
 source(file.path(getwd(), "get_global_time_range_of_data_requests.R"))
 source(file.path(getwd(), "create_filename_without_extension.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_and_format_base_stations_info.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/load_and_format_base_stations_info.R"))
 source(file.path(getwd(), "Apply_atlasRF/calculate_features_in_data.R"))
 
 #' @title Wrapper to Calculate Features for ATLAS Data

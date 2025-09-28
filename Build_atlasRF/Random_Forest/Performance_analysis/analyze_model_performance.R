@@ -1,6 +1,6 @@
 
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/threshold_analysis.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/threshold_analysis.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/performance_mapping_pipeline.R"))
 
 #' Analyze Random Forest Model Performance on a Test Set
 #'

@@ -5,9 +5,9 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data
 
 source(file.path(getwd(), "load_tables_from_sqlite_file.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/Cohens_d_analysis/calculate_cohens_d_per_feature.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/Cohens_d_analysis/calculate_cohens_d_per_feature_per_species.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/Cohens_d_analysis/plot_cohens_d_heatmap_per_species.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/Cohens_d_analysis/calculate_cohens_d_per_feature.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/Cohens_d_analysis/calculate_cohens_d_per_feature_per_species.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/Cohens_d_analysis/plot_cohens_d_heatmap_per_species.R"))
 
 # USER INPUT BEGIN
 path_to_data_with_features <- "C:/Users/netat/Documents/Movement_Ecology/Filter_development/Feature_Engineering/Data_with_features"

@@ -1,6 +1,6 @@
 library(data.table)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_features_in_time_window.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_features_in_time_window.R"))
 
 #' Calculate Time Window-Based Features for each location point
 #'

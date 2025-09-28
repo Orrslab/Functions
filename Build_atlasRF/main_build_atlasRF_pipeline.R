@@ -5,16 +5,16 @@ options(digits = 14) # Makes sure long numbers are not abbreviated.
 rm(list = setdiff(ls(), lsf.str())) # removes data, not
 
 # Load config
-source(file.path(getwd(), "Filter_development/config_build_atlasRF.R"))
+source(file.path(getwd(), "Build_atlasRF/config_build_atlasRF.R"))
 
 # Load the other functions that do each step of building the atlasRF
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/main_establish_labeled_database.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/main_calculate_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/main_clean_features_data.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/main_generate_training_and_test_sets.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/main_tune_hyper_parameters_of_atlasRF.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/main_train_atlasRF.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/main_run_atlasRF_on_test_set.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/main_establish_labeled_database.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/main_calculate_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/main_clean_features_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/main_generate_training_and_test_sets.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/main_tune_hyper_parameters_of_atlasRF.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/main_train_atlasRF.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/main_run_atlasRF_on_test_set.R"))
 
 ## Run the selected steps based on their flags from the config
 

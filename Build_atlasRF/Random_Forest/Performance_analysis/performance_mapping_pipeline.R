@@ -1,6 +1,6 @@
 
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/add_confusion_categories_to_data.R"))
-source(file.path(getwd(), "Filter_development/Random_Forest/Performance_analysis/create_and_save_performance_maps_per_species_and_tag.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/add_confusion_categories_to_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Random_Forest/Performance_analysis/create_and_save_performance_maps_per_species_and_tag.R"))
 
 #' Generate Performance Maps per Species and TAG
 #'

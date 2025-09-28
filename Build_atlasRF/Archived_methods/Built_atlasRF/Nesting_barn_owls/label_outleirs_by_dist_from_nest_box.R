@@ -2,7 +2,7 @@
 
 library(geosphere)
 
-source(file.path(getwd(), "Filter_development/Nesting_barn_owls/add_nesting_box_coordinates.R"))
+source(file.path(getwd(), "Build_atlasRF/Nesting_barn_owls/add_nesting_box_coordinates.R"))
 
 label_outleirs_by_dist_from_nest_box <- function(localization_data, 
                                                  nesting_bo_metadata, 

@@ -1,6 +1,6 @@
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_beacons_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/count_low_beacon_detections_per_base_station_per_hour.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_beacons_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/count_low_beacon_detections_per_base_station_per_hour.R"))
 
 calculate_beacon_derived_features <- function(localization_data, 
                                               participating_base_stations, 

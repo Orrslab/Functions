@@ -5,11 +5,11 @@ library(scales)
 library(stringr)
 library(lubridate)
 
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/generate_metadata_for_tag_files.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/plot_data_time_ranges.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/combine_all_localizations_of_species.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/generate_metadata_for_tag_files.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/plot_data_time_ranges.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/combine_all_localizations_of_species.R"))
 source(file.path(getwd(), "check_and_clean_duplicates_in_localizations.R"))
-source(file.path(getwd(), "Filter_development/Labeled_DB_establishment/generate_metadata_per_tag_from_species_localization_data.R"))
+source(file.path(getwd(), "Build_atlasRF/Labeled_DB_establishment/generate_metadata_per_tag_from_species_localization_data.R"))
 source(paste0(getwd(), "/save_ATLAS_data_to_sqlite.R"))
 
 #' Process and Combine Species Data

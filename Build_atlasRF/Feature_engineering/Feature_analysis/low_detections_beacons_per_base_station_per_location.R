@@ -10,7 +10,7 @@ library(data.table)
 library(officer)
 library(flextable)
 
-source(file.path(getwd(), "Filter_development/Feature_engineering/load_data_with_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/load_data_with_features.R"))
 
 # USER'S INPUT BEGIN
 

@@ -1,11 +1,11 @@
 source(file.path(getwd(), "match_detections_to_localizations.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_SNR_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_SNR_features.R"))
 source(file.path(getwd(), "create_participating_base_stations_table.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_closest_and_farthest_base_stations.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_distance_to_matched_base_stations.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_missed_base_stations_features.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_base_stations_convex_hull_polygon.R"))
-source(file.path(getwd(), "Filter_development/Feature_engineering/calculate_circular_variance_of_participating_base_stations.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_distance_to_closest_and_farthest_base_stations.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_distance_to_matched_base_stations.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_missed_base_stations_features.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_base_stations_convex_hull_polygon.R"))
+source(file.path(getwd(), "Build_atlasRF/Feature_engineering/calculate_circular_variance_of_participating_base_stations.R"))
 
 #' Calculate Detection-Based Features for Each Localization
 #'
