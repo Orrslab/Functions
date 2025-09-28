@@ -94,4 +94,6 @@ wrapper_compare_atlasRF_and_confidence_filter <- function(localization_data_with
                                predicted_label_col = "Outliers_atlasRF",
                                output_dir = maps_folder)
   
+  return(localization_data_with_atlasRF_and_confidence_filter)
+  
 }
