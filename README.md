@@ -118,7 +118,3 @@ Plotting ATLAS data on an interactive map
    
    5.3. 'data__with_confidence_2': a data frame, which contains only location points with a confidence level of 2.
 
-## Contribute
-Got ideas or found bugs? Feel free to reach out!
-
-Dr. Neta Tsur
